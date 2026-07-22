@@ -1,4 +1,4 @@
-name: Publish BuildingBlocks to NuGet.org
+name: Publish Template to NuGet.org
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish-nuget:
-    name: Build, Pack & Publish NuGet
+    name: Build, Pack & Publish NuGet Template
     runs-on: ubuntu-latest
 
     steps:
@@ -32,26 +32,14 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore e-commerce.template.sln
 
-      - name: Build BuildingBlocks
+      - name: Pack Microservices Template
         run: |
-          dotnet build src/BuildingBlocks/ECommerce.Contracts/ECommerce.Contracts.csproj -c Release
-          dotnet build src/BuildingBlocks/ECommerce.ServiceDefaults/ECommerce.ServiceDefaults.csproj -c Release
-
-      - name: Pack ECommerce.Contracts
-        run: |
-          dotnet pack src/BuildingBlocks/ECommerce.Contracts/ECommerce.Contracts.csproj \
+          dotnet pack templates/CleanArchitecture.Template.csproj \
             -c Release \
             -o ./nupkgs \
             /p:PackageVersion=${{ steps.get_version.outputs.VERSION }}
 
-      - name: Pack ECommerce.ServiceDefaults
-        run: |
-          dotnet pack src/BuildingBlocks/ECommerce.ServiceDefaults/ECommerce.ServiceDefaults.csproj \
-            -c Release \
-            -o ./nupkgs \
-            /p:PackageVersion=${{ steps.get_version.outputs.VERSION }}
-
-      - name: Push Packages to NuGet.org
+      - name: Push Package to NuGet.org
         env:
           NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |

@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>CleanArchitecture.Microservice.Template</PackageId>
+    <PackageId>BarisOzy.Microservices.CleanArchitecture.Template</PackageId>
     <Version>1.0.0</Version>
-    <Title>Clean Architecture 4-Layer Microservice Template</Title>
-    <Authors>ECommerce Team</Authors>
-    <Description>Clean Architecture 4-Layer Microservice Template for .NET 10 (Domain, Application, Infrastructure, Api)</Description>
+    <Title>.NET 10 Microservices Clean Architecture Template</Title>
+    <Authors>Baris Ozy</Authors>
+    <Company>BarisOzy</Company>
+    <Description>.NET 10 Microservices Clean Architecture Template featuring Aspire orchestration, YARP Gateway, Keycloak, MassTransit, EF Core, Redis, and BuildingBlocks.</Description>
     <PackageType>Template</PackageType>
     <TargetFramework>net10.0</TargetFramework>
     <IncludeContentInPack>true</IncludeContentInPack>
@@ -13,11 +14,17 @@
     <ContentTargetFolders>content</ContentTargetFolders>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <NoWarn>$(NoWarn);NU5128;NU5100</NoWarn>
+    <RepositoryUrl>https://github.com/barisozy/microservices-clean-architecture</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NoWarn>$(NoWarn);NU5128;NU5100;NU5118</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ca-microservice\**\*" Exclude="ca-microservice\**\bin\**;ca-microservice\**\obj\**;ca-microservice\**\.vs\**;ca-microservice\**\.idea\**" />
+    <Content Include="..\src\**\*" Exclude="..\src\**\bin\**;..\src\**\obj\**;..\src\**\.vs\**" Link="content\src\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\Directory.Build.props" Link="content\Directory.Build.props" />
+    <Content Include="..\Directory.Packages.props" Link="content\Directory.Packages.props" />
+    <Content Include="..\docker-compose.yml" Link="content\docker-compose.yml" />
+    <Content Include="..\README.md" Link="content\README.md" />
   </ItemGroup>
 
 </Project>
