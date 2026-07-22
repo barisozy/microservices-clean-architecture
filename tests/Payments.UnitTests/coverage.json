@@ -1,0 +1,537 @@
+{
+  "Payments.Application.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Application\\DependencyInjection.cs": {
+      "Payments.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Payments.Application.DependencyInjection::AddApplicationServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "22": 0,
+            "23": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Application\\Payments\\Commands\\ProcessPaymentCommand.cs": {
+      "Payments.Application.Payments.Commands.ProcessPaymentCommand": {
+        "System.Guid Payments.Application.Payments.Commands.ProcessPaymentCommand::get_OrderId()": {
+          "Lines": {
+            "10": 13
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Payments.Commands.ProcessPaymentCommandHandler": {
+        "System.Void Payments.Application.Payments.Commands.ProcessPaymentCommandHandler::.ctor(Payments.Application.Common.Interfaces.IPaymentsDbContext,MassTransit.IPublishEndpoint)": {
+          "Lines": {
+            "12": 2
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Payments.Commands.ProcessPaymentCommandHandler/<>c": {
+        "System.Boolean Payments.Application.Payments.Commands.ProcessPaymentCommandHandler/<>c::<Handle>b__3_0(ECommerce.Contracts.Events.OrderItemContractDto)": {
+          "Lines": {
+            "20": 4
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Payments.Commands.ProcessPaymentCommandHandler/<Handle>d__3": {
+        "System.Void Payments.Application.Payments.Commands.ProcessPaymentCommandHandler/<Handle>d__3::MoveNext()": {
+          "Lines": {
+            "15": 2,
+            "16": 2,
+            "17": 2,
+            "19": 2,
+            "22": 2,
+            "23": 1,
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "28": 1,
+            "29": 1,
+            "31": 1,
+            "32": 1,
+            "33": 1,
+            "34": 1,
+            "36": 1,
+            "37": 1,
+            "39": 2,
+            "40": 2
+          },
+          "Branches": [
+            {
+              "Line": 17,
+              "Offset": 362,
+              "EndOffset": 364,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 17,
+              "Offset": 362,
+              "EndOffset": 381,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            },
+            {
+              "Line": 22,
+              "Offset": 508,
+              "EndOffset": 513,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 22,
+              "Offset": 508,
+              "EndOffset": 834,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Application\\Consumers\\OrderCreatedConsumer.cs": {
+      "Payments.Application.Consumers.OrderCreatedConsumer": {
+        "System.Void Payments.Application.Consumers.OrderCreatedConsumer::.ctor(MediatR.ISender)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Consumers.OrderCreatedConsumer/<Consume>d__2": {
+        "System.Void Payments.Application.Consumers.OrderCreatedConsumer/<Consume>d__2::MoveNext()": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Application\\Common\\Exceptions\\ApplicationExceptions.cs": {
+      "Payments.Application.Common.Exceptions.ValidationException": {
+        "System.Collections.Generic.IDictionary`2<System.String,System.String[]> Payments.Application.Common.Exceptions.ValidationException::get_Errors()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Application.Common.Exceptions.ValidationException::.ctor()": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Application.Common.Exceptions.ValidationException::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure>)": {
+          "Lines": {
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 2,
+            "18": 3,
+            "19": 1
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Exceptions.NotFoundException": {
+        "System.Void Payments.Application.Common.Exceptions.NotFoundException::.ctor()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Application.Common.Exceptions.NotFoundException::.ctor(System.String)": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Application.Common.Exceptions.NotFoundException::.ctor(System.String,System.Object)": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Application\\Common\\Behaviors\\PipelineBehaviors.cs": {
+      "Payments.Application.Common.Behaviors.ValidationBehavior`2": {
+        "System.Void Payments.Application.Common.Behaviors.ValidationBehavior`2::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.IValidator`1<TRequest>>)": {
+          "Lines": {
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Behaviors.ValidationBehavior`2/<>c": {
+        "System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure> Payments.Application.Common.Behaviors.ValidationBehavior`2/<>c::<Handle>b__2_0(FluentValidation.Results.ValidationResult)": {
+          "Lines": {
+            "24": 3
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1": {
+        "System.Threading.Tasks.Task`1<FluentValidation.Results.ValidationResult> Payments.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1::<Handle>b__2(FluentValidation.IValidator`1<TRequest>)": {
+          "Lines": {
+            "23": 2
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2": {
+        "System.Void Payments.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "19": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "26": 1,
+            "27": 1,
+            "28": 0,
+            "30": 0,
+            "31": 0
+          },
+          "Branches": [
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 80,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 299,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 322,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 335,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 358,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 393,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 405,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 427,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Payments.Application.Common.Behaviors.LoggingBehavior`1": {
+        "System.Threading.Tasks.Task Payments.Application.Common.Behaviors.LoggingBehavior`1::Process(TRequest,System.Threading.CancellationToken)": {
+          "Lines": {
+            "45": 1,
+            "46": 1,
+            "47": 1,
+            "48": 1,
+            "49": 1
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Application.Common.Behaviors.LoggingBehavior`1::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "39": 1,
+            "40": 1,
+            "41": 1,
+            "42": 1
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Behaviors.UnhandledExceptionBehavior`2": {
+        "System.Void Payments.Application.Common.Behaviors.UnhandledExceptionBehavior`2::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "57": 1,
+            "58": 1,
+            "59": 1,
+            "60": 1
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2": {
+        "System.Void Payments.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "63": 1,
+            "65": 1,
+            "66": 1,
+            "68": 1,
+            "69": 1,
+            "70": 1,
+            "71": 1,
+            "72": 1,
+            "74": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  },
+  "Payments.Domain.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Domain\\Events\\PaymentEvents.cs": {
+      "Payments.Domain.Events.PaymentCompletedDomainEvent": {
+        "Payments.Domain.Entities.PaymentRecord Payments.Domain.Events.PaymentCompletedDomainEvent::get_Payment()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Events.PaymentCompletedDomainEvent::.ctor(Payments.Domain.Entities.PaymentRecord)": {
+          "Lines": {
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Domain.Events.PaymentFailedDomainEvent": {
+        "Payments.Domain.Entities.PaymentRecord Payments.Domain.Events.PaymentFailedDomainEvent::get_Payment()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Events.PaymentFailedDomainEvent::get_Reason()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Events.PaymentFailedDomainEvent::.ctor(Payments.Domain.Entities.PaymentRecord,System.String)": {
+          "Lines": {
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Domain\\Entities\\PaymentRecord.cs": {
+      "Payments.Domain.Entities.PaymentRecord": {
+        "System.Guid Payments.Domain.Entities.PaymentRecord::get_OrderId()": {
+          "Lines": {
+            "7": 6
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Entities.PaymentRecord::get_IdempotencyKey()": {
+          "Lines": {
+            "8": 10
+          },
+          "Branches": []
+        },
+        "System.Decimal Payments.Domain.Entities.PaymentRecord::get_Amount()": {
+          "Lines": {
+            "9": 5
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Entities.PaymentRecord::get_Status()": {
+          "Lines": {
+            "10": 13
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Entities.PaymentRecord::get_FailureReason()": {
+          "Lines": {
+            "11": 1
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Entities.PaymentRecord::get_TransactionId()": {
+          "Lines": {
+            "12": 8
+          },
+          "Branches": []
+        },
+        "Payments.Domain.Entities.PaymentRecord Payments.Domain.Entities.PaymentRecord::Create(System.Guid,System.String,System.Decimal)": {
+          "Lines": {
+            "15": 2,
+            "16": 2,
+            "17": 2,
+            "18": 2,
+            "19": 2,
+            "20": 2,
+            "21": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Entities.PaymentRecord::Fail(System.String)": {
+          "Lines": {
+            "27": 1,
+            "28": 1,
+            "29": 1,
+            "30": 1
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Entities.PaymentRecord::Complete()": {
+          "Lines": {
+            "33": 2,
+            "34": 2,
+            "35": 2
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Domain.Entities.Payment": {
+        "Payments.Domain.Entities.Payment Payments.Domain.Entities.Payment::Create(System.Guid,System.String,System.Decimal)": {
+          "Lines": {
+            "42": 2,
+            "43": 2,
+            "44": 2,
+            "45": 2,
+            "46": 2,
+            "47": 2,
+            "48": 2,
+            "49": 2,
+            "50": 2,
+            "51": 2
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Payments\\Payments.Domain\\Common\\BaseEntity.cs": {
+      "Payments.Domain.Common.BaseEntity": {
+        "System.Guid Payments.Domain.Common.BaseEntity::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyCollection`1<System.Object> Payments.Domain.Common.BaseEntity::get_DomainEvents()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Common.BaseEntity::AddDomainEvent(System.Object)": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Common.BaseEntity::RemoveDomainEvent(System.Object)": {
+          "Lines": {
+            "15": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Common.BaseEntity::ClearDomainEvents()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.Void Payments.Domain.Common.BaseEntity::.ctor()": {
+          "Lines": {
+            "9": 4
+          },
+          "Branches": []
+        }
+      },
+      "Payments.Domain.Common.BaseAuditableEntity": {
+        "System.DateTimeOffset Payments.Domain.Common.BaseAuditableEntity::get_CreatedAt()": {
+          "Lines": {
+            "21": 4
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Common.BaseAuditableEntity::get_CreatedBy()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.DateTimeOffset Payments.Domain.Common.BaseAuditableEntity::get_LastModifiedAt()": {
+          "Lines": {
+            "23": 4
+          },
+          "Branches": []
+        },
+        "System.String Payments.Domain.Common.BaseAuditableEntity::get_LastModifiedBy()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}
