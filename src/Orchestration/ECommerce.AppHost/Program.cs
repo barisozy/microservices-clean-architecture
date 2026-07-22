@@ -15,8 +15,8 @@ var fulfillmentDb = postgres.AddDatabase("FulfillmentDb", "fulfillment_db");
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
     .WithManagementPlugin();
 
-// Valkey 9.1 (BSD-3-Clause Redis-protocol store)
-var redis = builder.AddRedis("valkey")
+// Valkey 9.1 (BSD-3-Clause)
+var valkey = builder.AddRedis("valkey")
     .WithImage("valkey/valkey", "9.1");
 
 // Keycloak Container (Realm: ecommerce seeded via realm-export.json)
@@ -31,14 +31,14 @@ var keycloak = builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26
 var orderingApi = builder.AddProject<Projects.Ordering_Api>("ordering-api")
     .WithReference(orderingDb)
     .WithReference(rabbitmq)
-    .WithReference(redis)
+    .WithReference(valkey)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
 var inventoryApi = builder.AddProject<Projects.Inventory_Api>("inventory-api")
     .WithReference(inventoryDb)
     .WithReference(rabbitmq)
-    .WithReference(redis)
+    .WithReference(valkey)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
@@ -56,7 +56,7 @@ var fulfillmentApi = builder.AddProject<Projects.Fulfillment_Api>("fulfillment-a
 
 // YARP Gateway
 builder.AddProject<Projects.ECommerce_Gateway>("gateway")
-    .WithReference(redis)
+    .WithReference(valkey)
     .WithReference(orderingApi)
     .WithReference(inventoryApi)
     .WithReference(paymentsApi)

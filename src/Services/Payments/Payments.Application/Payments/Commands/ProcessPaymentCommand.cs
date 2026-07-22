@@ -1,4 +1,4 @@
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +9,7 @@ namespace Payments.Application.Payments.Commands;
 
 public record ProcessPaymentCommand(Guid OrderId, string IdempotencyKey, decimal Amount, List<OrderItemContractDto> Items) : IRequest<Guid>;
 
-public class ProcessPaymentCommandHandler(IPaymentsDbContext context, IPublishEndpoint publishEndpoint) : IRequestHandler<ProcessPaymentCommand, Guid>
+public class ProcessPaymentCommandHandler(IPaymentsDbContext context, IPublishEndpoint publishEndpoint, IPaymentReadRepository paymentReadRepository) : IRequestHandler<ProcessPaymentCommand, Guid>
 {
     public async Task<Guid> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
     {
@@ -24,16 +24,20 @@ public class ProcessPaymentCommandHandler(IPaymentsDbContext context, IPublishEn
             payment.Fail("Card declined or insufficient funds (Simulated).");
             context.Payments.Add(payment);
             await context.SaveChangesAsync(cancellationToken);
+            
+            await paymentReadRepository.SetPaymentStatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
 
-            await publishEndpoint.Publish(new PaymentFailedEvent(payment.OrderId, payment.IdempotencyKey, "Simulated payment failure.", DateTimeOffset.UtcNow), cancellationToken);
+            await publishEndpoint.Publish(new PaymentFailed(payment.OrderId, payment.IdempotencyKey, "Simulated payment failure.", DateTimeOffset.UtcNow), cancellationToken);
         }
         else
         {
             payment.Complete();
             context.Payments.Add(payment);
             await context.SaveChangesAsync(cancellationToken);
+            
+            await paymentReadRepository.SetPaymentStatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
 
-            await publishEndpoint.Publish(new PaymentCompletedEvent(payment.OrderId, payment.Id, payment.IdempotencyKey, DateTimeOffset.UtcNow), cancellationToken);
+            await publishEndpoint.Publish(new PaymentCompleted(payment.OrderId, payment.Id, payment.IdempotencyKey, DateTimeOffset.UtcNow), cancellationToken);
         }
 
         return payment.Id;

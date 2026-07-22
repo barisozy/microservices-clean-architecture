@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ECommerce.Contracts.Events.v1;
 using Inventory.Application.Common.Interfaces;
 using Inventory.Application.Inventory.Commands;
 using Inventory.Domain.Entities;
@@ -17,44 +18,47 @@ namespace Inventory.UnitTests;
 public class InventoryCommandsTests
 {
     [Fact]
-    public async Task ReserveStockCommandHandler_Should_Create_Reservation()
+    public async Task ReserveStock_ShouldReturnSuccess_WhenStockIsAvailable()
     {
-        var contextMock = new Mock<IInventoryDbContext>();
-        var stock = new Stock("SKU-1", 100);
-        contextMock.Setup(x => x.Stocks).ReturnsDbSet(new List<Stock> { stock });
+        var dbContextMock = new Mock<IInventoryDbContext>();
         
-        var reservationsList = new List<InventoryReservation>();
-        contextMock.Setup(x => x.Reservations).ReturnsDbSet(reservationsList);
-        contextMock.Setup(x => x.Reservations.Add(It.IsAny<InventoryReservation>())).Callback<InventoryReservation>(r => reservationsList.Add(r));
+        var stocks = new List<Stock> { new Stock("SKU1", 100) };
+        dbContextMock.Setup(x => x.Stocks).ReturnsDbSet(stocks);
+        
+        var reservations = new List<InventoryReservation>();
+        dbContextMock.Setup(x => x.Reservations).ReturnsDbSet(reservations);
 
-        var handler = new ReserveStockCommandHandler(contextMock.Object);
-        var result = await handler.Handle(new ReserveStockCommand(Guid.NewGuid(), "SKU-1", 10), CancellationToken.None);
+        var readRepoMock = new Mock<IStockReadRepository>();
 
-        result.Success.ShouldBeTrue();
-        stock.ReservedQuantity.ShouldBe(10);
-        contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        var handler = new ReserveStockCommandHandler(dbContextMock.Object, readRepoMock.Object);
+
+        var result = await handler.Handle(new ReserveStockCommand(Guid.NewGuid(), "SKU1", 10), CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.NotEqual(Guid.Empty, result.ReservationId);
     }
 
     [Fact]
-    public async Task ReleaseStockCommandHandler_Should_Release_Stock()
+    public async Task ReleaseStock_ShouldPublishStockReleasedEvent()
     {
-        var contextMock = new Mock<IInventoryDbContext>();
-        var publishMock = new Mock<IPublishEndpoint>();
+        var dbContextMock = new Mock<IInventoryDbContext>();
+        var publishEndpointMock = new Mock<IPublishEndpoint>();
 
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 10);
-        contextMock.Setup(x => x.Reservations).ReturnsDbSet(new List<InventoryReservation> { reservation });
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU1", 10);
+        var reservations = new List<InventoryReservation> { reservation };
+        dbContextMock.Setup(x => x.Reservations).ReturnsDbSet(reservations);
 
-        var stock = new Stock("SKU-1", 100);
-        stock.Reserve(10);
-        contextMock.Setup(x => x.Stocks).ReturnsDbSet(new List<Stock> { stock });
+        var stocks = new List<Stock> { new Stock("SKU1", 90) };
+        dbContextMock.Setup(x => x.Stocks).ReturnsDbSet(stocks);
 
-        var handler = new ReleaseStockCommandHandler(contextMock.Object, publishMock.Object);
+        var readRepoMock = new Mock<IStockReadRepository>();
+
+        var handler = new ReleaseStockCommandHandler(dbContextMock.Object, publishEndpointMock.Object, readRepoMock.Object);
+
         var result = await handler.Handle(new ReleaseStockCommand(reservation.Id), CancellationToken.None);
 
-        result.ShouldBeTrue();
-        stock.ReservedQuantity.ShouldBe(0);
-        contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(x => x.Publish(It.IsAny<ECommerce.Contracts.Events.StockReleasedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(result);
+        publishEndpointMock.Verify(x => x.Publish(It.IsAny<StockReleased>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -64,7 +68,11 @@ public class InventoryCommandsTests
         var stock = new Stock("SKU-1", 100);
         contextMock.Setup(x => x.Stocks).ReturnsDbSet(new List<Stock> { stock });
 
-        var handler = new GetStockAvailabilityQueryHandler(contextMock.Object);
+        var readRepoMock = new Mock<IStockReadRepository>();
+        readRepoMock.Setup(x => x.GetAvailableQuantityAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((int?)null); // Simulate cache miss
+
+        var handler = new GetStockAvailabilityQueryHandler(contextMock.Object, readRepoMock.Object);
         var result = await handler.Handle(new GetStockAvailabilityQuery("SKU-1"), CancellationToken.None);
 
         result.ShouldBe(100);

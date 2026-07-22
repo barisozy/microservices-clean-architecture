@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -28,7 +28,9 @@ public class ProcessPaymentCommandHandlerTests
         var paymentList = new List<PaymentRecord>();
         contextMock.Setup(x => x.Payments.Add(It.IsAny<PaymentRecord>())).Callback<PaymentRecord>(p => paymentList.Add(p));
 
-        var handler = new ProcessPaymentCommandHandler(contextMock.Object, publishMock.Object);
+        var readRepoMock = new Mock<IPaymentReadRepository>();
+
+        var handler = new ProcessPaymentCommandHandler(contextMock.Object, publishMock.Object, readRepoMock.Object);
 
         var result = await handler.Handle(new ProcessPaymentCommand(Guid.NewGuid(), "key-123", 100, new List<OrderItemContractDto>
         {
@@ -37,7 +39,7 @@ public class ProcessPaymentCommandHandlerTests
 
         result.ShouldNotBe(Guid.Empty);
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(x => x.Publish(It.IsAny<PaymentCompletedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        publishMock.Verify(x => x.Publish(It.IsAny<PaymentCompleted>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -48,7 +50,9 @@ public class ProcessPaymentCommandHandlerTests
 
         contextMock.Setup(x => x.Payments).ReturnsDbSet(new List<PaymentRecord>());
 
-        var handler = new ProcessPaymentCommandHandler(contextMock.Object, publishMock.Object);
+        var readRepoMock = new Mock<IPaymentReadRepository>();
+
+        var handler = new ProcessPaymentCommandHandler(contextMock.Object, publishMock.Object, readRepoMock.Object);
 
         var result = await handler.Handle(new ProcessPaymentCommand(Guid.NewGuid(), "key-456", 100, new List<OrderItemContractDto>
         {
@@ -57,6 +61,6 @@ public class ProcessPaymentCommandHandlerTests
 
         result.ShouldNotBe(Guid.Empty);
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(x => x.Publish(It.IsAny<PaymentFailedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        publishMock.Verify(x => x.Publish(It.IsAny<PaymentFailed>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

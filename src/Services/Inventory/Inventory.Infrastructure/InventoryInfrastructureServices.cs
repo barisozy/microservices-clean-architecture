@@ -139,9 +139,17 @@ namespace Inventory.Infrastructure
 
             services.AddScoped<IInventoryDbContext>(provider => provider.GetRequiredService<InventoryDbContext>());
 
+            var valkeyConnectionString = configuration.GetConnectionString("valkey")
+                ?? configuration.GetConnectionString("cache")
+                ?? "localhost:6379";
+            services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(_ => StackExchange.Redis.ConnectionMultiplexer.Connect(valkeyConnectionString));
+            services.AddScoped<Inventory.Application.Common.Interfaces.IStockReadRepository, Inventory.Infrastructure.Data.Repositories.StockReadRepository>();
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderCancelledConsumer>();
+                x.AddConsumer<OrderCreatedConsumer>();
+                x.AddConsumer<PaymentFailedConsumer>();
 
                 x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
                 {
@@ -153,6 +161,14 @@ namespace Inventory.Infrastructure
                 {
                     var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                     cfg.Host(new Uri(rabbitConnectionString));
+                    
+                    // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
+                    // 1. Retry policy (Retry x3)
+                    cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                    
+                    // 2 & 3. Dead letter queue (DLQ) & Poison message handling
+                    // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue.
+                    
                     cfg.ConfigureEndpoints(context);
                 });
             });

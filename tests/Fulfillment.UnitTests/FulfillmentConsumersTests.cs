@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using Fulfillment.Application.Common.Interfaces;
 using Fulfillment.Application.Consumers;
 using Fulfillment.Domain.Entities;
@@ -28,10 +28,12 @@ public class FulfillmentConsumersTests
         contextMock.Setup(x => x.Tasks).ReturnsDbSet(tasksList);
         contextMock.Setup(x => x.Tasks.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(t => tasksList.Add(t));
 
-        var consumer = new PaymentCompletedConsumer(contextMock.Object, publishMock.Object, loggerMock.Object);
+        var readRepoMock = new Mock<IFulfillmentReadRepository>();
 
-        var consumeContextMock = new Mock<ConsumeContext<PaymentCompletedEvent>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new PaymentCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), "key1", DateTimeOffset.UtcNow));
+        var consumer = new PaymentCompletedConsumer(contextMock.Object, publishMock.Object, loggerMock.Object, readRepoMock.Object);
+
+        var consumeContextMock = new Mock<ConsumeContext<PaymentCompleted>>();
+        consumeContextMock.Setup(x => x.Message).Returns(new PaymentCompleted(Guid.NewGuid(), Guid.NewGuid(), "key1", DateTimeOffset.UtcNow));
         consumeContextMock.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
 
         await consumer.Consume(consumeContextMock.Object);
@@ -41,6 +43,6 @@ public class FulfillmentConsumersTests
         tasksList[0].TrackingNumber.ShouldNotBeNullOrEmpty();
         
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(x => x.Publish(It.IsAny<OrderShippedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        publishMock.Verify(x => x.Publish(It.IsAny<OrderShipped>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
