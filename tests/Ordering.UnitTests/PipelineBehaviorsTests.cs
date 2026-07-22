@@ -15,6 +15,34 @@ namespace Ordering.UnitTests;
 
 public class DummyRequest : IRequest<string> { }
 
+public class ExceptionTests
+{
+    [Fact]
+    public void ValidationException_Empty_Constructor_Creates_Empty_Errors()
+    {
+        var ex = new Ordering.Application.Common.Exceptions.ValidationException();
+        ex.Errors.ShouldNotBeNull();
+        ex.Errors.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void NotFoundException_Constructors_Should_Set_Properties()
+    {
+        var ex1 = new Ordering.Application.Common.Exceptions.NotFoundException();
+        ex1.Message.ShouldNotBeNull();
+
+        var ex2 = new Ordering.Application.Common.Exceptions.NotFoundException("message");
+        ex2.Message.ShouldBe("message");
+
+        var inner = new Exception("inner");
+        var ex3 = new Ordering.Application.Common.Exceptions.NotFoundException("message", inner);
+        ex3.InnerException.ShouldBe(inner);
+
+        var ex4 = new Ordering.Application.Common.Exceptions.NotFoundException("Entity", 123);
+        ex4.Message.ShouldBe("Entity \"Entity\" (123) was not found.");
+    }
+}
+
 public class PipelineBehaviorsTests
 {
     [Fact]
