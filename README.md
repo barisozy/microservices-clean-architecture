@@ -4,7 +4,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=green)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/nuget-publish.yml?style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
 [![Security Scan](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/codeql.yml?label=CodeQL&style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
-[![Test Coverage](https://img.shields.io/badge/Coverage-In_Progress-yellow?style=flat-square)](#)
+[![Test Coverage](https://raw.githubusercontent.com/barisozy/microservices-clean-architecture/badges/badge_linecoverage.svg)](#)
 
 > **.NET 10 LTS · Onion Architecture · MassTransit (v8, MIT) · Keycloak · YARP · Aspire · Valkey**
 
@@ -357,6 +357,37 @@ ECommerce/
 ```
 
 ---
+
+## Test Architecture & Tool Selection
+
+A standard tool stack fully compatible with CI/CD pipelines in the .NET ecosystem, adhering to the KISS principle without adding extra dependencies:
+
+### 1. Coverage Collector
+* **Tool:** `coverlet.collector` (NuGet)
+* **Rationale:** Cross-platform, native integration with `.NET CLI`, introduces no additional runtime overhead other than the `dotnet test` dependency.
+* **Usage:**
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### 2. Report Generator
+* **Tool:** `ReportGenerator` (dotnet tool)
+* **Rationale:** Parses `cobertura.xml` outputs and converts them into HTML (for local review), MarkdownSummary (for GitHub Actions Step Summary), and Badges formats.
+* **Installation & Execution:**
+```bash
+dotnet tool install -g dotnet-reportgenerator-globaltool
+reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"Html;MarkdownSummary;Badges"
+```
+
+### 3. Quality Gate & Strict Rules
+* **Local/CI Threshold Enforcement:** Uses Coverlet threshold parameters to fail the build pipeline directly without depending on external SaaS services (e.g., Codecov):
+```bash
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=80 /p:ThresholdType=line /p:Exclude="[ECommerce.Contracts]*"
+```
+* **Static Analysis Integration:** Can be combined with **SonarQube / SonarCloud** if merging coverage data with Security Scanning (SAST) is required.
+
+---
+
 
 ## License
 
