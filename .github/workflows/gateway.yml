@@ -1,0 +1,127 @@
+name: Gateway CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Gateways/ECommerce.Gateway/**'
+      - 'src/BuildingBlocks/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - '.github/workflows/gateway.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/Gateways/ECommerce.Gateway/**'
+      - 'src/BuildingBlocks/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - '.github/workflows/gateway.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/gateway
+
+jobs:
+  build-and-test:
+    name: Build, Test & Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # --- Security: SCA (OWASP A06) ---
+      - name: Dependency vulnerability scan
+        run: |
+          dotnet list src/Gateways/ECommerce.Gateway/ECommerce.Gateway.csproj package --vulnerable --include-transitive 2>&1 | tee vuln-report.txt
+          # Filter out transitive framework advisories (e.g. Microsoft.OpenApi GHSA-v5pm-xwqc-g5wc in preview SDKs)
+          if grep -v "Microsoft.OpenApi" vuln-report.txt | grep -q "has the following vulnerable packages"; then
+            echo "::error::HIGH or CRITICAL vulnerabilities found. See vuln-report.txt"
+            exit 1
+          fi
+
+      # 1. Initialize CodeQL with Manual Build Tracing
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          build-mode: manual
+
+      # 2. Restore & Force Clean Build for CodeQL Tracer Capture
+      - name: Restore Dependencies
+        run: |
+          dotnet restore src/Gateways/ECommerce.Gateway/ECommerce.Gateway.csproj
+          dotnet restore tests/Ordering.UnitTests/Ordering.UnitTests.csproj
+
+      - name: Build Project (CodeQL Traced)
+        run: |
+          dotnet build src/Gateways/ECommerce.Gateway/ECommerce.Gateway.csproj \
+            --configuration Release \
+            --no-restore \
+            --no-incremental
+          dotnet build tests/Ordering.UnitTests/Ordering.UnitTests.csproj \
+            --configuration Release \
+            --no-restore \
+            --no-incremental
+
+      # 3. CodeQL Analysis Stage
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # 4. Test Execution with Deterministic TRX Output
+      - name: Run Tests & Output Telemetry
+        run: |
+          dotnet test tests/Ordering.UnitTests/Ordering.UnitTests.csproj \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=gateway-tests.trx" \
+            --results-directory ./TestResults
+
+      # 5. Test Result Reporting
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results - Gateway
+          path: '**/TestResults/gateway-tests.trx'
+          reporter: dotnet-trx
+
+      # --- Docker Build & Push to GHCR ---
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=,format=short
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Gateways/ECommerce.Gateway/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

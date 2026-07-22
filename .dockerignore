@@ -1,0 +1,46 @@
+# Docker Build Context Ignore List
+# Optimizes docker build time and prevents unwanted files from being sent to Docker daemon
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/artifacts/
+**/nupkg/
+
+# IDE & Editor files
+**/.vs/
+**/.vscode/
+**/.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Version Control
+**/.git/
+**/.gitignore
+**/.gitattributes
+**/.dockerignore
+
+# Aspire & Local Dev Tools
+**/.aspire/
+**/.devcontainer/
+
+# Secrets & Local Environments
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+
+# Documentation, Plans, & Media
+**/README.md
+**/LICENSE
+**/plan/
+**/*.md
+**/*.png
+**/*.jpg
+
+# Tests & Workflows
+**/.github/
+**/tests/

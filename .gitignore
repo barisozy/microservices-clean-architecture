@@ -1,0 +1,37 @@
+# .NET Build & Publish Outputs
+bin/
+obj/
+artifacts/
+out/
+publish/
+test-results/
+TestResults/
+coverage/
+
+# Visual Studio & IDE Files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.pidb
+*.suo
+
+# Environment & Secret Files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Aspire & Local Build Artifacts
+.aspire/
+nupkg/
+plan/
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini

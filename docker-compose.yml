@@ -1,0 +1,277 @@
+# =============================================================================
+# E-Commerce Microservices Platform — Standalone Docker Compose
+# =============================================================================
+# Usage (from repo root):
+#   docker compose up --build
+#
+# This file is the manual equivalent of `aspire publish` output.
+# It is NOT authoritative — the AppHost program.cs is the source of truth.
+# Use this file only when you want a standalone Docker Compose run without
+# the .NET Aspire toolchain.
+#
+# Environment variables are loaded from .env (copy .env.example → .env first).
+# =============================================================================
+
+name: ecommerce
+
+networks:
+  ecommerce-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  valkey-data:
+  keycloak-data:
+
+# ─── Infrastructure ───────────────────────────────────────────────────────────
+services:
+  postgres:
+    image: postgres:18.4-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rabbitmq:
+    image: rabbitmq:4.3.1-management-alpine
+    container_name: ecommerce-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # Management UI
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Valkey 9.1 (BSD-3-Clause Redis-protocol store — replaces Redis for license clarity)
+  valkey:
+    image: valkey/valkey:9.1-alpine
+    container_name: ecommerce-valkey
+    command: ["valkey-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - valkey-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.4
+    container_name: ecommerce-keycloak
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./src/Orchestration/ECommerce.AppHost/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - keycloak-data:/opt/keycloak/data
+    ports:
+      - "8080:8080"
+    command: ["start-dev", "--import-realm"]
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/realms/ecommerce || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+# ─── Microservices ────────────────────────────────────────────────────────────
+
+  ordering-api:
+    build:
+      context: .
+      dockerfile: src/Services/Ordering/Ordering.Api/Dockerfile
+    container_name: ecommerce-ordering-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__OrderingDb: "Host=postgres;Database=ordering_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
+      ConnectionStrings__redis: "valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Services__InventoryApi: "http://inventory-api:8080"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: ordering-api
+    ports:
+      - "5100:8080"
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  inventory-api:
+    build:
+      context: .
+      dockerfile: src/Services/Inventory/Inventory.Api/Dockerfile
+    container_name: ecommerce-inventory-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__InventoryDb: "Host=postgres;Database=inventory_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
+      ConnectionStrings__redis: "valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: inventory-api
+    ports:
+      - "5200:8080"
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  payments-api:
+    build:
+      context: .
+      dockerfile: src/Services/Payments/Payments.Api/Dockerfile
+    container_name: ecommerce-payments-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__PaymentsDb: "Host=postgres;Database=payments_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: payments-api
+    ports:
+      - "5300:8080"
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  fulfillment-api:
+    build:
+      context: .
+      dockerfile: src/Services/Fulfillment/Fulfillment.Api/Dockerfile
+    container_name: ecommerce-fulfillment-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__FulfillmentDb: "Host=postgres;Database=fulfillment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: fulfillment-api
+    ports:
+      - "5400:8080"
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Gateways/ECommerce.Gateway/Dockerfile
+    container_name: ecommerce-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__redis: "valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://keycloak:8080/realms/ecommerce"
+      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
+      ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: "http://inventory-api:8080"
+      ReverseProxy__Clusters__payments-cluster__Destinations__destination1__Address: "http://payments-api:8080"
+      ReverseProxy__Clusters__fulfillment-cluster__Destinations__destination1__Address: "http://fulfillment-api:8080"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: gateway
+    ports:
+      - "8000:8080"   # Public entry point
+    networks:
+      - ecommerce-net
+    depends_on:
+      ordering-api:
+        condition: service_healthy
+      inventory-api:
+        condition: service_healthy
+      payments-api:
+        condition: service_healthy
+      fulfillment-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─── Aspire Dashboard (standalone mode, ephemeral) ────────────────────────
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+    container_name: ecommerce-aspire-dashboard
+    environment:
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+    ports:
+      - "18888:18888"   # Dashboard UI
+      - "18889:18889"   # OTLP gRPC receiver
+    networks:
+      - ecommerce-net
+
