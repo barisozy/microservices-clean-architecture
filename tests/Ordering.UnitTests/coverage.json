@@ -1,0 +1,797 @@
+{
+  "Ordering.Application.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\DependencyInjection.cs": {
+      "Ordering.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Ordering.Application.DependencyInjection::AddApplicationServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "22": 0,
+            "23": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Orders\\Queries\\GetOrderQuery.cs": {
+      "Ordering.Application.Orders.Queries.OrderStatusDto": {
+        "System.Guid Ordering.Application.Orders.Queries.OrderStatusDto::get_Id()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Queries.GetOrderQuery": {
+        "System.Guid Ordering.Application.Orders.Queries.GetOrderQuery::get_OrderId()": {
+          "Lines": {
+            "9": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Queries.GetOrderQueryHandler": {
+        "System.Void Ordering.Application.Orders.Queries.GetOrderQueryHandler::.ctor(Ordering.Application.Common.Interfaces.IOrderingDbContext)": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Queries.GetOrderQueryHandler/<Handle>d__2": {
+        "System.Void Ordering.Application.Orders.Queries.GetOrderQueryHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "18": 0,
+            "19": 0
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 335,
+              "EndOffset": 337,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 16,
+              "Offset": 335,
+              "EndOffset": 341,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Orders\\Commands\\OrderCommandValidators.cs": {
+      "Ordering.Application.Orders.Commands.CreateOrderCommandValidator": {
+        "System.Void Ordering.Application.Orders.Commands.CreateOrderCommandValidator::.ctor()": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CancelOrderCommandValidator": {
+        "System.Void Ordering.Application.Orders.Commands.CancelOrderCommandValidator::.ctor()": {
+          "Lines": {
+            "17": 1,
+            "18": 1,
+            "19": 1,
+            "20": 1,
+            "21": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Orders\\Commands\\CreateOrder\\CreateOrderCommand.cs": {
+      "Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto": {
+        "System.String Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto::get_Sku()": {
+          "Lines": {
+            "9": 9
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand": {
+        "System.Guid Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand::get_CustomerId()": {
+          "Lines": {
+            "12": 2
+          },
+          "Branches": []
+        },
+        "System.Guid Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand::get_KeycloakSubject()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand::get_IdempotencyKey()": {
+          "Lines": {
+            "14": 2
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto> Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand::get_Items()": {
+          "Lines": {
+            "15": 5
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand::.ctor(System.Guid,System.Guid,System.String,System.Collections.Generic.List`1<Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto>)": {
+          "Lines": {
+            "11": 2
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler": {
+        "System.Void Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler::.ctor(Ordering.Application.Common.Interfaces.IOrderingDbContext,MassTransit.IPublishEndpoint)": {
+          "Lines": {
+            "17": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<>c": {
+        "Ordering.Domain.Entities.OrderItem Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<>c::<Handle>b__3_2(Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto)": {
+          "Lines": {
+            "24": 1,
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1,
+            "29": 1
+          },
+          "Branches": []
+        },
+        "ECommerce.Contracts.Events.OrderItemContractDto Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<>c::<Handle>b__3_0(Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto)": {
+          "Lines": {
+            "35": 2
+          },
+          "Branches": []
+        },
+        "System.Decimal Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<>c::<Handle>b__3_1(Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto)": {
+          "Lines": {
+            "36": 2
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<Handle>d__3": {
+        "System.Void Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/<Handle>d__3::MoveNext()": {
+          "Lines": {
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "30": 1,
+            "32": 1,
+            "33": 1,
+            "37": 1,
+            "39": 1,
+            "40": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Orders\\Commands\\CancelOrder\\CancelOrderCommand.cs": {
+      "Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommand": {
+        "System.Guid Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommand::get_OrderId()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler": {
+        "System.Void Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler::.ctor(Ordering.Application.Common.Interfaces.IOrderingDbContext,MassTransit.IPublishEndpoint)": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler/<Handle>d__3": {
+        "System.Void Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler/<Handle>d__3::MoveNext()": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "18": 0,
+            "19": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0
+          },
+          "Branches": [
+            {
+              "Line": 16,
+              "Offset": 360,
+              "EndOffset": 362,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 0
+            },
+            {
+              "Line": 16,
+              "Offset": 360,
+              "EndOffset": 369,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Consumers\\PaymentFailedConsumer.cs": {
+      "Ordering.Application.Consumers.PaymentFailedConsumer": {
+        "System.Void Ordering.Application.Consumers.PaymentFailedConsumer::.ctor(MediatR.ISender)": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Consumers.PaymentFailedConsumer/<Consume>d__2": {
+        "System.Void Ordering.Application.Consumers.PaymentFailedConsumer/<Consume>d__2::MoveNext()": {
+          "Lines": {
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Common\\Exceptions\\ApplicationExceptions.cs": {
+      "Ordering.Application.Common.Exceptions.ValidationException": {
+        "System.Collections.Generic.IDictionary`2<System.String,System.String[]> Ordering.Application.Common.Exceptions.ValidationException::get_Errors()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Exceptions.ValidationException::.ctor()": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Exceptions.ValidationException::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure>)": {
+          "Lines": {
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 2,
+            "18": 3,
+            "19": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Exceptions.NotFoundException": {
+        "System.Void Ordering.Application.Common.Exceptions.NotFoundException::.ctor()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Exceptions.NotFoundException::.ctor(System.String)": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Exceptions.NotFoundException::.ctor(System.String,System.Exception)": {
+          "Lines": {
+            "28": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Exceptions.NotFoundException::.ctor(System.String,System.Object)": {
+          "Lines": {
+            "30": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Common\\Behaviors\\PipelineBehaviors.cs": {
+      "Ordering.Application.Common.Behaviors.ValidationBehavior`2": {
+        "System.Void Ordering.Application.Common.Behaviors.ValidationBehavior`2::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.IValidator`1<TRequest>>)": {
+          "Lines": {
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Behaviors.ValidationBehavior`2/<>c": {
+        "System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure> Ordering.Application.Common.Behaviors.ValidationBehavior`2/<>c::<Handle>b__2_0(FluentValidation.Results.ValidationResult)": {
+          "Lines": {
+            "24": 3
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1": {
+        "System.Threading.Tasks.Task`1<FluentValidation.Results.ValidationResult> Ordering.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1::<Handle>b__2(FluentValidation.IValidator`1<TRequest>)": {
+          "Lines": {
+            "23": 2
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2": {
+        "System.Void Ordering.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "19": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "26": 1,
+            "27": 1,
+            "28": 0,
+            "30": 0,
+            "31": 0
+          },
+          "Branches": [
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 80,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 299,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 322,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 335,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 358,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 393,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 405,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 427,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Ordering.Application.Common.Behaviors.LoggingBehavior`1": {
+        "System.Threading.Tasks.Task Ordering.Application.Common.Behaviors.LoggingBehavior`1::Process(TRequest,System.Threading.CancellationToken)": {
+          "Lines": {
+            "45": 1,
+            "46": 1,
+            "47": 1,
+            "48": 1,
+            "49": 1
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Common.Behaviors.LoggingBehavior`1::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "39": 1,
+            "40": 1,
+            "41": 1,
+            "42": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2": {
+        "System.Void Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "57": 1,
+            "58": 1,
+            "59": 1,
+            "60": 1
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2": {
+        "System.Void Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "63": 1,
+            "65": 1,
+            "66": 1,
+            "68": 1,
+            "69": 1,
+            "70": 1,
+            "71": 1,
+            "72": 1,
+            "74": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Application\\Basket\\Commands\\BasketCommands.cs": {
+      "Ordering.Application.Basket.Commands.UpdateBasketItemDto": {
+        "System.String Ordering.Application.Basket.Commands.UpdateBasketItemDto::get_Sku()": {
+          "Lines": {
+            "6": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Basket.Commands.UpdateBasketCommand": {
+        "System.String Ordering.Application.Basket.Commands.UpdateBasketCommand::get_BuyerId()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Basket.Commands.UpdateBasketCommandHandler": {
+        "System.Threading.Tasks.Task`1<System.Boolean> Ordering.Application.Basket.Commands.UpdateBasketCommandHandler::Handle(Ordering.Application.Basket.Commands.UpdateBasketCommand,System.Threading.CancellationToken)": {
+          "Lines": {
+            "20": 0,
+            "21": 0,
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Application.Basket.Commands.UpdateBasketCommandHandler::.ctor(Ordering.Application.Common.Interfaces.IBasketService)": {
+          "Lines": {
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Basket.Commands.DeleteBasketCommand": {
+        "System.String Ordering.Application.Basket.Commands.DeleteBasketCommand::get_BuyerId()": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Basket.Commands.DeleteBasketCommandHandler": {
+        "System.Void Ordering.Application.Basket.Commands.DeleteBasketCommandHandler::.ctor(Ordering.Application.Common.Interfaces.IBasketService)": {
+          "Lines": {
+            "27": 0
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Application.Basket.Commands.DeleteBasketCommandHandler/<Handle>d__2": {
+        "System.Void Ordering.Application.Basket.Commands.DeleteBasketCommandHandler/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "30": 0,
+            "31": 0,
+            "32": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  },
+  "Ordering.Domain.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Domain\\Exceptions\\OrderingDomainException.cs": {
+      "Ordering.Domain.Exceptions.OrderingDomainException": {
+        "System.Void Ordering.Domain.Exceptions.OrderingDomainException::.ctor()": {
+          "Lines": {
+            "5": 0,
+            "6": 0,
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Exceptions.OrderingDomainException::.ctor(System.String)": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Exceptions.OrderingDomainException::.ctor(System.String,System.Exception)": {
+          "Lines": {
+            "13": 0,
+            "14": 0,
+            "15": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Domain\\Events\\OrderingEvents.cs": {
+      "Ordering.Domain.Events.OrderCreatedDomainEvent": {
+        "Ordering.Domain.Entities.Order Ordering.Domain.Events.OrderCreatedDomainEvent::get_Order()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Events.OrderCreatedDomainEvent::.ctor(Ordering.Domain.Entities.Order)": {
+          "Lines": {
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "13": 2
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Domain.Events.OrderCancelledDomainEvent": {
+        "Ordering.Domain.Entities.Order Ordering.Domain.Events.OrderCancelledDomainEvent::get_Order()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Domain.Events.OrderCancelledDomainEvent::get_Reason()": {
+          "Lines": {
+            "19": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Events.OrderCancelledDomainEvent::.ctor(Ordering.Domain.Entities.Order,System.String)": {
+          "Lines": {
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "25": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Domain\\Entities\\Order.cs": {
+      "Ordering.Domain.Entities.OrderItem": {
+        "System.Guid Ordering.Domain.Entities.OrderItem::get_OrderId()": {
+          "Lines": {
+            "17": 0
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Domain.Entities.OrderItem::get_Sku()": {
+          "Lines": {
+            "18": 4
+          },
+          "Branches": []
+        },
+        "System.Int32 Ordering.Domain.Entities.OrderItem::get_Quantity()": {
+          "Lines": {
+            "19": 2
+          },
+          "Branches": []
+        },
+        "System.Decimal Ordering.Domain.Entities.OrderItem::get_UnitPrice()": {
+          "Lines": {
+            "20": 2
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Domain.Entities.Order": {
+        "System.String Ordering.Domain.Entities.Order::get_BuyerId()": {
+          "Lines": {
+            "25": 7
+          },
+          "Branches": []
+        },
+        "Ordering.Domain.Entities.OrderStatus Ordering.Domain.Entities.Order::get_Status()": {
+          "Lines": {
+            "26": 9
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Domain.Entities.Order::get_CancellationReason()": {
+          "Lines": {
+            "27": 2
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<Ordering.Domain.Entities.OrderItem> Ordering.Domain.Entities.Order::get_OrderItems()": {
+          "Lines": {
+            "28": 7
+          },
+          "Branches": []
+        },
+        "Ordering.Domain.Entities.Order Ordering.Domain.Entities.Order::Create(System.String,System.Collections.Generic.List`1<Ordering.Domain.Entities.OrderItem>)": {
+          "Lines": {
+            "31": 3,
+            "32": 3,
+            "33": 1,
+            "35": 2,
+            "36": 2,
+            "37": 2,
+            "38": 2,
+            "39": 2,
+            "40": 2,
+            "42": 2,
+            "43": 2,
+            "44": 2
+          },
+          "Branches": [
+            {
+              "Line": 32,
+              "Offset": 9,
+              "EndOffset": 11,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 32,
+              "Offset": 9,
+              "EndOffset": 22,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 2
+            }
+          ]
+        },
+        "System.Void Ordering.Domain.Entities.Order::Cancel(System.String)": {
+          "Lines": {
+            "47": 1,
+            "48": 1,
+            "50": 1,
+            "51": 1,
+            "52": 1,
+            "53": 1
+          },
+          "Branches": [
+            {
+              "Line": 48,
+              "Offset": 12,
+              "EndOffset": 16,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 1
+            },
+            {
+              "Line": 48,
+              "Offset": 12,
+              "EndOffset": 46,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            }
+          ]
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Ordering\\Ordering.Domain\\Common\\BaseEntity.cs": {
+      "Ordering.Domain.Common.BaseEntity": {
+        "System.Guid Ordering.Domain.Common.BaseEntity::get_Id()": {
+          "Lines": {
+            "7": 7
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyCollection`1<Ordering.Domain.Common.BaseEvent> Ordering.Domain.Common.BaseEntity::get_DomainEvents()": {
+          "Lines": {
+            "12": 4
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Common.BaseEntity::AddDomainEvent(Ordering.Domain.Common.BaseEvent)": {
+          "Lines": {
+            "14": 3
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Common.BaseEntity::RemoveDomainEvent(Ordering.Domain.Common.BaseEvent)": {
+          "Lines": {
+            "15": 0
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Common.BaseEntity::ClearDomainEvents()": {
+          "Lines": {
+            "16": 1
+          },
+          "Branches": []
+        },
+        "System.Void Ordering.Domain.Common.BaseEntity::.ctor()": {
+          "Lines": {
+            "9": 5
+          },
+          "Branches": []
+        }
+      },
+      "Ordering.Domain.Common.BaseAuditableEntity": {
+        "System.DateTimeOffset Ordering.Domain.Common.BaseAuditableEntity::get_CreatedAt()": {
+          "Lines": {
+            "21": 3
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Domain.Common.BaseAuditableEntity::get_CreatedBy()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.DateTimeOffset Ordering.Domain.Common.BaseAuditableEntity::get_LastModifiedAt()": {
+          "Lines": {
+            "23": 3
+          },
+          "Branches": []
+        },
+        "System.String Ordering.Domain.Common.BaseAuditableEntity::get_LastModifiedBy()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}

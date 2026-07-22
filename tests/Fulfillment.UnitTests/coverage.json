@@ -1,0 +1,374 @@
+{
+  "Fulfillment.Application.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Application\\DependencyInjection.cs": {
+      "Fulfillment.Application.DependencyInjection": {
+        "Microsoft.Extensions.DependencyInjection.IServiceCollection Fulfillment.Application.DependencyInjection::AddApplicationServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)": {
+          "Lines": {
+            "12": 0,
+            "13": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "22": 0,
+            "23": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Application\\Consumers\\PaymentCompletedConsumer.cs": {
+      "Fulfillment.Application.Consumers.PaymentCompletedConsumer": {
+        "System.Void Fulfillment.Application.Consumers.PaymentCompletedConsumer::.ctor(Fulfillment.Application.Common.Interfaces.IFulfillmentDbContext,MassTransit.IPublishEndpoint,Microsoft.Extensions.Logging.ILogger`1<Fulfillment.Application.Consumers.PaymentCompletedConsumer>)": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Consumers.PaymentCompletedConsumer/<Consume>d__4": {
+        "System.Void Fulfillment.Application.Consumers.PaymentCompletedConsumer/<Consume>d__4::MoveNext()": {
+          "Lines": {
+            "15": 1,
+            "16": 1,
+            "17": 1,
+            "19": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "23": 1,
+            "24": 1,
+            "26": 1,
+            "27": 1,
+            "29": 1,
+            "31": 1,
+            "32": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Application\\Common\\Exceptions\\ApplicationExceptions.cs": {
+      "Fulfillment.Application.Common.Exceptions.ValidationException": {
+        "System.Collections.Generic.IDictionary`2<System.String,System.String[]> Fulfillment.Application.Common.Exceptions.ValidationException::get_Errors()": {
+          "Lines": {
+            "7": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Application.Common.Exceptions.ValidationException::.ctor()": {
+          "Lines": {
+            "9": 1,
+            "10": 1,
+            "11": 1,
+            "12": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Application.Common.Exceptions.ValidationException::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure>)": {
+          "Lines": {
+            "14": 1,
+            "15": 1,
+            "16": 1,
+            "17": 2,
+            "18": 3,
+            "19": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Exceptions.NotFoundException": {
+        "System.Void Fulfillment.Application.Common.Exceptions.NotFoundException::.ctor()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Application.Common.Exceptions.NotFoundException::.ctor(System.String)": {
+          "Lines": {
+            "25": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Application.Common.Exceptions.NotFoundException::.ctor(System.String,System.Object)": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Application\\Common\\Behaviors\\PipelineBehaviors.cs": {
+      "Fulfillment.Application.Common.Behaviors.ValidationBehavior`2": {
+        "System.Void Fulfillment.Application.Common.Behaviors.ValidationBehavior`2::.ctor(System.Collections.Generic.IEnumerable`1<FluentValidation.IValidator`1<TRequest>>)": {
+          "Lines": {
+            "13": 1,
+            "14": 1,
+            "15": 1,
+            "16": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<>c": {
+        "System.Collections.Generic.IEnumerable`1<FluentValidation.Results.ValidationFailure> Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<>c::<Handle>b__2_0(FluentValidation.Results.ValidationResult)": {
+          "Lines": {
+            "24": 3
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1": {
+        "System.Threading.Tasks.Task`1<FluentValidation.Results.ValidationResult> Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<>c__DisplayClass2_1::<Handle>b__2(FluentValidation.IValidator`1<TRequest>)": {
+          "Lines": {
+            "23": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2": {
+        "System.Void Fulfillment.Application.Common.Behaviors.ValidationBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "19": 1,
+            "20": 1,
+            "21": 1,
+            "22": 1,
+            "26": 1,
+            "27": 1,
+            "28": 0,
+            "30": 0,
+            "31": 0
+          },
+          "Branches": [
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 80,
+              "Path": 0,
+              "Ordinal": 0,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 299,
+              "Path": 0,
+              "Ordinal": 2,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 297,
+              "EndOffset": 322,
+              "Path": 1,
+              "Ordinal": 3,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 335,
+              "Path": 0,
+              "Ordinal": 4,
+              "Hits": 1
+            },
+            {
+              "Line": 24,
+              "Offset": 333,
+              "EndOffset": 358,
+              "Path": 1,
+              "Ordinal": 5,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 393,
+              "Path": 0,
+              "Ordinal": 6,
+              "Hits": 1
+            },
+            {
+              "Line": 26,
+              "Offset": 391,
+              "EndOffset": 405,
+              "Path": 1,
+              "Ordinal": 7,
+              "Hits": 0
+            },
+            {
+              "Line": 20,
+              "Offset": 75,
+              "EndOffset": 427,
+              "Path": 1,
+              "Ordinal": 1,
+              "Hits": 0
+            }
+          ]
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.LoggingBehavior`1": {
+        "System.Threading.Tasks.Task Fulfillment.Application.Common.Behaviors.LoggingBehavior`1::Process(TRequest,System.Threading.CancellationToken)": {
+          "Lines": {
+            "45": 1,
+            "46": 1,
+            "47": 1,
+            "48": 1,
+            "49": 1
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Application.Common.Behaviors.LoggingBehavior`1::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "39": 1,
+            "40": 1,
+            "41": 1,
+            "42": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.UnhandledExceptionBehavior`2": {
+        "System.Void Fulfillment.Application.Common.Behaviors.UnhandledExceptionBehavior`2::.ctor(Microsoft.Extensions.Logging.ILogger`1<TRequest>)": {
+          "Lines": {
+            "57": 1,
+            "58": 1,
+            "59": 1,
+            "60": 1
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2": {
+        "System.Void Fulfillment.Application.Common.Behaviors.UnhandledExceptionBehavior`2/<Handle>d__2::MoveNext()": {
+          "Lines": {
+            "63": 1,
+            "65": 1,
+            "66": 1,
+            "68": 1,
+            "69": 1,
+            "70": 1,
+            "71": 1,
+            "72": 1,
+            "74": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  },
+  "Fulfillment.Domain.dll": {
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Domain\\Events\\FulfillmentEvents.cs": {
+      "Fulfillment.Domain.Events.OrderShippedDomainEvent": {
+        "Fulfillment.Domain.Entities.FulfillmentTask Fulfillment.Domain.Events.OrderShippedDomainEvent::get_Task()": {
+          "Lines": {
+            "8": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Domain.Events.OrderShippedDomainEvent::.ctor(Fulfillment.Domain.Entities.FulfillmentTask)": {
+          "Lines": {
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Domain\\Entities\\FulfillmentTask.cs": {
+      "Fulfillment.Domain.Entities.FulfillmentTask": {
+        "System.Guid Fulfillment.Domain.Entities.FulfillmentTask::get_OrderId()": {
+          "Lines": {
+            "7": 2
+          },
+          "Branches": []
+        },
+        "System.String Fulfillment.Domain.Entities.FulfillmentTask::get_Status()": {
+          "Lines": {
+            "8": 5
+          },
+          "Branches": []
+        },
+        "System.String Fulfillment.Domain.Entities.FulfillmentTask::get_TrackingNumber()": {
+          "Lines": {
+            "9": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\baris\\source\\repos\\e-commerce.template\\src\\Services\\Fulfillment\\Fulfillment.Domain\\Common\\BaseEntity.cs": {
+      "Fulfillment.Domain.Common.BaseEntity": {
+        "System.Guid Fulfillment.Domain.Common.BaseEntity::get_Id()": {
+          "Lines": {
+            "7": 2
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.IReadOnlyCollection`1<System.Object> Fulfillment.Domain.Common.BaseEntity::get_DomainEvents()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Domain.Common.BaseEntity::AddDomainEvent(System.Object)": {
+          "Lines": {
+            "14": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Domain.Common.BaseEntity::RemoveDomainEvent(System.Object)": {
+          "Lines": {
+            "15": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Domain.Common.BaseEntity::ClearDomainEvents()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.Void Fulfillment.Domain.Common.BaseEntity::.ctor()": {
+          "Lines": {
+            "9": 2
+          },
+          "Branches": []
+        }
+      },
+      "Fulfillment.Domain.Common.BaseAuditableEntity": {
+        "System.DateTimeOffset Fulfillment.Domain.Common.BaseAuditableEntity::get_CreatedAt()": {
+          "Lines": {
+            "21": 2
+          },
+          "Branches": []
+        },
+        "System.String Fulfillment.Domain.Common.BaseAuditableEntity::get_CreatedBy()": {
+          "Lines": {
+            "22": 0
+          },
+          "Branches": []
+        },
+        "System.DateTimeOffset Fulfillment.Domain.Common.BaseAuditableEntity::get_LastModifiedAt()": {
+          "Lines": {
+            "23": 2
+          },
+          "Branches": []
+        },
+        "System.String Fulfillment.Domain.Common.BaseAuditableEntity::get_LastModifiedBy()": {
+          "Lines": {
+            "24": 0
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}
