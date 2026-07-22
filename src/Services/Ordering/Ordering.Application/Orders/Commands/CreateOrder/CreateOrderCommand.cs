@@ -1,4 +1,4 @@
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using MassTransit;
 using MediatR;
 using Ordering.Application.Common.Interfaces;
@@ -34,7 +34,7 @@ public class CreateOrderCommandHandler(IOrderingDbContext context, IPublishEndpo
 
         var eventItems = request.Items.Select(i => new OrderItemContractDto(i.Sku, i.Quantity, i.UnitPrice)).ToList();
         var totalAmount = request.Items.Sum(i => i.Quantity * i.UnitPrice);
-        await publishEndpoint.Publish(new OrderCreatedEvent(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow), cancellationToken);
+        await publishEndpoint.Publish(new OrderCreated(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow), cancellationToken);
 
         return order.Id;
     }

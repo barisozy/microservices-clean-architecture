@@ -1,4 +1,4 @@
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +18,8 @@ public class CancelOrderCommandHandler(IOrderingDbContext context, IPublishEndpo
         order.Cancel(request.Reason);   // Sets Status = Cancelled (idempotent if already cancelled)
         await context.SaveChangesAsync(cancellationToken);
 
-        // OrderCancelledEvent is published via MassTransit Outbox — consumed by Inventory.Api to release stock
-        await publishEndpoint.Publish(new OrderCancelledEvent(request.OrderId, request.Reason, DateTimeOffset.UtcNow), cancellationToken);
+        // OrderCancelled is published via MassTransit Outbox — consumed by Inventory.Api to release stock
+        await publishEndpoint.Publish(new OrderCancelled(request.OrderId, request.Reason, DateTimeOffset.UtcNow), cancellationToken);
         return true;
     }
 }

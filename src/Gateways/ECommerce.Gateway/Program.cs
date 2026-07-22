@@ -30,7 +30,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// Rate Limiting: Redis / Sliding Window Rate Limiter (100 req/s per IP)
+// Rate Limiting: Valkey / Sliding Window Rate Limiter (100 req/s per IP)
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

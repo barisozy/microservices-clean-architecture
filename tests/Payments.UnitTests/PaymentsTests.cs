@@ -1,6 +1,6 @@
 using Payments.Domain.Entities;
 using Payments.Application.Payments.Commands;
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using Shouldly;
 using Xunit;
 using System.Collections.Generic;

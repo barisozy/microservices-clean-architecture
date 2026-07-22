@@ -15,7 +15,10 @@ A production-grade, solo-buildable microservices template following a **true mic
 Unlike basic CRUD examples, this template is designed for **production readiness** and **developer experience (DX)** right out of the box:
 
 - 🛡️ **True Clean Architecture**: Strictly enforced dependency rules. The Domain layer has zero dependencies.
+- 🧠 **CQRS with Read/Write Separation**: Commands write to PostgreSQL, Queries fetch directly from Valkey for O(1) read performance.
+- 🎭 **Saga Pattern (Choreography)**: Distributed transactions across microservices with automated rollback and compensation.
 - 📦 **Transactional Outbox Pattern**: Built-in with MassTransit and EF Core for guaranteed eventual consistency.
+- 🤝 **Independent Event Contracts**: Integration events are centralized in a standalone `ECommerce.Contracts` package to strictly decouple producers and consumers.
 - 🚀 **.NET Aspire Orchestration**: 1-click local development with distributed tracing, metrics, and logs via Aspire Dashboard.
 - 🔐 **Secure by Default**: Keycloak integrated JWT validation and YARP Gateway rate limiting (via Valkey).
 - 📡 **Hybrid Communication**: Synchronous inter-service gRPC calls alongside asynchronous RabbitMQ events.
@@ -110,8 +113,8 @@ Each service follows **Onion Architecture** — dependency arrows point inward o
 ```
 Service/
 ├── Service.Domain/          ← Entities, Domain Events, Enums. Zero external deps.
-├── Service.Application/     ← CQRS (MediatR), Consumers, Validators. No EF/infra.
-├── Service.Infrastructure/  ← EF Core, MassTransit, Redis. Implements Application interfaces.
+├── Service.Application/     ← CQRS (MediatR Commands/Queries), Consumers, Validators. No EF/infra.
+├── Service.Infrastructure/  ← EF Core (Write Model), Valkey (Read Model), MassTransit. Implements Application interfaces.
 └── Service.Api/             ← Minimal API endpoints, Program.cs, Dockerfile.
 ```
 
@@ -122,7 +125,7 @@ Service/
 | Service | Port | Responsibilities |
 |---------|------|------------------|
 | **Gateway** | 8000 | YARP reverse proxy, JWT validation, rate limiting (Valkey-backed) |
-| **Ordering.Api** | 5100 | Orders, Basket (Redis Hash), MassTransit Outbox |
+| **Ordering.Api** | 5100 | Orders, Basket (Valkey Hash), MassTransit Outbox |
 | **Inventory.Api** | 5200 | Stock management, gRPC server (ReserveStock / ReleaseStock), Output Cache |
 | **Payments.Api** | 5300 | Mock payment processing, compensation saga |
 | **Fulfillment.Api** | 5400 | Shipment, mock notification |
@@ -259,9 +262,11 @@ curl -H "Authorization: Bearer $TOKEN" \
 
 ---
 
-## Domain Event Flow
+## Distributed Transaction (Saga Pattern)
 
-```
+The template implements a **Choreography-based Saga Pattern** to handle distributed transactions. When a step fails, compensation events are published to roll back previous operations across different microservices.
+
+```text
 OrderCreated ──────────────────────▶ Payments.Api
                                          │
                                     ┌────┴────┐
@@ -275,6 +280,10 @@ OrderCreated ──────────────────────�
                                                    │
                                              StockReleased
 ```
+
+### Event Contracts (`ECommerce.Contracts`)
+
+Instead of defining integration events locally within each microservice (which couples them), all integration events are stored in a dedicated `ECommerce.Contracts` project. This ensures that the **Producer** and **Consumer** agree on a strict contract version (`v1`) without depending on each other's domain logic.
 
 ---
 

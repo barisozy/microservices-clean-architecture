@@ -58,6 +58,12 @@ public static class DependencyInjection
 
         services.AddScoped<IFulfillmentDbContext>(provider => provider.GetRequiredService<FulfillmentDbContext>());
 
+        var valkeyConnectionString = configuration.GetConnectionString("valkey")
+            ?? configuration.GetConnectionString("cache")
+            ?? "localhost:6379";
+        services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(_ => StackExchange.Redis.ConnectionMultiplexer.Connect(valkeyConnectionString));
+        services.AddScoped<Fulfillment.Application.Common.Interfaces.IFulfillmentReadRepository, Fulfillment.Infrastructure.Data.Repositories.FulfillmentReadRepository>();
+
         services.AddMassTransit(x =>
         {
             x.AddConsumer<PaymentCompletedConsumer>();
@@ -73,6 +79,14 @@ public static class DependencyInjection
             {
                 var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                 cfg.Host(new Uri(rabbitConnectionString));
+                
+                // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
+                // 1. Retry policy (Retry x3)
+                cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                
+                // 2 & 3. Dead letter queue (DLQ) & Poison message handling
+                // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue.
+                
                 cfg.ConfigureEndpoints(context);
             });
         });

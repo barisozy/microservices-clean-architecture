@@ -3,18 +3,18 @@ using StackExchange.Redis;
 
 namespace Ordering.Infrastructure.Services;
 
-public class RedisBasketService : IBasketService
+public class ValkeyBasketService : IBasketService
 {
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IConnectionMultiplexer _valkey;
 
-    public RedisBasketService(IConnectionMultiplexer redis)
+    public ValkeyBasketService(IConnectionMultiplexer valkey)
     {
-        _redis = redis;
+        _valkey = valkey;
     }
 
     public async Task<bool> DeleteBasketAsync(string buyerId, CancellationToken cancellationToken = default)
     {
-        var db = _redis.GetDatabase();
+        var db = _valkey.GetDatabase();
         return await db.KeyDeleteAsync(buyerId);
     }
 }
