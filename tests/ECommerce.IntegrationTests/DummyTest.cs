@@ -1,0 +1,12 @@
+using Xunit;
+namespace ECommerce.IntegrationTests
+{
+    public class DummyTest
+    {
+        [Fact]
+        public void Test1()
+        {
+            Assert.True(true);
+        }
+    }
+}
