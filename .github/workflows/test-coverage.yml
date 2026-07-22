@@ -1,0 +1,53 @@
+name: Test & Code Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-and-coverage:
+    name: Run Tests and Generate Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore ECommerce.sln
+
+      - name: Test & Collect Coverage
+        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=80 /p:ThresholdType=line /p:Exclude="[ECommerce.Contracts]*"
+
+      - name: Generate Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          reports: './coverage/**/coverage.cobertura.xml'
+          targetdir: './coveragereport'
+          reporttypes: 'Html;MarkdownSummary;Badges'
+          classfilters: '-ECommerce.Contracts.*;-*Exception;-*Dto;-*Event;-*BaseAuditableEntity;-*BaseEntity'
+
+      - name: Publish Summary
+        run: cat ./coveragereport/Summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Deploy Badges to badges branch
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./coveragereport
+          publish_branch: badges
+          keep_files: false
+          force_orphan: true
