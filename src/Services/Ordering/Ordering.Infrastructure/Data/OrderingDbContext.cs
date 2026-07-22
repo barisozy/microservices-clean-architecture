@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Common.Interfaces;
 using Ordering.Domain.Entities;
@@ -16,5 +17,8 @@ public class OrderingDbContext : DbContext, IOrderingDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("ordering");
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 }
