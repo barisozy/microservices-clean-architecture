@@ -4,6 +4,7 @@
   "name": "E-Commerce Clean Architecture Microservices",
   "shortName": "ecom-clean-arch",
   "identity": "BarisOzy.ECommerce.CleanArchitecture.Template",
+  "sourceName": "ECommerce",
   "classifications": [ "Web", "Web API", "API", "Microservices", "Clean Architecture", "DDD", "Cloud", "Aspire", "xUnit", "Test"],
   "tags": {
     "language": "C#",
