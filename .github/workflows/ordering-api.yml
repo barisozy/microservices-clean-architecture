@@ -28,9 +28,9 @@ jobs:
     name: Build, Test & Scan
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      security-events: write
+      contents: write
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout
