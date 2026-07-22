@@ -1,4 +1,5 @@
 using ECommerce.ServiceDefaults;
+using Scalar.AspNetCore;
 using Payments.Api.Infrastructure;
 using Payments.Application;
 using Payments.Infrastructure;
@@ -26,6 +27,7 @@ app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseExceptionHandler();

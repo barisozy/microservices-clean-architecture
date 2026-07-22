@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -32,6 +32,6 @@ public class CancelOrderCommandHandlerTests
         result.ShouldBeTrue();
         order.Status.ToString().ShouldBe("Cancelled");
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelledEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

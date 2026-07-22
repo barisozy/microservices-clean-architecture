@@ -66,7 +66,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # Valkey 9.1 (BSD-3-Clause Redis-protocol store — replaces Redis for license clarity)
+  # Valkey 9.1 (BSD-3-Clause)
   valkey:
     image: valkey/valkey:9.1-alpine
     container_name: ecommerce-valkey
@@ -116,8 +116,9 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__OrderingDb: "Host=postgres;Database=ordering_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
-      ConnectionStrings__redis: "valkey:6379"
+      ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://localhost:8080/realms/ecommerce"
       Services__InventoryApi: "http://inventory-api:8080"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
       OTEL_SERVICE_NAME: ordering-api
@@ -150,8 +151,9 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__InventoryDb: "Host=postgres;Database=inventory_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
-      ConnectionStrings__redis: "valkey:6379"
+      ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://localhost:8080/realms/ecommerce"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
       OTEL_SERVICE_NAME: inventory-api
     ports:
@@ -182,6 +184,7 @@ services:
       ConnectionStrings__PaymentsDb: "Host=postgres;Database=payments_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://localhost:8080/realms/ecommerce"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
       OTEL_SERVICE_NAME: payments-api
     ports:
@@ -212,6 +215,7 @@ services:
       ConnectionStrings__FulfillmentDb: "Host=postgres;Database=fulfillment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       ConnectionStrings__rabbitmq: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://localhost:8080/realms/ecommerce"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
       OTEL_SERVICE_NAME: fulfillment-api
     ports:
@@ -239,9 +243,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__redis: "valkey:6379"
+      ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__Issuer: "http://keycloak:8080/realms/ecommerce"
+      Jwt__Issuer: "http://localhost:8080/realms/ecommerce"
       ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
       ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: "http://inventory-api:8080"
       ReverseProxy__Clusters__payments-cluster__Destinations__destination1__Address: "http://payments-api:8080"

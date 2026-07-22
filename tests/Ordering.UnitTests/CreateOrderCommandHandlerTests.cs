@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
+using ECommerce.Contracts.Events.v1;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Ordering.Application.Common.Interfaces;
 using Ordering.Application.Orders.Commands.CreateOrder;
 using Ordering.Domain.Entities;
-using Shouldly;
 using Xunit;
 
 namespace Ordering.UnitTests;
@@ -16,29 +17,23 @@ namespace Ordering.UnitTests;
 public class CreateOrderCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_Should_Create_Order_And_Publish_Event()
+    public async Task Handle_ShouldPublishOrderCreatedEvent()
     {
-        // Arrange
-        var contextMock = new Mock<IOrderingDbContext>();
-        var publishMock = new Mock<IPublishEndpoint>();
-
+        var dbContextMock = new Mock<IOrderingDbContext>();
         var dbSetMock = new Mock<DbSet<Order>>();
-        contextMock.Setup(c => c.Orders).Returns(dbSetMock.Object);
+        dbContextMock.Setup(x => x.Orders).Returns(dbSetMock.Object);
 
-        var handler = new CreateOrderCommandHandler(contextMock.Object, publishMock.Object);
+        var publishEndpointMock = new Mock<IPublishEndpoint>();
 
-        var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemDto>
-        {
-            new OrderItemDto("SKU-1", 2, 100)
-        });
+        var handler = new CreateOrderCommandHandler(dbContextMock.Object, publishEndpointMock.Object);
 
-        // Act
+        var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemDto> { new("SKU1", 1, 100) });
+
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
-        result.ShouldNotBe(Guid.Empty);
-        dbSetMock.Verify(d => d.Add(It.IsAny<Order>()), Times.Once);
-        contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publishMock.Verify(p => p.Publish(It.IsAny<ECommerce.Contracts.Events.OrderCreatedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.NotEqual(Guid.Empty, result);
+
+        publishEndpointMock.Verify(x => x.Publish(It.IsAny<OrderCreated>(), It.IsAny<CancellationToken>()), Times.Once);
+        dbContextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

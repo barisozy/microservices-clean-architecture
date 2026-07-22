@@ -37,12 +37,13 @@ public static class DependencyInjection
 
         services.AddScoped<IOrderingDbContext>(provider => provider.GetRequiredService<OrderingDbContext>());
 
-        // Redis basket service (Valkey, BSD-3-Clause)
-        var redisConnectionString = configuration.GetConnectionString("redis")
+        // Valkey basket service (BSD-3-Clause)
+        var valkeyConnectionString = configuration.GetConnectionString("valkey")
             ?? configuration.GetConnectionString("cache")
             ?? "localhost:6379";
-        services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
-        services.AddScoped<IBasketService, RedisBasketService>();
+        services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(valkeyConnectionString));
+        services.AddScoped<IBasketService, ValkeyBasketService>();
+        services.AddScoped<IOrderReadRepository, Ordering.Infrastructure.Data.Repositories.OrderReadRepository>();
 
         // gRPC client → Inventory.Api (with JWT + trace interceptors from ServiceDefaults)
         services.AddGrpcClient<InventoryService.InventoryServiceClient>(options =>
@@ -51,12 +52,29 @@ public static class DependencyInjection
         })
         .AddInterceptor<GrpcJwtHeaderInterceptor>()
         .AddInterceptor<GrpcTraceContextInterceptor>()
-        .AddStandardResilienceHandler();   // Retry + circuit-breaker via Microsoft.Extensions.Http.Resilience
+        .AddStandardResilienceHandler(options => 
+        {
+            // gRPC Resilience Patterns
+            
+            // 1. Retry
+            options.Retry.MaxRetryAttempts = 3;
+            options.Retry.BackoffType = Polly.DelayBackoffType.Exponential;
+            
+            // 2. Circuit Breaker
+            options.CircuitBreaker.FailureRatio = 0.5;
+            options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(10);
+            
+            // 3. Deadline (Attempt Timeout)
+            options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(5);
+            
+            // 4. Global Timeout
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(15);
+        });
 
         // MassTransit + Transactional Outbox/Inbox
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<PaymentFailedConsumer>();
+            x.AddConsumer<StockReleasedConsumer>();
 
             x.AddEntityFrameworkOutbox<OrderingDbContext>(o =>
             {
@@ -72,7 +90,13 @@ public static class DependencyInjection
                 var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                 cfg.Host(new Uri(rabbitConnectionString));
 
-                cfg.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(200)));
+                // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
+                // 1. Retry policy (Retry x3 as requested)
+                cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                
+                // 2 & 3. Dead letter queue (DLQ) & Poison message handling
+                // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue (e.g., PaymentFailed_error).
+                
                 cfg.ConfigureEndpoints(context);
             });
         });

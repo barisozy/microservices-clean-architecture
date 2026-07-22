@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using Inventory.Application.Consumers;
 using MassTransit;
 using MediatR;
@@ -27,8 +27,8 @@ public class OrderCancelledConsumerTests
         
         var consumer = new OrderCancelledConsumer(mediatorMock.Object, dbContextMock.Object);
 
-        var consumeContextMock = new Mock<ConsumeContext<OrderCancelledEvent>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new OrderCancelledEvent(orderId, "Reason", DateTimeOffset.UtcNow));
+        var consumeContextMock = new Mock<ConsumeContext<OrderCancelled>>();
+        consumeContextMock.Setup(x => x.Message).Returns(new OrderCancelled(orderId, "Reason", DateTimeOffset.UtcNow));
         consumeContextMock.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
 
         await consumer.Consume(consumeContextMock.Object);

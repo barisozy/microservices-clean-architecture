@@ -1,4 +1,4 @@
-using ECommerce.Contracts.Events;
+using ECommerce.Contracts.Events.v1;
 using Inventory.Application.Common.Interfaces;
 using Inventory.Domain.Entities;
 using MassTransit;
@@ -9,7 +9,7 @@ namespace Inventory.Application.Inventory.Commands;
 
 public record ReserveStockCommand(Guid OrderId, string Sku, int Quantity) : IRequest<(Guid ReservationId, bool Success, string Message)>;
 
-public class ReserveStockCommandHandler(IInventoryDbContext context) : IRequestHandler<ReserveStockCommand, (Guid ReservationId, bool Success, string Message)>
+public class ReserveStockCommandHandler(IInventoryDbContext context, IStockReadRepository stockReadRepository) : IRequestHandler<ReserveStockCommand, (Guid ReservationId, bool Success, string Message)>
 {
     public async Task<(Guid ReservationId, bool Success, string Message)> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
     {
@@ -29,13 +29,16 @@ public class ReserveStockCommandHandler(IInventoryDbContext context) : IRequestH
         context.Reservations.Add(reservation);
         await context.SaveChangesAsync(cancellationToken);
 
+        // Update Read Model
+        await stockReadRepository.SetAvailableQuantityAsync(stock.Sku, stock.AvailableQuantity, cancellationToken);
+
         return (reservation.Id, true, "Stock reserved successfully.");
     }
 }
 
 public record ReleaseStockCommand(Guid ReservationId) : IRequest<bool>;
 
-public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEndpoint publishEndpoint) : IRequestHandler<ReleaseStockCommand, bool>
+public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEndpoint publishEndpoint, IStockReadRepository stockReadRepository) : IRequestHandler<ReleaseStockCommand, bool>
 {
     public async Task<bool> Handle(ReleaseStockCommand request, CancellationToken cancellationToken)
     {
@@ -47,7 +50,14 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
         stock?.Release(reservation.Quantity);
 
         await context.SaveChangesAsync(cancellationToken);
-        await publishEndpoint.Publish(new StockReleasedEvent(reservation.Id, DateTimeOffset.UtcNow), cancellationToken);
+        
+        if (stock != null)
+        {
+            // Update Read Model
+            await stockReadRepository.SetAvailableQuantityAsync(stock.Sku, stock.AvailableQuantity, cancellationToken);
+        }
+
+        await publishEndpoint.Publish(new StockReleased(reservation.OrderId, reservation.Id, DateTimeOffset.UtcNow), cancellationToken);
 
         return true;
     }
@@ -55,12 +65,25 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
 
 public record GetStockAvailabilityQuery(string Sku) : IRequest<int>;
 
-public class GetStockAvailabilityQueryHandler(IInventoryDbContext context) : IRequestHandler<GetStockAvailabilityQuery, int>
+public class GetStockAvailabilityQueryHandler(IInventoryDbContext context, IStockReadRepository stockReadRepository) : IRequestHandler<GetStockAvailabilityQuery, int>
 {
     public async Task<int> Handle(GetStockAvailabilityQuery request, CancellationToken cancellationToken)
     {
+        // 1. Try get from Read Model (Valkey)
+        var cachedQuantity = await stockReadRepository.GetAvailableQuantityAsync(request.Sku, cancellationToken);
+        if (cachedQuantity.HasValue)
+        {
+            return cachedQuantity.Value;
+        }
+
+        // 2. Fallback to Write Model (PostgreSQL)
         var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == request.Sku, cancellationToken);
-        return stock?.AvailableQuantity ?? 0;
+        var availableQuantity = stock?.AvailableQuantity ?? 0;
+
+        // 3. Update Read Model for future queries
+        await stockReadRepository.SetAvailableQuantityAsync(request.Sku, availableQuantity, cancellationToken);
+
+        return availableQuantity;
     }
 }
 
