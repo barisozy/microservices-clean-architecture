@@ -1,0 +1,61 @@
+name: Publish BuildingBlocks to NuGet.org
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  publish-nuget:
+    name: Build, Pack & Publish NuGet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Extract Tag Version
+        id: get_version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            VERSION="1.0.0"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore Dependencies
+        run: dotnet restore e-commerce.template.sln
+
+      - name: Build BuildingBlocks
+        run: |
+          dotnet build src/BuildingBlocks/ECommerce.Contracts/ECommerce.Contracts.csproj -c Release
+          dotnet build src/BuildingBlocks/ECommerce.ServiceDefaults/ECommerce.ServiceDefaults.csproj -c Release
+
+      - name: Pack ECommerce.Contracts
+        run: |
+          dotnet pack src/BuildingBlocks/ECommerce.Contracts/ECommerce.Contracts.csproj \
+            -c Release \
+            -o ./nupkgs \
+            /p:PackageVersion=${{ steps.get_version.outputs.VERSION }}
+
+      - name: Pack ECommerce.ServiceDefaults
+        run: |
+          dotnet pack src/BuildingBlocks/ECommerce.ServiceDefaults/ECommerce.ServiceDefaults.csproj \
+            -c Release \
+            -o ./nupkgs \
+            /p:PackageVersion=${{ steps.get_version.outputs.VERSION }}
+
+      - name: Push Packages to NuGet.org
+        env:
+          NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --api-key $NUGET_KEY \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
