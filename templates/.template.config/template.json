@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Baris Ozy",
+  "name": "E-Commerce Clean Architecture Microservices",
+  "shortName": "ecom-clean-arch",
+  "identity": "BarisOzy.ECommerce.CleanArchitecture.Template",
+  "classifications": [ "C#", "Web", "API", "Microservices", "Clean Architecture", "DDD", "Cloud", "Aspire", "xUnit", "Test", "Web API"],
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "preferNameDirectory": true
+}

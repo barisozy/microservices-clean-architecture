@@ -10,6 +10,12 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Fulfillment.Infrastructure.FulfillmentDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.MapDefaultEndpoints();
 
 app.Run();

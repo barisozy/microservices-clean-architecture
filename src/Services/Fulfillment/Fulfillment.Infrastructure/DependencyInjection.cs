@@ -20,8 +20,11 @@ public class FulfillmentDbContext : DbContext, IFulfillmentDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("fulfillment");
         base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema("fulfillment");
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 }
 

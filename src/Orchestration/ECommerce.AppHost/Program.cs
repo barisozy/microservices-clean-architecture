@@ -16,7 +16,7 @@ var rabbitmq = builder.AddRabbitMQ("rabbitmq")
     .WithManagementPlugin();
 
 // Valkey 9.1 (BSD-3-Clause Redis-protocol store)
-var redis = builder.AddRedis("redis")
+var redis = builder.AddRedis("valkey")
     .WithImage("valkey/valkey", "9.1");
 
 // Keycloak Container (Realm: ecommerce seeded via realm-export.json)
@@ -28,34 +28,34 @@ var keycloak = builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26
     .WithArgs("start-dev", "--import-realm");
 
 // Microservices
-var orderingApi = builder.AddProject("ordering-api", "../../Services/Ordering/Ordering.Api/Ordering.Api.csproj")
+var orderingApi = builder.AddProject<Projects.Ordering_Api>("ordering-api")
     .WithReference(orderingDb)
     .WithReference(rabbitmq)
     .WithReference(redis)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
-var inventoryApi = builder.AddProject("inventory-api", "../../Services/Inventory/Inventory.Api/Inventory.Api.csproj")
+var inventoryApi = builder.AddProject<Projects.Inventory_Api>("inventory-api")
     .WithReference(inventoryDb)
     .WithReference(rabbitmq)
     .WithReference(redis)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
-var paymentsApi = builder.AddProject("payments-api", "../../Services/Payments/Payments.Api/Payments.Api.csproj")
+var paymentsApi = builder.AddProject<Projects.Payments_Api>("payments-api")
     .WithReference(paymentsDb)
     .WithReference(rabbitmq)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
-var fulfillmentApi = builder.AddProject("fulfillment-api", "../../Services/Fulfillment/Fulfillment.Api/Fulfillment.Api.csproj")
+var fulfillmentApi = builder.AddProject<Projects.Fulfillment_Api>("fulfillment-api")
     .WithReference(fulfillmentDb)
     .WithReference(rabbitmq)
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
 // YARP Gateway
-builder.AddProject("gateway", "../../Gateways/ECommerce.Gateway/ECommerce.Gateway.csproj")
+builder.AddProject<Projects.ECommerce_Gateway>("gateway")
     .WithReference(redis)
     .WithReference(orderingApi)
     .WithReference(inventoryApi)
@@ -64,5 +64,3 @@ builder.AddProject("gateway", "../../Gateways/ECommerce.Gateway/ECommerce.Gatewa
     .WaitFor(orderingApi);
 
 builder.Build().Run();
-
-
