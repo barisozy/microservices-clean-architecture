@@ -30,7 +30,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Restore Dependencies
-        run: dotnet restore e-commerce.template.sln
+        run: dotnet restore ECommerce.sln
 
       - name: Pack Microservices Template
         run: |
