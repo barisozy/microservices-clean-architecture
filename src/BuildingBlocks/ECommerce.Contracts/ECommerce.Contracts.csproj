@@ -3,6 +3,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>BarisOzy.ECommerce.Contracts</PackageId>
+    <Authors>Baris Ozy</Authors>
+    <Company>BarisOzy</Company>
+    <Description>Shared integration event contracts and gRPC protobuf definitions for ECommerce microservices.</Description>
+    <RepositoryUrl>https://github.com/barisozy/microservices-clean-architecture</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

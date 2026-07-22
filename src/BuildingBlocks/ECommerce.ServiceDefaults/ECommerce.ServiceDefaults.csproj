@@ -3,6 +3,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>BarisOzy.ECommerce.ServiceDefaults</PackageId>
+    <Authors>Baris Ozy</Authors>
+    <Company>BarisOzy</Company>
+    <Description>Application service defaults and OpenTelemetry gRPC interceptors for ECommerce microservices.</Description>
+    <RepositoryUrl>https://github.com/barisozy/microservices-clean-architecture</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
