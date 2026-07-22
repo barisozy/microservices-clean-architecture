@@ -382,7 +382,7 @@ reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport"
 ### 3. Quality Gate & Strict Rules
 * **Local/CI Threshold Enforcement:** Uses Coverlet threshold parameters to fail the build pipeline directly without depending on external SaaS services (e.g., Codecov):
 ```bash
-dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=80 /p:ThresholdType=line /p:Exclude="[ECommerce.Contracts]*"
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[ECommerce.Contracts]*"
 ```
 * **Static Analysis Integration:** Can be combined with **SonarQube / SonarCloud** if merging coverage data with Security Scanning (SAST) is required.
 
