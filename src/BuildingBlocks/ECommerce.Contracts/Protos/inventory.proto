@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerce.Contracts.Protos";
+
+package inventory;
+
+service InventoryService {
+  rpc ReserveStock (ReserveStockRequest) returns (ReserveStockResponse);
+  rpc ReleaseStock (ReleaseStockRequest) returns (ReleaseStockResponse);
+}
+
+message ReserveStockRequest {
+  string order_id = 1;
+  string sku = 2;
+  int32 quantity = 3;
+}
+
+message ReserveStockResponse {
+  string reservation_id = 1;
+  bool is_success = 2;
+  string message = 3;
+}
+
+message ReleaseStockRequest {
+  string reservation_id = 1;
+}
+
+message ReleaseStockResponse {
+  bool is_success = 2;
+  string message = 3;
+}
+
