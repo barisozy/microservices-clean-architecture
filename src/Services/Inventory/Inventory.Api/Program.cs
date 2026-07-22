@@ -16,6 +16,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Inventory.Infrastructure.Data.InventoryDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())

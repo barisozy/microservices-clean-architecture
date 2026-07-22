@@ -20,8 +20,11 @@ namespace Payments.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("payments");
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("payments");
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
         }
     }
 }

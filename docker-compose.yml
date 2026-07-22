@@ -33,7 +33,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5432:5432"
@@ -98,7 +98,7 @@ services:
     networks:
       - ecommerce-net
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/realms/ecommerce || exit 1"]
+      test: ["CMD-SHELL", "sh -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5

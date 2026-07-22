@@ -27,12 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\src\**\*" Exclude="..\src\**\bin\**;..\src\**\obj\**;..\src\**\.vs\**" Link="content\src\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Content Include="..\Directory.Build.props" Link="content\Directory.Build.props" />
-    <Content Include="..\Directory.Packages.props" Link="content\Directory.Packages.props" />
-    <Content Include="..\docker-compose.yml" Link="content\docker-compose.yml" />
-    <Content Include="..\README.md" Link="content\README.md" />
+    <Content Include=".template.config\**\*" PackagePath="content\.template.config\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\src\**\*" Exclude="..\src\**\bin\**;..\src\**\obj\**;..\src\**\.vs\**" PackagePath="content\src\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\Directory.Build.props" PackagePath="content\Directory.Build.props" />
+    <Content Include="..\Directory.Packages.props" PackagePath="content\Directory.Packages.props" />
+    <Content Include="..\docker-compose.yml" PackagePath="content\docker-compose.yml" />
+    <Content Include="..\README.md" PackagePath="content\README.md" />
   </ItemGroup>
-
 </Project>
 
