@@ -10,6 +10,10 @@ A production-grade, solo-buildable microservices template following a **true mic
 
 Developed by **barisozy** — [https://github.com/barisozy](https://github.com/barisozy)
 
+[![Sponsor barisozy](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/barisozy)
+
+> **Enjoying this project?** If you find this microservices template helpful, consider [sponsoring on GitHub](https://github.com/sponsors/barisozy) to support ongoing maintenance and new features!
+
 ---
 
 ## Architecture Overview
