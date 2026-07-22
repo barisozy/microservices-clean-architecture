@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>BarisOzy.Microservices.CleanArchitecture.Template</PackageId>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Title>.NET 10 Microservices Clean Architecture Template</Title>
     <Authors>Baris Ozy</Authors>
     <Company>BarisOzy</Company>
@@ -29,6 +29,14 @@
   <ItemGroup>
     <Content Include=".template.config\**\*" PackagePath="content\.template.config\%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Include="..\src\**\*" Exclude="..\src\**\bin\**;..\src\**\obj\**;..\src\**\.vs\**" PackagePath="content\src\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\tests\**\*" Exclude="..\tests\**\bin\**;..\tests\**\obj\**;..\tests\**\.vs\**" PackagePath="content\tests\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\infra\**\*" PackagePath="content\infra\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\.github\**\*" PackagePath="content\.github\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\*.sln" PackagePath="content\%(Filename)%(Extension)" />
+    <Content Include="..\.env.example" PackagePath="content\.env.example" />
+    <Content Include="..\.gitignore" PackagePath="content\.gitignore" />
+    <Content Include="..\.dockerignore" PackagePath="content\.dockerignore" />
+    <Content Include="..\global.json" PackagePath="content\global.json" />
     <Content Include="..\Directory.Build.props" PackagePath="content\Directory.Build.props" />
     <Content Include="..\Directory.Packages.props" PackagePath="content\Directory.Packages.props" />
     <Content Include="..\docker-compose.yml" PackagePath="content\docker-compose.yml" />
