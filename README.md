@@ -4,7 +4,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=green)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/nuget-publish.yml?style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
 [![Security Scan](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/codeql.yml?label=CodeQL&style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
-[![Test Coverage](https://raw.githubusercontent.com/barisozy/microservices-clean-architecture/badges/badge_linecoverage.svg)](#)
+[![Test Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/barisozy/f649be1e7df40784c5be106c328e8b26/raw/coverage.json)](#)
 
 > **.NET 10 LTS · Onion Architecture · MassTransit (v8, MIT) · Keycloak · YARP · Aspire · Valkey**
 
