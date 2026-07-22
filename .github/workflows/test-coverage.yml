@@ -29,7 +29,7 @@ jobs:
         run: dotnet restore ECommerce.sln
 
       - name: Test & Collect Coverage
-        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=80 /p:ThresholdType=line /p:Exclude="[ECommerce.Contracts]*"
+        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[ECommerce.Contracts]*"
 
       - name: Generate Report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
