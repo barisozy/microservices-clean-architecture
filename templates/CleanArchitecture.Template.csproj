@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>BarisOzy.Microservices.CleanArchitecture.Template</PackageId>
-    <Version>1.1.3</Version>
+    <Version>1.1.4</Version>
     <Title>.NET 10 Microservices Clean Architecture Template</Title>
     <Authors>Baris Ozy</Authors>
     <Company>BarisOzy</Company>
