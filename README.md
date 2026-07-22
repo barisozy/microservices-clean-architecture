@@ -1,8 +1,26 @@
 # 🛒 E-Commerce Microservices Platform
 
+[![NuGet Version](https://img.shields.io/nuget/v/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=blue)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=green)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/nuget-publish.yml?style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
+[![Security Scan](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/codeql.yml?label=CodeQL&style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions)
+[![Test Coverage](https://img.shields.io/badge/Coverage-In_Progress-yellow?style=flat-square)](#)
+
 > **.NET 10 LTS · Onion Architecture · MassTransit (v8, MIT) · Keycloak · YARP · Aspire · Valkey**
 
 A production-grade, solo-buildable microservices template following a **true microservices pattern** — independent data ownership, independent deployability, and per-service CI/CD pipelines in a monorepo. Created and maintained by **barisozy**.
+
+## ✨ Why Choose This Template? (Value Proposition)
+
+Unlike basic CRUD examples, this template is designed for **production readiness** and **developer experience (DX)** right out of the box:
+
+- 🛡️ **True Clean Architecture**: Strictly enforced dependency rules. The Domain layer has zero dependencies.
+- 📦 **Transactional Outbox Pattern**: Built-in with MassTransit and EF Core for guaranteed eventual consistency.
+- 🚀 **.NET Aspire Orchestration**: 1-click local development with distributed tracing, metrics, and logs via Aspire Dashboard.
+- 🔐 **Secure by Default**: Keycloak integrated JWT validation and YARP Gateway rate limiting (via Valkey).
+- 📡 **Hybrid Communication**: Synchronous inter-service gRPC calls alongside asynchronous RabbitMQ events.
+- 📊 **OpenTelemetry Ready**: Pre-configured OTel instrumentation across all services.
+- 🔄 **Independent CI/CD**: Path-filtered GitHub Actions for each microservice, demonstrating true independent deployability.
 
 ---
 
@@ -16,25 +34,73 @@ Developed by **barisozy** — [https://github.com/barisozy](https://github.com/b
 
 ---
 
-## Architecture Overview
+## 🚀 Quick Start (1-Click Install)
 
+Get started immediately by installing the template and generating your microservices project:
+
+```bash
+# 1. Install the template from NuGet
+dotnet new install BarisOzy.Microservices.CleanArchitecture.Template
+
+# 2. Generate your new project
+dotnet new ecom-clean-arch -n MyCompany.MyStore
+
+# 3. Run the entire infrastructure & services via Aspire
+cd MyCompany.MyStore
+dotnet run --project src/Orchestration/MyCompany.MyStore.AppHost
 ```
-                          ┌─────────────────────────────────────────┐
-  Client                  │          YARP Gateway :8000              │
-  ─────────── HTTP ──────▶│  JWT Validation + Rate Limiting (Valkey) │
-                          └──────────────┬──────────────────────────┘
-                                         │ REST (path-based routing)
-          ┌────────────────┬─────────────┼──────────────┬──────────────┐
-          ▼                ▼             ▼              ▼              ▼
-   Ordering.Api    Inventory.Api   Payments.Api  Fulfillment.Api   (future)
-   :5100           :5200            :5300          :5400
-        │                 ▲
-        └──── gRPC ───────┘   (ReserveStock / ReleaseStock)
-        
-        Ordering.Api ──[MassTransit Outbox]──▶ RabbitMQ ──▶ Payments.Api
-        Payments.Api ──[MassTransit Outbox]──▶ RabbitMQ ──▶ Fulfillment.Api
-        Payments.Api ──[PaymentFailed]────────▶ RabbitMQ ──▶ Ordering.Api (compensation)
-        Ordering.Api ──[OrderCancelled]────────▶ RabbitMQ ──▶ Inventory.Api (stock release)
+
+---
+
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TD
+    subgraph External
+        Client([Client Applications])
+    end
+
+    subgraph Infrastructure
+        Gateway[YARP Gateway :8000<br/>JWT & Rate Limiting]
+        Valkey[(Valkey Cache)]
+        MQ(((RabbitMQ<br/>Event Bus)))
+    end
+
+    subgraph Microservices
+        OrderApi[Ordering.Api :5100<br/>MassTransit Outbox]
+        InvApi[Inventory.Api :5200<br/>Output Cache]
+        PayApi[Payments.Api :5300<br/>Compensation]
+        FulfillApi[Fulfillment.Api :5400]
+    end
+
+    Client -- HTTP REST --> Gateway
+    Gateway -. Auth/RateLimit .-> Valkey
+    Gateway -- Route --> OrderApi
+    Gateway -- Route --> InvApi
+    Gateway -- Route --> PayApi
+    Gateway -- Route --> FulfillApi
+
+    OrderApi -- gRPC ReserveStock --> InvApi
+
+    OrderApi -- OrderCreated --> MQ
+    MQ -.-> PayApi
+    
+    PayApi -- PaymentCompleted --> MQ
+    MQ -.-> FulfillApi
+    
+    PayApi -- PaymentFailed --> MQ
+    MQ -. Compensation .-> OrderApi
+    
+    OrderApi -- OrderCancelled --> MQ
+    MQ -. Release Stock .-> InvApi
+    
+    classDef external fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef infra fill:#f96,stroke:#333,stroke-width:2px;
+    classDef api fill:#69b,stroke:#333,stroke-width:2px,color:#fff;
+    
+    class Client external;
+    class Gateway,Valkey,MQ infra;
+    class OrderApi,InvApi,PayApi,FulfillApi api;
 ```
 
 ### Layer Structure (per service)
