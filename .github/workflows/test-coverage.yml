@@ -36,18 +36,25 @@ jobs:
         with:
           reports: './coverage/**/coverage.cobertura.xml'
           targetdir: './coveragereport'
-          reporttypes: 'Html;MarkdownSummary;Badges'
+          reporttypes: 'Html;MarkdownSummary'
           classfilters: '-ECommerce.Contracts.*;-*Exception;-*Dto;-*Event;-*BaseAuditableEntity;-*BaseEntity'
 
       - name: Publish Summary
         run: cat ./coveragereport/Summary.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Deploy Badges to badges branch
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Extract Coverage Percentage
+        run: |
+          COVERAGE=$(grep -oP '\*\*Line coverage:\*\* \K[0-9.]+' ./coveragereport/Summary.md | head -1)
+          if [ -z "$COVERAGE" ]; then COVERAGE="0"; fi
+          echo "COVERAGE_PERCENTAGE=$COVERAGE" >> $GITHUB_ENV
+
+      - name: Create Coverage Badge
+        uses: Schneegans/dynamic-badges-action@v1.7.0
         if: github.ref == 'refs/heads/main'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./coveragereport
-          publish_branch: badges
-          keep_files: false
-          force_orphan: true
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: ${{ secrets.GIST_ID }}
+          filename: coverage.json
+          label: Test Coverage
+          message: ${{ env.COVERAGE_PERCENTAGE }}%
+          color: green
