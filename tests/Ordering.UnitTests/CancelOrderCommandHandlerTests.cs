@@ -34,4 +34,20 @@ public class CancelOrderCommandHandlerTests
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFalse_WhenOrderNotFound()
+    {
+        var contextMock = new Mock<IOrderingDbContext>();
+        var publishMock = new Mock<IPublishEndpoint>();
+
+        contextMock.Setup(x => x.Orders).ReturnsDbSet(new List<Order>());
+
+        var handler = new CancelOrderCommandHandler(contextMock.Object, publishMock.Object);
+        var result = await handler.Handle(new CancelOrderCommand(Guid.NewGuid(), "Reason"), CancellationToken.None);
+
+        result.ShouldBeFalse();
+        contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

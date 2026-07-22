@@ -34,4 +34,25 @@ public class PaymentsTests
         command.IdempotencyKey.ShouldBe("key123");
         command.Amount.ShouldBe(50m);
     }
+
+    [Fact]
+    public void PaymentRecord_Fail_Should_Set_Status_To_Failed()
+    {
+        var payment = PaymentRecord.Create(Guid.NewGuid(), "key", 10);
+        payment.Fail("Insufficient funds");
+        payment.Status.ShouldBe("Failed");
+        payment.FailureReason.ShouldBe("Insufficient funds");
+    }
+
+    [Fact]
+    public void Payment_Create_Should_Initialize_Correctly()
+    {
+        var orderId = Guid.NewGuid();
+        var payment = Payment.Create(orderId, "key123", 100.50m);
+        payment.Status.ShouldBe("Pending");
+        payment.Amount.ShouldBe(100.50m);
+        payment.OrderId.ShouldBe(orderId);
+        payment.IdempotencyKey.ShouldBe("key123");
+        payment.TransactionId.ShouldNotBeNullOrEmpty();
+    }
 }
