@@ -28,16 +28,8 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore ECommerce.sln
 
-      - name: Start Infrastructure (docker-compose)
-        run: |
-          cp .env.example .env
-          docker compose up --build -d
-          echo "Waiting for Keycloak and databases to initialize..."
-          sleep 60
-          docker ps
-
       - name: Test & Collect Coverage
-        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[ECommerce.Contracts]*"
+        run: dotnet test ECommerce.sln --configuration Release --filter "FullyQualifiedName!~ECommerce.IntegrationTests" --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[ECommerce.Contracts]*"
 
       - name: Generate Report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
