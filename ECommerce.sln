@@ -81,6 +81,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auditing.Api", "src\Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerce.Auditing", "src\BuildingBlocks\ECommerce.Auditing\ECommerce.Auditing.csproj", "{18B29CF9-249C-44CD-B4BB-A8DA3DEB810A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auditing.UnitTests", "tests\Auditing.UnitTests\Auditing.UnitTests.csproj", "{68CE3849-CE0F-467F-90E6-B893A16C4704}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -427,6 +429,18 @@ Global
 		{18B29CF9-249C-44CD-B4BB-A8DA3DEB810A}.Release|x64.Build.0 = Release|Any CPU
 		{18B29CF9-249C-44CD-B4BB-A8DA3DEB810A}.Release|x86.ActiveCfg = Release|Any CPU
 		{18B29CF9-249C-44CD-B4BB-A8DA3DEB810A}.Release|x86.Build.0 = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|x64.Build.0 = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Debug|x86.Build.0 = Debug|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|x64.ActiveCfg = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|x64.Build.0 = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|x86.ActiveCfg = Release|Any CPU
+		{68CE3849-CE0F-467F-90E6-B893A16C4704}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -469,5 +483,6 @@ Global
 		{DC6F9795-30FC-95C7-F04A-414572770EC8} = {984BB9B3-3FA3-BE33-9484-CAC21695A33C}
 		{B2889456-EED2-42C1-8A92-0C94F772BD6F} = {DC6F9795-30FC-95C7-F04A-414572770EC8}
 		{18B29CF9-249C-44CD-B4BB-A8DA3DEB810A} = {90298CBA-BD6F-3A0A-69D5-97CAD7B05E7E}
+		{68CE3849-CE0F-467F-90E6-B893A16C4704} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
