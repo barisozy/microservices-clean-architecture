@@ -23,7 +23,7 @@ public class StockReservedConsumerTests
         var consumer = new StockReservedConsumer(senderMock.Object, loggerMock.Object);
 
         var consumeContextMock = new Mock<ConsumeContext<StockReserved>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new StockReserved(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemContractDto>(), 100, DateTimeOffset.UtcNow));
+        consumeContextMock.Setup(x => x.Message).Returns(new StockReserved(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemContractDto>(), 100, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow));
 
         await consumer.Consume(consumeContextMock.Object);
         // Should not throw

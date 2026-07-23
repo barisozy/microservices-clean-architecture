@@ -16,5 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Payments.Domain\Payments.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.Contracts\ECommerce.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.Auditing\ECommerce.Auditing.csproj" />
   </ItemGroup>
 </Project>

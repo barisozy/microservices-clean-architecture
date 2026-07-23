@@ -17,10 +17,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="realm-export.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Services\Ordering\Ordering.Api\Ordering.Api.csproj" />
     <ProjectReference Include="..\..\Services\Inventory\Inventory.Api\Inventory.Api.csproj" />
     <ProjectReference Include="..\..\Services\Payments\Payments.Api\Payments.Api.csproj" />
     <ProjectReference Include="..\..\Services\Fulfillment\Fulfillment.Api\Fulfillment.Api.csproj" />
     <ProjectReference Include="..\..\Gateways\ECommerce.Gateway\ECommerce.Gateway.csproj" />
+    <ProjectReference Include="..\..\Services\Auditing\Auditing.Api\Auditing.Api.csproj" />
   </ItemGroup>
 </Project>

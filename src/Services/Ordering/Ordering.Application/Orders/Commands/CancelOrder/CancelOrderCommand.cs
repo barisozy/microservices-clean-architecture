@@ -16,10 +16,11 @@ public class CancelOrderCommandHandler(IOrderingDbContext context, IPublishEndpo
         if (order == null) return false;
 
         order.Cancel(request.Reason);   // Sets Status = Cancelled (idempotent if already cancelled)
-        await context.SaveChangesAsync(cancellationToken);
-
+        
         // OrderCancelled is published via MassTransit Outbox — consumed by Inventory.Api to release stock
         await publishEndpoint.Publish(new OrderCancelled(request.OrderId, request.Reason, DateTimeOffset.UtcNow), cancellationToken);
+        
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

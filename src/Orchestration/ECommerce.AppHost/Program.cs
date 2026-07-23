@@ -11,6 +11,7 @@ var orderingDb = postgres.AddDatabase("OrderingDb", "ordering_db");
 var inventoryDb = postgres.AddDatabase("InventoryDb", "inventory_db");
 var paymentsDb = postgres.AddDatabase("PaymentsDb", "payments_db");
 var fulfillmentDb = postgres.AddDatabase("FulfillmentDb", "fulfillment_db");
+var auditingDb = postgres.AddDatabase("AuditingDb", "auditing_db");
 
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
     .WithManagementPlugin();
@@ -33,7 +34,8 @@ var orderingApi = builder.AddProject<Projects.Ordering_Api>("ordering-api")
     .WithReference(rabbitmq)
     .WithReference(valkey)
     .WaitFor(postgres)
-    .WaitFor(rabbitmq);
+    .WaitFor(rabbitmq)
+    .WithEnvironment("Jwt__Authority", ReferenceExpression.Create($"{keycloak.GetEndpoint("http")}/realms/ecommerce"));
 
 var inventoryApi = builder.AddProject<Projects.Inventory_Api>("inventory-api")
     .WithReference(inventoryDb)
@@ -54,6 +56,12 @@ var fulfillmentApi = builder.AddProject<Projects.Fulfillment_Api>("fulfillment-a
     .WaitFor(postgres)
     .WaitFor(rabbitmq);
 
+var auditingApi = builder.AddProject<Projects.Auditing_Api>("auditing-api")
+    .WithReference(auditingDb)
+    .WithReference(rabbitmq)
+    .WaitFor(postgres)
+    .WaitFor(rabbitmq);
+
 // YARP Gateway
 builder.AddProject<Projects.ECommerce_Gateway>("gateway")
     .WithReference(valkey)
@@ -61,6 +69,7 @@ builder.AddProject<Projects.ECommerce_Gateway>("gateway")
     .WithReference(inventoryApi)
     .WithReference(paymentsApi)
     .WithReference(fulfillmentApi)
-    .WaitFor(orderingApi);
+    .WaitFor(orderingApi)
+    .WithEnvironment("Jwt__Authority", ReferenceExpression.Create($"{keycloak.GetEndpoint("http")}/realms/ecommerce"));
 
 builder.Build().Run();

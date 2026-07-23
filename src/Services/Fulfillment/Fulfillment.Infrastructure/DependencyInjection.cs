@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ECommerce.Auditing;
 using Fulfillment.Application.Common.Interfaces;
 using Fulfillment.Application.Consumers;
 using Fulfillment.Domain.Entities;
@@ -46,9 +47,11 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddScoped<IUser, CurrentUser>();
+        services.AddECommerceAuditing();
 
         services.AddDbContext<FulfillmentDbContext>((sp, options) =>
         {
+            // options.AddInterceptors(sp.GetServices<Microsoft.EntityFrameworkCore.Diagnostics.ISaveChangesInterceptor>());
             options.UseNpgsql(configuration.GetConnectionString("FulfillmentDb"), npgsql =>
             {
                 npgsql.SetPostgresVersion(18, 0);
