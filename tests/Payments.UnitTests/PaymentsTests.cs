@@ -30,7 +30,7 @@ public class PaymentsTests
     [Fact]
     public void ProcessPaymentCommand_Should_Store_Values_Correctly()
     {
-        var command = new ProcessPaymentCommand(Guid.NewGuid(), "key123", 50m, new List<OrderItemContractDto>());
+        var command = new ProcessPaymentCommand(Guid.NewGuid(), "key123", 50m, new List<OrderItemContractDto>(), DateTimeOffset.UtcNow);
         command.IdempotencyKey.ShouldBe("key123");
         command.Amount.ShouldBe(50m);
     }

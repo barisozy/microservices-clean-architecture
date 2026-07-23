@@ -33,7 +33,9 @@ public class FulfillmentConsumersTests
         var consumer = new PaymentCompletedConsumer(contextMock.Object, publishMock.Object, loggerMock.Object, readRepoMock.Object);
 
         var consumeContextMock = new Mock<ConsumeContext<PaymentCompleted>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new PaymentCompleted(Guid.NewGuid(), Guid.NewGuid(), "key1", DateTimeOffset.UtcNow));
+        var orderId = Guid.NewGuid();
+        var message = new PaymentCompleted(orderId, Guid.NewGuid(), "idempotency-key", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+        consumeContextMock.Setup(x => x.Message).Returns(message);
         consumeContextMock.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
 
         await consumer.Consume(consumeContextMock.Object);
