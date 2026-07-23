@@ -24,8 +24,13 @@ public class CreateOrderCommandHandlerTests
         dbContextMock.Setup(x => x.Orders).Returns(dbSetMock.Object);
 
         var publishEndpointMock = new Mock<IPublishEndpoint>();
+        
+        var redisMock = new Mock<StackExchange.Redis.IConnectionMultiplexer>();
+        var dbMock = new Mock<StackExchange.Redis.IDatabase>();
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(dbMock.Object);
+        dbMock.Setup(x => x.StringSetAsync(It.IsAny<StackExchange.Redis.RedisKey>(), It.IsAny<StackExchange.Redis.RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<bool>(), It.IsAny<StackExchange.Redis.When>(), It.IsAny<StackExchange.Redis.CommandFlags>())).ReturnsAsync(true);
 
-        var handler = new CreateOrderCommandHandler(dbContextMock.Object, publishEndpointMock.Object);
+        var handler = new CreateOrderCommandHandler(dbContextMock.Object, publishEndpointMock.Object, redisMock.Object);
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemDto> { new("SKU1", 1, 100) });
 
