@@ -45,7 +45,7 @@ public class AuditLogCreatedConsumerTests
         await consumer.Consume(contextMock.Object);
 
         // Assert
-        var savedLog = await dbContext.AuditLogs.FirstOrDefaultAsync(x => x.Id == message.Id);
+        var savedLog = await dbContext.AuditLogs.FirstOrDefaultAsync(x => x.Id == message.Id, TestContext.Current.CancellationToken);
         savedLog.ShouldNotBeNull();
         savedLog.UserId.ShouldBe("test-user");
         savedLog.EntityName.ShouldBe("Order");
