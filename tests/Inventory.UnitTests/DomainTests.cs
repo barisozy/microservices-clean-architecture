@@ -30,40 +30,46 @@ public class DomainTests
     }
 
     [Fact]
-    public void BaseAuditableEntity_Properties_ShouldBeSetAndGet()
+    public void Stock_PropertiesAndMethods_ShouldWorkCorrectly()
     {
         var now = DateTimeOffset.UtcNow;
-        var item = new InventoryItem
+        var stock = new Stock("SKU-100", 50)
         {
-            Sku = "SKU-100",
-            Quantity = 50,
-            ReservedQuantity = 5,
             CreatedAt = now,
             CreatedBy = "admin",
             LastModifiedAt = now,
             LastModifiedBy = "admin2"
         };
 
-        item.Sku.ShouldBe("SKU-100");
-        item.Quantity.ShouldBe(50);
-        item.ReservedQuantity.ShouldBe(5);
-        item.CreatedAt.ShouldBe(now);
-        item.CreatedBy.ShouldBe("admin");
-        item.LastModifiedAt.ShouldBe(now);
-        item.LastModifiedBy.ShouldBe("admin2");
+        stock.Sku.ShouldBe("SKU-100");
+        stock.Quantity.ShouldBe(50);
+        stock.ReservedQuantity.ShouldBe(0);
+        stock.AvailableQuantity.ShouldBe(50);
+        stock.CreatedAt.ShouldBe(now);
+        stock.CreatedBy.ShouldBe("admin");
+
+        stock.Reserve(10).ShouldBeTrue();
+        stock.ReservedQuantity.ShouldBe(10);
+        stock.AvailableQuantity.ShouldBe(40);
+
+        stock.Release(5);
+        stock.ReservedQuantity.ShouldBe(5);
+        stock.AvailableQuantity.ShouldBe(45);
     }
 
     [Fact]
-    public void InventoryReservation_Properties_ShouldBeSetAndGet()
+    public void InventoryReservation_PropertiesAndMethods_ShouldWorkCorrectly()
     {
         var orderId = Guid.NewGuid();
         var reservation = InventoryReservation.Create(orderId, "SKU-200", 3);
-        reservation.Status = ReservationStatus.Released;
 
         reservation.OrderId.ShouldBe(orderId);
         reservation.Sku.ShouldBe("SKU-200");
         reservation.Quantity.ShouldBe(3);
-        reservation.Status.ShouldBe(ReservationStatus.Released);
+        reservation.IsReleased.ShouldBeFalse();
+
+        reservation.Release();
+        reservation.IsReleased.ShouldBeTrue();
     }
 
     [Fact]
