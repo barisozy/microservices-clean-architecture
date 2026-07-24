@@ -189,7 +189,11 @@ docker compose up --build
 ## Running Tests
 
 ```bash
-# Unit tests
+# Run all unit tests
+dotnet test
+
+# Run specific service unit tests
+dotnet test tests/Auditing.UnitTests/
 dotnet test tests/Ordering.UnitTests/
 
 # Integration tests (requires docker-compose up -d to be running)
