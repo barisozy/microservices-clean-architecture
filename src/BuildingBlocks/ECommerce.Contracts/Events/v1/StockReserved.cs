@@ -6,5 +6,6 @@ public record StockReserved(
     string IdempotencyKey,
     List<OrderItemContractDto> Items,
     decimal TotalAmount,
-    DateTimeOffset ReservedAt
+    DateTimeOffset ReservedAt,
+    DateTimeOffset OrderCreatedAt
 );

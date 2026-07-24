@@ -23,5 +23,6 @@
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Grpc.AspNetCore" />
     <PackageReference Include="Grpc.Net.Client" />
+    <PackageReference Include="MassTransit" />
   </ItemGroup>
 </Project>

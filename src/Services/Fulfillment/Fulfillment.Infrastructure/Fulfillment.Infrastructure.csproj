@@ -16,5 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Fulfillment.Application\Fulfillment.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.ServiceDefaults\ECommerce.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.Auditing\ECommerce.Auditing.csproj" />
   </ItemGroup>
 </Project>

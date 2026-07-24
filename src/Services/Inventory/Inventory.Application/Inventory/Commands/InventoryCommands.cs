@@ -49,6 +49,8 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
         var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == reservation.Sku, cancellationToken);
         stock?.Release(reservation.Quantity);
 
+        await publishEndpoint.Publish(new StockReleased(reservation.OrderId, reservation.Id, DateTimeOffset.UtcNow), cancellationToken);
+
         await context.SaveChangesAsync(cancellationToken);
         
         if (stock != null)
@@ -56,8 +58,6 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
             // Update Read Model
             await stockReadRepository.SetAvailableQuantityAsync(stock.Sku, stock.AvailableQuantity, cancellationToken);
         }
-
-        await publishEndpoint.Publish(new StockReleased(reservation.OrderId, reservation.Id, DateTimeOffset.UtcNow), cancellationToken);
 
         return true;
     }

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ECommerce.Auditing;
 using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -51,9 +52,11 @@ namespace Payments.Infrastructure
         {
             services.AddHttpContextAccessor();
             services.AddScoped<IUser, CurrentUser>();
+            services.AddECommerceAuditing();
 
             services.AddDbContext<PaymentsDbContext>((sp, options) =>
             {
+                // options.AddInterceptors(sp.GetServices<Microsoft.EntityFrameworkCore.Diagnostics.ISaveChangesInterceptor>());
                 options.UseNpgsql(configuration.GetConnectionString("PaymentsDb"), npgsql =>
                 {
                     npgsql.SetPostgresVersion(18, 0);

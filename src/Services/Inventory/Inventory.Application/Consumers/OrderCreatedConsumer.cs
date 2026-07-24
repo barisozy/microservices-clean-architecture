@@ -16,7 +16,7 @@ public class OrderCreatedConsumer(ISender sender, IPublishEndpoint publishEndpoi
         var msg = context.Message;
         logger.LogInformation("Processing stock reservation for OrderId: {OrderId}", msg.OrderId);
 
-        // For simplicity in template, take the first item
+        // For simplicity in this sample reference architecture, take the first item
         var sku = msg.Items.FirstOrDefault()?.Sku ?? "UNKNOWN_SKU";
         var quantity = msg.Items.Sum(x => x.Quantity);
 
@@ -33,7 +33,8 @@ public class OrderCreatedConsumer(ISender sender, IPublishEndpoint publishEndpoi
                 msg.IdempotencyKey,
                 msg.Items,
                 msg.TotalAmount,
-                DateTimeOffset.UtcNow
+                DateTimeOffset.UtcNow,
+                msg.CreatedAt
             ), context.CancellationToken);
         }
         else

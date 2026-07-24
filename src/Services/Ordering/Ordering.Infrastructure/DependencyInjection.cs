@@ -1,4 +1,5 @@
 using ECommerce.Contracts.Protos;
+using ECommerce.Auditing;
 using ECommerce.ServiceDefaults.Interceptors;
 using Grpc.Net.Client;
 using MassTransit;
@@ -21,13 +22,17 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddScoped<IUser, CurrentUser>();
+        services.AddECommerceAuditing();
 
-        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        services.AddScoped<AuditableEntityInterceptor>();
+        services.AddScoped<DispatchDomainEventsInterceptor>();
 
         services.AddDbContext<OrderingDbContext>((sp, options) =>
         {
-            options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditableEntityInterceptor>(),
+                sp.GetRequiredService<DispatchDomainEventsInterceptor>()
+            );
             options.UseNpgsql(configuration.GetConnectionString("OrderingDb"), npgsql =>
             {
                 npgsql.SetPostgresVersion(18, 0);

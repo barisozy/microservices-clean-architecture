@@ -1,12 +1,2590 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.7406999999999999" branch-rate="0.6875" version="1.9" timestamp="1784729748" lines-covered="140" lines-valid="189" branches-covered="11" branches-valid="16">
+<coverage line-rate="0.2084" branch-rate="0.061799999999999994" version="1.9" timestamp="1784761841" lines-covered="167" lines-valid="801" branches-covered="12" branches-valid="194">
   <sources>
-    <source>C:/Users/baris/source/repos/e-commerce.template/src/Services/Ordering/</source>
+    <source>C:/Users/baris/source/repos/e-commerce.template/</source>
   </sources>
   <packages>
-    <package name="Ordering.Application" line-rate="0.7272" branch-rate="0.5832999999999999" complexity="54">
+    <package name="ECommerce.Contracts" line-rate="0.015" branch-rate="0" complexity="300">
       <classes>
-        <class name="Ordering.Application.DependencyInjection" filename="Ordering.Application/DependencyInjection.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="ECommerce.Contracts.Protos.InventoryReflection" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/Inventory.cs" line-rate="0" branch-rate="1" complexity="2">
+          <methods>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="20" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="24" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
+                <line number="32" hits="0" branch="False" />
+                <line number="33" hits="0" branch="False" />
+                <line number="34" hits="0" branch="False" />
+                <line number="35" hits="0" branch="False" />
+                <line number="36" hits="0" branch="False" />
+                <line number="37" hits="0" branch="False" />
+                <line number="38" hits="0" branch="False" />
+                <line number="39" hits="0" branch="False" />
+                <line number="40" hits="0" branch="False" />
+                <line number="41" hits="0" branch="False" />
+                <line number="42" hits="0" branch="False" />
+                <line number="43" hits="0" branch="False" />
+                <line number="44" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="46" hits="0" branch="False" />
+                <line number="47" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="20" hits="0" branch="False" />
+            <line number="24" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
+            <line number="32" hits="0" branch="False" />
+            <line number="33" hits="0" branch="False" />
+            <line number="34" hits="0" branch="False" />
+            <line number="35" hits="0" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="37" hits="0" branch="False" />
+            <line number="38" hits="0" branch="False" />
+            <line number="39" hits="0" branch="False" />
+            <line number="40" hits="0" branch="False" />
+            <line number="41" hits="0" branch="False" />
+            <line number="42" hits="0" branch="False" />
+            <line number="43" hits="0" branch="False" />
+            <line number="44" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.ReserveStockRequest" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/Inventory.cs" line-rate="0" branch-rate="0" complexity="69">
+          <methods>
+            <method name="get_Parser" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="62" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="67" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IMessage.get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="73" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Clone" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="95" hits="0" branch="False" />
+                <line number="96" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="105" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_OrderId" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="106" hits="0" branch="False" />
+                <line number="107" hits="0" branch="False" />
+                <line number="108" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Sku" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="117" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_Sku" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="118" hits="0" branch="False" />
+                <line number="119" hits="0" branch="False" />
+                <line number="120" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Quantity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="129" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_Quantity" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="137" hits="0" branch="False" />
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(ECommerce.Contracts.Protos.ReserveStockRequest)" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="143" hits="0" branch="False" />
+                <line number="144" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="145" hits="0" branch="False" />
+                <line number="147" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="148" hits="0" branch="False" />
+                <line number="150" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="73" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="100" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="153" hits="0" branch="False" />
+                <line number="154" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetHashCode" signature="()" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="158" hits="0" branch="False" />
+                <line number="159" hits="0" branch="False" />
+                <line number="160" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="161" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="162" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="78" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="163" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="111" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="164" hits="0" branch="False" />
+                <line number="165" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="171" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+                <line number="173" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteTo" signature="(Google.Protobuf.CodedOutputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="177" hits="0" branch="False" />
+                <line number="179" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalWriteTo" signature="(Google.Protobuf.WriteContext&amp;)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="202" hits="0" branch="False" />
+                <line number="203" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="204" hits="0" branch="False" />
+                <line number="205" hits="0" branch="False" />
+                <line number="206" hits="0" branch="False" />
+                <line number="207" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="59" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="208" hits="0" branch="False" />
+                <line number="209" hits="0" branch="False" />
+                <line number="210" hits="0" branch="False" />
+                <line number="211" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="96" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="212" hits="0" branch="False" />
+                <line number="213" hits="0" branch="False" />
+                <line number="214" hits="0" branch="False" />
+                <line number="215" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="133" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="216" hits="0" branch="False" />
+                <line number="217" hits="0" branch="False" />
+                <line number="218" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CalculateSize" signature="()" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="223" hits="0" branch="False" />
+                <line number="224" hits="0" branch="False" />
+                <line number="225" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="226" hits="0" branch="False" />
+                <line number="227" hits="0" branch="False" />
+                <line number="228" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="55" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="229" hits="0" branch="False" />
+                <line number="230" hits="0" branch="False" />
+                <line number="231" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="86" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="232" hits="0" branch="False" />
+                <line number="233" hits="0" branch="False" />
+                <line number="234" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="119" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="235" hits="0" branch="False" />
+                <line number="236" hits="0" branch="False" />
+                <line number="237" hits="0" branch="False" />
+                <line number="238" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(ECommerce.Contracts.Protos.ReserveStockRequest)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="242" hits="0" branch="False" />
+                <line number="243" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="244" hits="0" branch="False" />
+                <line number="246" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="28" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="247" hits="0" branch="False" />
+                <line number="248" hits="0" branch="False" />
+                <line number="249" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="61" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="250" hits="0" branch="False" />
+                <line number="251" hits="0" branch="False" />
+                <line number="252" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="89" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="253" hits="0" branch="False" />
+                <line number="254" hits="0" branch="False" />
+                <line number="255" hits="0" branch="False" />
+                <line number="256" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(Google.Protobuf.CodedInputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="260" hits="0" branch="False" />
+                <line number="262" hits="0" branch="False" />
+                <line number="289" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalMergeFrom" signature="(Google.Protobuf.ParseContext&amp;)" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="294" hits="0" branch="False" />
+                <line number="296" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="126" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="297" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="299" hits="0" branch="False" />
+                <line number="301" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="24" type="jump" coverage="0%" />
+                    <condition number="31" type="jump" coverage="0%" />
+                    <condition number="38" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="303" hits="0" branch="False" />
+                <line number="304" hits="0" branch="False" />
+                <line number="305" hits="0" branch="False" />
+                <line number="306" hits="0" branch="False" />
+                <line number="307" hits="0" branch="False" />
+                <line number="309" hits="0" branch="False" />
+                <line number="310" hits="0" branch="False" />
+                <line number="311" hits="0" branch="False" />
+                <line number="313" hits="0" branch="False" />
+                <line number="314" hits="0" branch="False" />
+                <line number="315" hits="0" branch="False" />
+                <line number="318" hits="0" branch="False" />
+                <line number="319" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="78" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="113" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ECommerce.Contracts.Protos.ReserveStockRequest)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
+                <line number="88" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+                <line number="90" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="58" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="62" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="96" hits="0" branch="False" />
+            <line number="97" hits="0" branch="False" />
+            <line number="105" hits="0" branch="False" />
+            <line number="106" hits="0" branch="False" />
+            <line number="107" hits="0" branch="False" />
+            <line number="108" hits="0" branch="False" />
+            <line number="117" hits="0" branch="False" />
+            <line number="118" hits="0" branch="False" />
+            <line number="119" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="137" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="143" hits="0" branch="False" />
+            <line number="144" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="145" hits="0" branch="False" />
+            <line number="147" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="148" hits="0" branch="False" />
+            <line number="150" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="73" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="100" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="153" hits="0" branch="False" />
+            <line number="154" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="160" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="161" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="162" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="78" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="163" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="111" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="164" hits="0" branch="False" />
+            <line number="165" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="171" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="173" hits="0" branch="False" />
+            <line number="177" hits="0" branch="False" />
+            <line number="179" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="204" hits="0" branch="False" />
+            <line number="205" hits="0" branch="False" />
+            <line number="206" hits="0" branch="False" />
+            <line number="207" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="59" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="208" hits="0" branch="False" />
+            <line number="209" hits="0" branch="False" />
+            <line number="210" hits="0" branch="False" />
+            <line number="211" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="96" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="212" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="214" hits="0" branch="False" />
+            <line number="215" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="133" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="216" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+            <line number="218" hits="0" branch="False" />
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="0" branch="False" />
+            <line number="225" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="226" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+            <line number="228" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="55" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="229" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="231" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="86" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="232" hits="0" branch="False" />
+            <line number="233" hits="0" branch="False" />
+            <line number="234" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="119" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="235" hits="0" branch="False" />
+            <line number="236" hits="0" branch="False" />
+            <line number="237" hits="0" branch="False" />
+            <line number="238" hits="0" branch="False" />
+            <line number="242" hits="0" branch="False" />
+            <line number="243" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="244" hits="0" branch="False" />
+            <line number="246" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="28" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="247" hits="0" branch="False" />
+            <line number="248" hits="0" branch="False" />
+            <line number="249" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="61" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="250" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="252" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="89" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="253" hits="0" branch="False" />
+            <line number="254" hits="0" branch="False" />
+            <line number="255" hits="0" branch="False" />
+            <line number="256" hits="0" branch="False" />
+            <line number="260" hits="0" branch="False" />
+            <line number="262" hits="0" branch="False" />
+            <line number="289" hits="0" branch="False" />
+            <line number="294" hits="0" branch="False" />
+            <line number="296" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="126" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="297" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="299" hits="0" branch="False" />
+            <line number="301" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="24" type="jump" coverage="0%" />
+                <condition number="31" type="jump" coverage="0%" />
+                <condition number="38" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="303" hits="0" branch="False" />
+            <line number="304" hits="0" branch="False" />
+            <line number="305" hits="0" branch="False" />
+            <line number="306" hits="0" branch="False" />
+            <line number="307" hits="0" branch="False" />
+            <line number="309" hits="0" branch="False" />
+            <line number="310" hits="0" branch="False" />
+            <line number="311" hits="0" branch="False" />
+            <line number="313" hits="0" branch="False" />
+            <line number="314" hits="0" branch="False" />
+            <line number="315" hits="0" branch="False" />
+            <line number="318" hits="0" branch="False" />
+            <line number="319" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="113" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
+            <line number="88" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.ReserveStockResponse" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/Inventory.cs" line-rate="0" branch-rate="0" complexity="69">
+          <methods>
+            <method name="get_Parser" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="334" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="339" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IMessage.get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="345" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Clone" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="367" hits="0" branch="False" />
+                <line number="368" hits="0" branch="False" />
+                <line number="369" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ReservationId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="377" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_ReservationId" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="378" hits="0" branch="False" />
+                <line number="379" hits="0" branch="False" />
+                <line number="380" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IsSuccess" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="389" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_IsSuccess" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="390" hits="0" branch="False" />
+                <line number="391" hits="0" branch="False" />
+                <line number="392" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Message" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="401" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_Message" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="402" hits="0" branch="False" />
+                <line number="403" hits="0" branch="False" />
+                <line number="404" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="409" hits="0" branch="False" />
+                <line number="410" hits="0" branch="False" />
+                <line number="411" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(ECommerce.Contracts.Protos.ReserveStockResponse)" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="415" hits="0" branch="False" />
+                <line number="416" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="417" hits="0" branch="False" />
+                <line number="419" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="420" hits="0" branch="False" />
+                <line number="422" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="423" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="73" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="424" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="100" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="425" hits="0" branch="False" />
+                <line number="426" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetHashCode" signature="()" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="430" hits="0" branch="False" />
+                <line number="431" hits="0" branch="False" />
+                <line number="432" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="433" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="43" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="434" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="80" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="435" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="109" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="436" hits="0" branch="False" />
+                <line number="437" hits="0" branch="False" />
+                <line number="438" hits="0" branch="False" />
+                <line number="439" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="443" hits="0" branch="False" />
+                <line number="444" hits="0" branch="False" />
+                <line number="445" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteTo" signature="(Google.Protobuf.CodedOutputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="449" hits="0" branch="False" />
+                <line number="451" hits="0" branch="False" />
+                <line number="469" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalWriteTo" signature="(Google.Protobuf.WriteContext&amp;)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="474" hits="0" branch="False" />
+                <line number="475" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="476" hits="0" branch="False" />
+                <line number="477" hits="0" branch="False" />
+                <line number="478" hits="0" branch="False" />
+                <line number="479" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="480" hits="0" branch="False" />
+                <line number="481" hits="0" branch="False" />
+                <line number="482" hits="0" branch="False" />
+                <line number="483" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="93" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="484" hits="0" branch="False" />
+                <line number="485" hits="0" branch="False" />
+                <line number="486" hits="0" branch="False" />
+                <line number="487" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="130" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="488" hits="0" branch="False" />
+                <line number="489" hits="0" branch="False" />
+                <line number="490" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CalculateSize" signature="()" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="495" hits="0" branch="False" />
+                <line number="496" hits="0" branch="False" />
+                <line number="497" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="498" hits="0" branch="False" />
+                <line number="499" hits="0" branch="False" />
+                <line number="500" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="47" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="501" hits="0" branch="False" />
+                <line number="502" hits="0" branch="False" />
+                <line number="503" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="71" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="504" hits="0" branch="False" />
+                <line number="505" hits="0" branch="False" />
+                <line number="506" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="104" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="507" hits="0" branch="False" />
+                <line number="508" hits="0" branch="False" />
+                <line number="509" hits="0" branch="False" />
+                <line number="510" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(ECommerce.Contracts.Protos.ReserveStockResponse)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="514" hits="0" branch="False" />
+                <line number="515" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="516" hits="0" branch="False" />
+                <line number="518" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="28" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="519" hits="0" branch="False" />
+                <line number="520" hits="0" branch="False" />
+                <line number="521" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="53" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="522" hits="0" branch="False" />
+                <line number="523" hits="0" branch="False" />
+                <line number="524" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="86" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="525" hits="0" branch="False" />
+                <line number="526" hits="0" branch="False" />
+                <line number="527" hits="0" branch="False" />
+                <line number="528" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(Google.Protobuf.CodedInputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="532" hits="0" branch="False" />
+                <line number="534" hits="0" branch="False" />
+                <line number="561" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalMergeFrom" signature="(Google.Protobuf.ParseContext&amp;)" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="566" hits="0" branch="False" />
+                <line number="568" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="126" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="569" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="571" hits="0" branch="False" />
+                <line number="573" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="24" type="jump" coverage="0%" />
+                    <condition number="31" type="jump" coverage="0%" />
+                    <condition number="38" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="575" hits="0" branch="False" />
+                <line number="576" hits="0" branch="False" />
+                <line number="577" hits="0" branch="False" />
+                <line number="578" hits="0" branch="False" />
+                <line number="579" hits="0" branch="False" />
+                <line number="581" hits="0" branch="False" />
+                <line number="582" hits="0" branch="False" />
+                <line number="583" hits="0" branch="False" />
+                <line number="585" hits="0" branch="False" />
+                <line number="586" hits="0" branch="False" />
+                <line number="587" hits="0" branch="False" />
+                <line number="590" hits="0" branch="False" />
+                <line number="591" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="350" hits="0" branch="False" />
+                <line number="352" hits="0" branch="False" />
+                <line number="373" hits="0" branch="False" />
+                <line number="397" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ECommerce.Contracts.Protos.ReserveStockResponse)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="358" hits="0" branch="False" />
+                <line number="359" hits="0" branch="False" />
+                <line number="360" hits="0" branch="False" />
+                <line number="361" hits="0" branch="False" />
+                <line number="362" hits="0" branch="False" />
+                <line number="363" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="330" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="334" hits="0" branch="False" />
+            <line number="339" hits="0" branch="False" />
+            <line number="345" hits="0" branch="False" />
+            <line number="367" hits="0" branch="False" />
+            <line number="368" hits="0" branch="False" />
+            <line number="369" hits="0" branch="False" />
+            <line number="377" hits="0" branch="False" />
+            <line number="378" hits="0" branch="False" />
+            <line number="379" hits="0" branch="False" />
+            <line number="380" hits="0" branch="False" />
+            <line number="389" hits="0" branch="False" />
+            <line number="390" hits="0" branch="False" />
+            <line number="391" hits="0" branch="False" />
+            <line number="392" hits="0" branch="False" />
+            <line number="401" hits="0" branch="False" />
+            <line number="402" hits="0" branch="False" />
+            <line number="403" hits="0" branch="False" />
+            <line number="404" hits="0" branch="False" />
+            <line number="409" hits="0" branch="False" />
+            <line number="410" hits="0" branch="False" />
+            <line number="411" hits="0" branch="False" />
+            <line number="415" hits="0" branch="False" />
+            <line number="416" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="417" hits="0" branch="False" />
+            <line number="419" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="420" hits="0" branch="False" />
+            <line number="422" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="423" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="73" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="424" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="100" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="425" hits="0" branch="False" />
+            <line number="426" hits="0" branch="False" />
+            <line number="430" hits="0" branch="False" />
+            <line number="431" hits="0" branch="False" />
+            <line number="432" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="433" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="43" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="434" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="80" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="435" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="109" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="436" hits="0" branch="False" />
+            <line number="437" hits="0" branch="False" />
+            <line number="438" hits="0" branch="False" />
+            <line number="439" hits="0" branch="False" />
+            <line number="443" hits="0" branch="False" />
+            <line number="444" hits="0" branch="False" />
+            <line number="445" hits="0" branch="False" />
+            <line number="449" hits="0" branch="False" />
+            <line number="451" hits="0" branch="False" />
+            <line number="469" hits="0" branch="False" />
+            <line number="474" hits="0" branch="False" />
+            <line number="475" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="476" hits="0" branch="False" />
+            <line number="477" hits="0" branch="False" />
+            <line number="478" hits="0" branch="False" />
+            <line number="479" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="480" hits="0" branch="False" />
+            <line number="481" hits="0" branch="False" />
+            <line number="482" hits="0" branch="False" />
+            <line number="483" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="93" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="484" hits="0" branch="False" />
+            <line number="485" hits="0" branch="False" />
+            <line number="486" hits="0" branch="False" />
+            <line number="487" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="130" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="488" hits="0" branch="False" />
+            <line number="489" hits="0" branch="False" />
+            <line number="490" hits="0" branch="False" />
+            <line number="495" hits="0" branch="False" />
+            <line number="496" hits="0" branch="False" />
+            <line number="497" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="498" hits="0" branch="False" />
+            <line number="499" hits="0" branch="False" />
+            <line number="500" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="47" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="501" hits="0" branch="False" />
+            <line number="502" hits="0" branch="False" />
+            <line number="503" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="71" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="504" hits="0" branch="False" />
+            <line number="505" hits="0" branch="False" />
+            <line number="506" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="104" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="507" hits="0" branch="False" />
+            <line number="508" hits="0" branch="False" />
+            <line number="509" hits="0" branch="False" />
+            <line number="510" hits="0" branch="False" />
+            <line number="514" hits="0" branch="False" />
+            <line number="515" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="516" hits="0" branch="False" />
+            <line number="518" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="28" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="519" hits="0" branch="False" />
+            <line number="520" hits="0" branch="False" />
+            <line number="521" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="53" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="522" hits="0" branch="False" />
+            <line number="523" hits="0" branch="False" />
+            <line number="524" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="86" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="525" hits="0" branch="False" />
+            <line number="526" hits="0" branch="False" />
+            <line number="527" hits="0" branch="False" />
+            <line number="528" hits="0" branch="False" />
+            <line number="532" hits="0" branch="False" />
+            <line number="534" hits="0" branch="False" />
+            <line number="561" hits="0" branch="False" />
+            <line number="566" hits="0" branch="False" />
+            <line number="568" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="126" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="569" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="571" hits="0" branch="False" />
+            <line number="573" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="24" type="jump" coverage="0%" />
+                <condition number="31" type="jump" coverage="0%" />
+                <condition number="38" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="575" hits="0" branch="False" />
+            <line number="576" hits="0" branch="False" />
+            <line number="577" hits="0" branch="False" />
+            <line number="578" hits="0" branch="False" />
+            <line number="579" hits="0" branch="False" />
+            <line number="581" hits="0" branch="False" />
+            <line number="582" hits="0" branch="False" />
+            <line number="583" hits="0" branch="False" />
+            <line number="585" hits="0" branch="False" />
+            <line number="586" hits="0" branch="False" />
+            <line number="587" hits="0" branch="False" />
+            <line number="590" hits="0" branch="False" />
+            <line number="591" hits="0" branch="False" />
+            <line number="350" hits="0" branch="False" />
+            <line number="352" hits="0" branch="False" />
+            <line number="373" hits="0" branch="False" />
+            <line number="397" hits="0" branch="False" />
+            <line number="358" hits="0" branch="False" />
+            <line number="359" hits="0" branch="False" />
+            <line number="360" hits="0" branch="False" />
+            <line number="361" hits="0" branch="False" />
+            <line number="362" hits="0" branch="False" />
+            <line number="363" hits="0" branch="False" />
+            <line number="330" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.ReleaseStockRequest" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/Inventory.cs" line-rate="0" branch-rate="0" complexity="41">
+          <methods>
+            <method name="get_Parser" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="606" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="611" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IMessage.get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="617" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Clone" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="637" hits="0" branch="False" />
+                <line number="638" hits="0" branch="False" />
+                <line number="639" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ReservationId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="647" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_ReservationId" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="648" hits="0" branch="False" />
+                <line number="649" hits="0" branch="False" />
+                <line number="650" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="655" hits="0" branch="False" />
+                <line number="656" hits="0" branch="False" />
+                <line number="657" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="661" hits="0" branch="False" />
+                <line number="662" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="663" hits="0" branch="False" />
+                <line number="665" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="666" hits="0" branch="False" />
+                <line number="668" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="669" hits="0" branch="False" />
+                <line number="670" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetHashCode" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="674" hits="0" branch="False" />
+                <line number="675" hits="0" branch="False" />
+                <line number="676" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="677" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="678" hits="0" branch="False" />
+                <line number="679" hits="0" branch="False" />
+                <line number="680" hits="0" branch="False" />
+                <line number="681" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="685" hits="0" branch="False" />
+                <line number="686" hits="0" branch="False" />
+                <line number="687" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteTo" signature="(Google.Protobuf.CodedOutputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="691" hits="0" branch="False" />
+                <line number="693" hits="0" branch="False" />
+                <line number="703" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalWriteTo" signature="(Google.Protobuf.WriteContext&amp;)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="708" hits="0" branch="False" />
+                <line number="709" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="710" hits="0" branch="False" />
+                <line number="711" hits="0" branch="False" />
+                <line number="712" hits="0" branch="False" />
+                <line number="713" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="54" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="714" hits="0" branch="False" />
+                <line number="715" hits="0" branch="False" />
+                <line number="716" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CalculateSize" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="721" hits="0" branch="False" />
+                <line number="722" hits="0" branch="False" />
+                <line number="723" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="724" hits="0" branch="False" />
+                <line number="725" hits="0" branch="False" />
+                <line number="726" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="50" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="727" hits="0" branch="False" />
+                <line number="728" hits="0" branch="False" />
+                <line number="729" hits="0" branch="False" />
+                <line number="730" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="734" hits="0" branch="False" />
+                <line number="735" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="736" hits="0" branch="False" />
+                <line number="738" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="28" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="739" hits="0" branch="False" />
+                <line number="740" hits="0" branch="False" />
+                <line number="741" hits="0" branch="False" />
+                <line number="742" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(Google.Protobuf.CodedInputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="746" hits="0" branch="False" />
+                <line number="748" hits="0" branch="False" />
+                <line number="767" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalMergeFrom" signature="(Google.Protobuf.ParseContext&amp;)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="772" hits="0" branch="False" />
+                <line number="774" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="80" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="775" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="777" hits="0" branch="False" />
+                <line number="779" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="24" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="781" hits="0" branch="False" />
+                <line number="782" hits="0" branch="False" />
+                <line number="783" hits="0" branch="False" />
+                <line number="784" hits="0" branch="False" />
+                <line number="785" hits="0" branch="False" />
+                <line number="788" hits="0" branch="False" />
+                <line number="789" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="622" hits="0" branch="False" />
+                <line number="624" hits="0" branch="False" />
+                <line number="643" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="630" hits="0" branch="False" />
+                <line number="631" hits="0" branch="False" />
+                <line number="632" hits="0" branch="False" />
+                <line number="633" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="602" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="606" hits="0" branch="False" />
+            <line number="611" hits="0" branch="False" />
+            <line number="617" hits="0" branch="False" />
+            <line number="637" hits="0" branch="False" />
+            <line number="638" hits="0" branch="False" />
+            <line number="639" hits="0" branch="False" />
+            <line number="647" hits="0" branch="False" />
+            <line number="648" hits="0" branch="False" />
+            <line number="649" hits="0" branch="False" />
+            <line number="650" hits="0" branch="False" />
+            <line number="655" hits="0" branch="False" />
+            <line number="656" hits="0" branch="False" />
+            <line number="657" hits="0" branch="False" />
+            <line number="661" hits="0" branch="False" />
+            <line number="662" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="663" hits="0" branch="False" />
+            <line number="665" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="666" hits="0" branch="False" />
+            <line number="668" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="669" hits="0" branch="False" />
+            <line number="670" hits="0" branch="False" />
+            <line number="674" hits="0" branch="False" />
+            <line number="675" hits="0" branch="False" />
+            <line number="676" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="677" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="678" hits="0" branch="False" />
+            <line number="679" hits="0" branch="False" />
+            <line number="680" hits="0" branch="False" />
+            <line number="681" hits="0" branch="False" />
+            <line number="685" hits="0" branch="False" />
+            <line number="686" hits="0" branch="False" />
+            <line number="687" hits="0" branch="False" />
+            <line number="691" hits="0" branch="False" />
+            <line number="693" hits="0" branch="False" />
+            <line number="703" hits="0" branch="False" />
+            <line number="708" hits="0" branch="False" />
+            <line number="709" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="710" hits="0" branch="False" />
+            <line number="711" hits="0" branch="False" />
+            <line number="712" hits="0" branch="False" />
+            <line number="713" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="54" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="714" hits="0" branch="False" />
+            <line number="715" hits="0" branch="False" />
+            <line number="716" hits="0" branch="False" />
+            <line number="721" hits="0" branch="False" />
+            <line number="722" hits="0" branch="False" />
+            <line number="723" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="724" hits="0" branch="False" />
+            <line number="725" hits="0" branch="False" />
+            <line number="726" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="50" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="727" hits="0" branch="False" />
+            <line number="728" hits="0" branch="False" />
+            <line number="729" hits="0" branch="False" />
+            <line number="730" hits="0" branch="False" />
+            <line number="734" hits="0" branch="False" />
+            <line number="735" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="736" hits="0" branch="False" />
+            <line number="738" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="28" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="739" hits="0" branch="False" />
+            <line number="740" hits="0" branch="False" />
+            <line number="741" hits="0" branch="False" />
+            <line number="742" hits="0" branch="False" />
+            <line number="746" hits="0" branch="False" />
+            <line number="748" hits="0" branch="False" />
+            <line number="767" hits="0" branch="False" />
+            <line number="772" hits="0" branch="False" />
+            <line number="774" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="80" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="775" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="777" hits="0" branch="False" />
+            <line number="779" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="24" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="781" hits="0" branch="False" />
+            <line number="782" hits="0" branch="False" />
+            <line number="783" hits="0" branch="False" />
+            <line number="784" hits="0" branch="False" />
+            <line number="785" hits="0" branch="False" />
+            <line number="788" hits="0" branch="False" />
+            <line number="789" hits="0" branch="False" />
+            <line number="622" hits="0" branch="False" />
+            <line number="624" hits="0" branch="False" />
+            <line number="643" hits="0" branch="False" />
+            <line number="630" hits="0" branch="False" />
+            <line number="631" hits="0" branch="False" />
+            <line number="632" hits="0" branch="False" />
+            <line number="633" hits="0" branch="False" />
+            <line number="602" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.ReleaseStockResponse" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/Inventory.cs" line-rate="0" branch-rate="0" complexity="55">
+          <methods>
+            <method name="get_Parser" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="804" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="809" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IMessage.get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="815" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Clone" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="836" hits="0" branch="False" />
+                <line number="837" hits="0" branch="False" />
+                <line number="838" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IsSuccess" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="846" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_IsSuccess" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="847" hits="0" branch="False" />
+                <line number="848" hits="0" branch="False" />
+                <line number="849" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Message" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="858" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_Message" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="859" hits="0" branch="False" />
+                <line number="860" hits="0" branch="False" />
+                <line number="861" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="866" hits="0" branch="False" />
+                <line number="867" hits="0" branch="False" />
+                <line number="868" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Equals" signature="(ECommerce.Contracts.Protos.ReleaseStockResponse)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="872" hits="0" branch="False" />
+                <line number="873" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="874" hits="0" branch="False" />
+                <line number="876" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="877" hits="0" branch="False" />
+                <line number="879" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="880" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="73" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="881" hits="0" branch="False" />
+                <line number="882" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetHashCode" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="886" hits="0" branch="False" />
+                <line number="887" hits="0" branch="False" />
+                <line number="888" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="889" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="46" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="890" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="75" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="891" hits="0" branch="False" />
+                <line number="892" hits="0" branch="False" />
+                <line number="893" hits="0" branch="False" />
+                <line number="894" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="898" hits="0" branch="False" />
+                <line number="899" hits="0" branch="False" />
+                <line number="900" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteTo" signature="(Google.Protobuf.CodedOutputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="904" hits="0" branch="False" />
+                <line number="906" hits="0" branch="False" />
+                <line number="920" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalWriteTo" signature="(Google.Protobuf.WriteContext&amp;)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="925" hits="0" branch="False" />
+                <line number="926" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="927" hits="0" branch="False" />
+                <line number="928" hits="0" branch="False" />
+                <line number="929" hits="0" branch="False" />
+                <line number="930" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="931" hits="0" branch="False" />
+                <line number="932" hits="0" branch="False" />
+                <line number="933" hits="0" branch="False" />
+                <line number="934" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="88" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="935" hits="0" branch="False" />
+                <line number="936" hits="0" branch="False" />
+                <line number="937" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CalculateSize" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="942" hits="0" branch="False" />
+                <line number="943" hits="0" branch="False" />
+                <line number="944" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="945" hits="0" branch="False" />
+                <line number="946" hits="0" branch="False" />
+                <line number="947" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="35" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="948" hits="0" branch="False" />
+                <line number="949" hits="0" branch="False" />
+                <line number="950" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="66" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="951" hits="0" branch="False" />
+                <line number="952" hits="0" branch="False" />
+                <line number="953" hits="0" branch="False" />
+                <line number="954" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(ECommerce.Contracts.Protos.ReleaseStockResponse)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="958" hits="0" branch="False" />
+                <line number="959" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="960" hits="0" branch="False" />
+                <line number="962" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="963" hits="0" branch="False" />
+                <line number="964" hits="0" branch="False" />
+                <line number="965" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="53" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="966" hits="0" branch="False" />
+                <line number="967" hits="0" branch="False" />
+                <line number="968" hits="0" branch="False" />
+                <line number="969" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MergeFrom" signature="(Google.Protobuf.CodedInputStream)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="973" hits="0" branch="False" />
+                <line number="975" hits="0" branch="False" />
+                <line number="998" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Google.Protobuf.IBufferMessage.InternalMergeFrom" signature="(Google.Protobuf.ParseContext&amp;)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="1003" hits="0" branch="False" />
+                <line number="1005" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="103" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="1006" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="1008" hits="0" branch="False" />
+                <line number="1010" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="24" type="jump" coverage="0%" />
+                    <condition number="31" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="1012" hits="0" branch="False" />
+                <line number="1013" hits="0" branch="False" />
+                <line number="1014" hits="0" branch="False" />
+                <line number="1015" hits="0" branch="False" />
+                <line number="1016" hits="0" branch="False" />
+                <line number="1018" hits="0" branch="False" />
+                <line number="1019" hits="0" branch="False" />
+                <line number="1020" hits="0" branch="False" />
+                <line number="1023" hits="0" branch="False" />
+                <line number="1024" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="820" hits="0" branch="False" />
+                <line number="822" hits="0" branch="False" />
+                <line number="854" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ECommerce.Contracts.Protos.ReleaseStockResponse)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="828" hits="0" branch="False" />
+                <line number="829" hits="0" branch="False" />
+                <line number="830" hits="0" branch="False" />
+                <line number="831" hits="0" branch="False" />
+                <line number="832" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="800" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="804" hits="0" branch="False" />
+            <line number="809" hits="0" branch="False" />
+            <line number="815" hits="0" branch="False" />
+            <line number="836" hits="0" branch="False" />
+            <line number="837" hits="0" branch="False" />
+            <line number="838" hits="0" branch="False" />
+            <line number="846" hits="0" branch="False" />
+            <line number="847" hits="0" branch="False" />
+            <line number="848" hits="0" branch="False" />
+            <line number="849" hits="0" branch="False" />
+            <line number="858" hits="0" branch="False" />
+            <line number="859" hits="0" branch="False" />
+            <line number="860" hits="0" branch="False" />
+            <line number="861" hits="0" branch="False" />
+            <line number="866" hits="0" branch="False" />
+            <line number="867" hits="0" branch="False" />
+            <line number="868" hits="0" branch="False" />
+            <line number="872" hits="0" branch="False" />
+            <line number="873" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="874" hits="0" branch="False" />
+            <line number="876" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="877" hits="0" branch="False" />
+            <line number="879" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="880" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="73" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="881" hits="0" branch="False" />
+            <line number="882" hits="0" branch="False" />
+            <line number="886" hits="0" branch="False" />
+            <line number="887" hits="0" branch="False" />
+            <line number="888" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="11" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="889" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="46" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="890" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="75" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="891" hits="0" branch="False" />
+            <line number="892" hits="0" branch="False" />
+            <line number="893" hits="0" branch="False" />
+            <line number="894" hits="0" branch="False" />
+            <line number="898" hits="0" branch="False" />
+            <line number="899" hits="0" branch="False" />
+            <line number="900" hits="0" branch="False" />
+            <line number="904" hits="0" branch="False" />
+            <line number="906" hits="0" branch="False" />
+            <line number="920" hits="0" branch="False" />
+            <line number="925" hits="0" branch="False" />
+            <line number="926" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="927" hits="0" branch="False" />
+            <line number="928" hits="0" branch="False" />
+            <line number="929" hits="0" branch="False" />
+            <line number="930" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="931" hits="0" branch="False" />
+            <line number="932" hits="0" branch="False" />
+            <line number="933" hits="0" branch="False" />
+            <line number="934" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="88" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="935" hits="0" branch="False" />
+            <line number="936" hits="0" branch="False" />
+            <line number="937" hits="0" branch="False" />
+            <line number="942" hits="0" branch="False" />
+            <line number="943" hits="0" branch="False" />
+            <line number="944" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="11" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="945" hits="0" branch="False" />
+            <line number="946" hits="0" branch="False" />
+            <line number="947" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="35" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="948" hits="0" branch="False" />
+            <line number="949" hits="0" branch="False" />
+            <line number="950" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="66" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="951" hits="0" branch="False" />
+            <line number="952" hits="0" branch="False" />
+            <line number="953" hits="0" branch="False" />
+            <line number="954" hits="0" branch="False" />
+            <line number="958" hits="0" branch="False" />
+            <line number="959" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="960" hits="0" branch="False" />
+            <line number="962" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="963" hits="0" branch="False" />
+            <line number="964" hits="0" branch="False" />
+            <line number="965" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="53" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="966" hits="0" branch="False" />
+            <line number="967" hits="0" branch="False" />
+            <line number="968" hits="0" branch="False" />
+            <line number="969" hits="0" branch="False" />
+            <line number="973" hits="0" branch="False" />
+            <line number="975" hits="0" branch="False" />
+            <line number="998" hits="0" branch="False" />
+            <line number="1003" hits="0" branch="False" />
+            <line number="1005" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="103" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="1006" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="1008" hits="0" branch="False" />
+            <line number="1010" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="24" type="jump" coverage="0%" />
+                <condition number="31" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="1012" hits="0" branch="False" />
+            <line number="1013" hits="0" branch="False" />
+            <line number="1014" hits="0" branch="False" />
+            <line number="1015" hits="0" branch="False" />
+            <line number="1016" hits="0" branch="False" />
+            <line number="1018" hits="0" branch="False" />
+            <line number="1019" hits="0" branch="False" />
+            <line number="1020" hits="0" branch="False" />
+            <line number="1023" hits="0" branch="False" />
+            <line number="1024" hits="0" branch="False" />
+            <line number="820" hits="0" branch="False" />
+            <line number="822" hits="0" branch="False" />
+            <line number="854" hits="0" branch="False" />
+            <line number="828" hits="0" branch="False" />
+            <line number="829" hits="0" branch="False" />
+            <line number="830" hits="0" branch="False" />
+            <line number="831" hits="0" branch="False" />
+            <line number="832" hits="0" branch="False" />
+            <line number="800" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.InventoryService" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/InventoryGrpc.cs" line-rate="0" branch-rate="0" complexity="11">
+          <methods>
+            <method name="__Helper_SerializeMessage" signature="(Google.Protobuf.IMessage,Grpc.Core.SerializationContext)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="17" hits="0" branch="False" />
+                <line number="19" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="20" hits="0" branch="False" />
+                <line number="21" hits="0" branch="False" />
+                <line number="22" hits="0" branch="False" />
+                <line number="23" hits="0" branch="False" />
+                <line number="24" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="__Helper_DeserializeMessage" signature="(Grpc.Core.DeserializationContext,Google.Protobuf.MessageParser`1&lt;T&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="38" hits="0" branch="False" />
+                <line number="40" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="8" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="41" hits="0" branch="False" />
+                <line number="42" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="46" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Descriptor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="76" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="BindService" signature="(ECommerce.Contracts.Protos.InventoryService/InventoryServiceBase)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="176" hits="0" branch="False" />
+                <line number="177" hits="0" branch="False" />
+                <line number="178" hits="0" branch="False" />
+                <line number="179" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="BindService" signature="(Grpc.Core.ServiceBinderBase,ECommerce.Contracts.Protos.InventoryService/InventoryServiceBase)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="188" hits="0" branch="False" />
+                <line number="189" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="8" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="190" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="39" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="191" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="0" branch="False" />
+                <line number="49" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+                <line number="53" hits="0" branch="False" />
+                <line number="55" hits="0" branch="False" />
+                <line number="58" hits="0" branch="False" />
+                <line number="59" hits="0" branch="False" />
+                <line number="60" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+                <line number="62" hits="0" branch="False" />
+                <line number="63" hits="0" branch="False" />
+                <line number="66" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="17" hits="0" branch="False" />
+            <line number="19" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="20" hits="0" branch="False" />
+            <line number="21" hits="0" branch="False" />
+            <line number="22" hits="0" branch="False" />
+            <line number="23" hits="0" branch="False" />
+            <line number="24" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="38" hits="0" branch="False" />
+            <line number="40" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="8" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="41" hits="0" branch="False" />
+            <line number="42" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="76" hits="0" branch="False" />
+            <line number="176" hits="0" branch="False" />
+            <line number="177" hits="0" branch="False" />
+            <line number="178" hits="0" branch="False" />
+            <line number="179" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="188" hits="0" branch="False" />
+            <line number="189" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="8" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="190" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="39" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="191" hits="0" branch="False" />
+            <line number="13" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="53" hits="0" branch="False" />
+            <line number="55" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="62" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.InventoryService/__Helper_MessageCache`1" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/InventoryGrpc.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="33" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="33" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.InventoryService/InventoryServiceBase" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/InventoryGrpc.cs" line-rate="0" branch-rate="1" complexity="2">
+          <methods>
+            <method name="ReserveStock" signature="(ECommerce.Contracts.Protos.ReserveStockRequest,Grpc.Core.ServerCallContext)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="85" hits="0" branch="False" />
+                <line number="86" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReleaseStock" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest,Grpc.Core.ServerCallContext)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="85" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Protos.InventoryService/InventoryServiceClient" filename="artifacts/obj/ECommerce.Contracts/debug/Protos/InventoryGrpc.cs" line-rate="0" branch-rate="1" complexity="13">
+          <methods>
+            <method name="ReserveStock" signature="(ECommerce.Contracts.Protos.ReserveStockRequest,Grpc.Core.Metadata,System.Nullable`1&lt;System.DateTime&gt;,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="126" hits="0" branch="False" />
+                <line number="127" hits="0" branch="False" />
+                <line number="128" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReserveStock" signature="(ECommerce.Contracts.Protos.ReserveStockRequest,Grpc.Core.CallOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+                <line number="133" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReserveStockAsync" signature="(ECommerce.Contracts.Protos.ReserveStockRequest,Grpc.Core.Metadata,System.Nullable`1&lt;System.DateTime&gt;,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="136" hits="0" branch="False" />
+                <line number="137" hits="0" branch="False" />
+                <line number="138" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReserveStockAsync" signature="(ECommerce.Contracts.Protos.ReserveStockRequest,Grpc.Core.CallOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="141" hits="0" branch="False" />
+                <line number="142" hits="0" branch="False" />
+                <line number="143" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReleaseStock" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest,Grpc.Core.Metadata,System.Nullable`1&lt;System.DateTime&gt;,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="148" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReleaseStock" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest,Grpc.Core.CallOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="151" hits="0" branch="False" />
+                <line number="152" hits="0" branch="False" />
+                <line number="153" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReleaseStockAsync" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest,Grpc.Core.Metadata,System.Nullable`1&lt;System.DateTime&gt;,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="156" hits="0" branch="False" />
+                <line number="157" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReleaseStockAsync" signature="(ECommerce.Contracts.Protos.ReleaseStockRequest,Grpc.Core.CallOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="161" hits="0" branch="False" />
+                <line number="162" hits="0" branch="False" />
+                <line number="163" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="NewInstance" signature="(Grpc.Core.ClientBase/ClientBaseConfiguration)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="167" hits="0" branch="False" />
+                <line number="168" hits="0" branch="False" />
+                <line number="169" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Grpc.Core.ChannelBase)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+                <line number="105" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Grpc.Core.CallInvoker)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="109" hits="0" branch="False" />
+                <line number="110" hits="0" branch="False" />
+                <line number="111" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="114" hits="0" branch="False" />
+                <line number="115" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Grpc.Core.ClientBase/ClientBaseConfiguration)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="126" hits="0" branch="False" />
+            <line number="127" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="133" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+            <line number="137" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="141" hits="0" branch="False" />
+            <line number="142" hits="0" branch="False" />
+            <line number="143" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="148" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="152" hits="0" branch="False" />
+            <line number="153" hits="0" branch="False" />
+            <line number="156" hits="0" branch="False" />
+            <line number="157" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="161" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="168" hits="0" branch="False" />
+            <line number="169" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="105" hits="0" branch="False" />
+            <line number="109" hits="0" branch="False" />
+            <line number="110" hits="0" branch="False" />
+            <line number="111" hits="0" branch="False" />
+            <line number="114" hits="0" branch="False" />
+            <line number="115" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.OrderCancelled" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/OrderCancelled.cs" line-rate="0.4" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Reason" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CancelledAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.String,System.DateTimeOffset)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="1" branch="False" />
+                <line number="7" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="3" hits="1" branch="False" />
+            <line number="7" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.OrderCreated" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/OrderCreated.cs" line-rate="0.25" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CustomerId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IdempotencyKey" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Items" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TotalAmount" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CreatedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.Guid,System.String,System.Collections.Generic.List`1&lt;ECommerce.Contracts.Events.v1.OrderItemContractDto&gt;,System.Decimal,System.DateTimeOffset)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="1" branch="False" />
+                <line number="10" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+            <line number="9" hits="0" branch="False" />
+            <line number="3" hits="1" branch="False" />
+            <line number="10" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.OrderItemContractDto" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/OrderItemContractDto.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Sku" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.OrderShipped" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/OrderShipped.cs" line-rate="0" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TrackingId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ShippedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.String,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="3" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.PaymentCompleted" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/PaymentCompleted.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_PaymentId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IdempotencyKey" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CompletedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.Guid,System.String,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+            <line number="3" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.PaymentFailed" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/PaymentFailed.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IdempotencyKey" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Reason" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FailedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.String,System.String,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+            <line number="3" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.StockReleased" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/StockReleased.cs" line-rate="0.8" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ReservationId" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ReleasedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.Guid,System.DateTimeOffset)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="1" branch="False" />
+                <line number="7" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="1" branch="False" />
+            <line number="5" hits="1" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="3" hits="1" branch="False" />
+            <line number="7" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="ECommerce.Contracts.Events.v1.StockReserved" filename="src/BuildingBlocks/ECommerce.Contracts/Events/v1/StockReserved.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="4" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CustomerId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IdempotencyKey" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="6" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Items" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TotalAmount" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ReservedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Guid,System.Guid,System.String,System.Collections.Generic.List`1&lt;ECommerce.Contracts.Events.v1.OrderItemContractDto&gt;,System.Decimal,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="0" branch="False" />
+                <line number="10" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="4" hits="0" branch="False" />
+            <line number="5" hits="0" branch="False" />
+            <line number="6" hits="0" branch="False" />
+            <line number="7" hits="0" branch="False" />
+            <line number="8" hits="0" branch="False" />
+            <line number="9" hits="0" branch="False" />
+            <line number="3" hits="0" branch="False" />
+            <line number="10" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="Ordering.Application" line-rate="0.7687" branch-rate="0.8" complexity="56">
+      <classes>
+        <class name="Ordering.Application.DependencyInjection" filename="src/Services/Ordering/Ordering.Application/DependencyInjection.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="AddApplicationServices" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -36,109 +2614,157 @@
             <line number="23" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Queries.OrderStatusDto" filename="Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Queries.OrderStatusDto" filename="src/Services/Ordering/Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name="get_Id" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name="get_Id" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="7" hits="0" branch="False" />
+                <line number="7" hits="4" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="7" hits="0" branch="False" />
+            <line number="7" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Queries.GetOrderQuery" filename="Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Queries.GetOrderQuery" filename="src/Services/Ordering/Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name="get_OrderId" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="9" hits="0" branch="False" />
+                <line number="9" hits="4" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="9" hits="0" branch="False" />
+            <line number="9" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Queries.GetOrderQueryHandler" filename="Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Queries.GetOrderQueryHandler" filename="src/Services/Ordering/Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IOrderingDbContext)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IOrderReadRepository)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="11" hits="0" branch="False" />
+                <line number="11" hits="2" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="11" hits="0" branch="False" />
+            <line number="11" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Queries.GetOrderQueryHandler/&lt;Handle&gt;d__2" filename="Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Ordering.Application.Orders.Queries.GetOrderQueryHandler/&lt;Handle&gt;d__2" filename="src/Services/Ordering/Ordering.Application/Orders/Queries/GetOrderQuery.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
+                <line number="14" hits="2" branch="False" />
+                <line number="15" hits="2" branch="False" />
+                <line number="16" hits="2" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="14" hits="2" branch="False" />
+            <line number="15" hits="2" branch="False" />
+            <line number="16" hits="2" branch="False" />
+          </lines>
+        </class>
+        <class name="Ordering.Application.Orders.EventHandlers.OrderReadModelUpdater" filename="src/Services/Ordering/Ordering.Application/Orders/EventHandlers/OrderReadModelUpdater.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IOrderReadRepository)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="8" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="8" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Ordering.Application.Orders.EventHandlers.OrderReadModelUpdater/&lt;Handle&gt;d__2" filename="src/Services/Ordering/Ordering.Application/Orders/EventHandlers/OrderReadModelUpdater.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="0" branch="False" />
                 <line number="14" hits="0" branch="False" />
                 <line number="15" hits="0" branch="False" />
-                <line number="16" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="335" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="18" hits="0" branch="False" />
+                <line number="16" hits="0" branch="False" />
+                <line number="17" hits="0" branch="False" />
                 <line number="19" hits="0" branch="False" />
+                <line number="20" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="13" hits="0" branch="False" />
             <line number="14" hits="0" branch="False" />
             <line number="15" hits="0" branch="False" />
-            <line number="16" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="335" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="18" hits="0" branch="False" />
+            <line number="16" hits="0" branch="False" />
+            <line number="17" hits="0" branch="False" />
             <line number="19" hits="0" branch="False" />
+            <line number="20" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrderCommandValidator" filename="Ordering.Application/Orders/Commands/OrderCommandValidators.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.EventHandlers.OrderReadModelUpdater/&lt;Handle&gt;d__3" filename="src/Services/Ordering/Ordering.Application/Orders/EventHandlers/OrderReadModelUpdater.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
-            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="9" hits="1" branch="False" />
-                <line number="10" hits="1" branch="False" />
-                <line number="11" hits="1" branch="False" />
-                <line number="12" hits="1" branch="False" />
+                <line number="23" hits="0" branch="False" />
+                <line number="24" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="9" hits="1" branch="False" />
-            <line number="10" hits="1" branch="False" />
-            <line number="11" hits="1" branch="False" />
-            <line number="12" hits="1" branch="False" />
+            <line number="23" hits="0" branch="False" />
+            <line number="24" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CancelOrderCommandValidator" filename="Ordering.Application/Orders/Commands/OrderCommandValidators.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CreateOrderCommandValidator" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/OrderCommandValidators.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="17" hits="1" branch="False" />
-                <line number="18" hits="1" branch="False" />
-                <line number="19" hits="1" branch="False" />
-                <line number="20" hits="1" branch="False" />
-                <line number="21" hits="1" branch="False" />
+                <line number="9" hits="2" branch="False" />
+                <line number="10" hits="2" branch="False" />
+                <line number="11" hits="2" branch="False" />
+                <line number="12" hits="2" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="17" hits="1" branch="False" />
-            <line number="18" hits="1" branch="False" />
-            <line number="19" hits="1" branch="False" />
-            <line number="20" hits="1" branch="False" />
-            <line number="21" hits="1" branch="False" />
+            <line number="9" hits="2" branch="False" />
+            <line number="10" hits="2" branch="False" />
+            <line number="11" hits="2" branch="False" />
+            <line number="12" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto" filename="Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CancelOrderCommandValidator" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/OrderCommandValidators.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="3" branch="False" />
+                <line number="18" hits="3" branch="False" />
+                <line number="19" hits="3" branch="False" />
+                <line number="20" hits="3" branch="False" />
+                <line number="21" hits="3" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="17" hits="3" branch="False" />
+            <line number="18" hits="3" branch="False" />
+            <line number="19" hits="3" branch="False" />
+            <line number="20" hits="3" branch="False" />
+            <line number="21" hits="3" branch="False" />
+          </lines>
+        </class>
+        <class name="Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="get_Sku" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -150,7 +2776,7 @@
             <line number="9" hits="9" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand" filename="Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="0.8" branch-rate="1" complexity="5">
+        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommand" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="0.8" branch-rate="1" complexity="5">
           <methods>
             <method name="get_CustomerId" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -164,29 +2790,29 @@
             </method>
             <method name="get_IdempotencyKey" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="14" hits="2" branch="False" />
+                <line number="14" hits="3" branch="False" />
               </lines>
             </method>
             <method name="get_Items" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="15" hits="5" branch="False" />
+                <line number="15" hits="6" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.Guid,System.Guid,System.String,System.Collections.Generic.List`1&lt;Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="11" hits="2" branch="False" />
+                <line number="11" hits="3" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
             <line number="12" hits="2" branch="False" />
             <line number="13" hits="0" branch="False" />
-            <line number="14" hits="2" branch="False" />
-            <line number="15" hits="5" branch="False" />
-            <line number="11" hits="2" branch="False" />
+            <line number="14" hits="3" branch="False" />
+            <line number="15" hits="6" branch="False" />
+            <line number="11" hits="3" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler" filename="Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IOrderingDbContext,MassTransit.IPublishEndpoint)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -198,7 +2824,7 @@
             <line number="17" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/&lt;&gt;c" filename="Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="3">
+        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/&lt;&gt;c" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="3">
           <methods>
             <method name="&lt;Handle&gt;b__3_2" signature="(Ordering.Application.Orders.Commands.CreateOrder.OrderItemDto)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -232,7 +2858,7 @@
             <line number="36" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/&lt;Handle&gt;d__3" filename="Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CreateOrder.CreateOrderCommandHandler/&lt;Handle&gt;d__3" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CreateOrder/CreateOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -262,105 +2888,109 @@
             <line number="40" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommand" filename="Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommand" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="get_OrderId" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="9" hits="8" branch="False" />
+                <line number="9" hits="18" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="9" hits="8" branch="False" />
+            <line number="9" hits="18" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler" filename="Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IOrderingDbContext,MassTransit.IPublishEndpoint)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="11" hits="1" branch="False" />
+                <line number="11" hits="2" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="11" hits="1" branch="False" />
+            <line number="11" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler/&lt;Handle&gt;d__3" filename="Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="0.5" complexity="2">
+        <class name="Ordering.Application.Orders.Commands.CancelOrder.CancelOrderCommandHandler/&lt;Handle&gt;d__3" filename="src/Services/Ordering/Ordering.Application/Orders/Commands/CancelOrder/CancelOrderCommand.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="1" branch-rate="0.5" complexity="2">
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="2">
               <lines>
-                <line number="14" hits="1" branch="False" />
-                <line number="15" hits="1" branch="False" />
-                <line number="16" hits="1" branch="True" condition-coverage="50% (1/2)">
+                <line number="14" hits="2" branch="False" />
+                <line number="15" hits="2" branch="False" />
+                <line number="16" hits="3" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
-                    <condition number="360" type="jump" coverage="50%" />
+                    <condition number="360" type="jump" coverage="100%" />
                   </conditions>
                 </line>
                 <line number="18" hits="1" branch="False" />
                 <line number="19" hits="1" branch="False" />
                 <line number="22" hits="1" branch="False" />
                 <line number="23" hits="1" branch="False" />
-                <line number="24" hits="1" branch="False" />
+                <line number="24" hits="2" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="14" hits="1" branch="False" />
-            <line number="15" hits="1" branch="False" />
-            <line number="16" hits="1" branch="True" condition-coverage="50% (1/2)">
+            <line number="14" hits="2" branch="False" />
+            <line number="15" hits="2" branch="False" />
+            <line number="16" hits="3" branch="True" condition-coverage="100% (2/2)">
               <conditions>
-                <condition number="360" type="jump" coverage="50%" />
+                <condition number="360" type="jump" coverage="100%" />
               </conditions>
             </line>
             <line number="18" hits="1" branch="False" />
             <line number="19" hits="1" branch="False" />
             <line number="22" hits="1" branch="False" />
             <line number="23" hits="1" branch="False" />
-            <line number="24" hits="1" branch="False" />
+            <line number="24" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Consumers.PaymentFailedConsumer" filename="Ordering.Application/Consumers/PaymentFailedConsumer.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Consumers.StockReleasedConsumer" filename="src/Services/Ordering/Ordering.Application/Consumers/StockReleasedConsumer.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name=".ctor" signature="(MediatR.ISender)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(MediatR.ISender,Microsoft.Extensions.Logging.ILogger`1&lt;Ordering.Application.Consumers.StockReleasedConsumer&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="8" hits="0" branch="False" />
+                <line number="9" hits="1" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="8" hits="0" branch="False" />
+            <line number="9" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Consumers.PaymentFailedConsumer/&lt;Consume&gt;d__2" filename="Ordering.Application/Consumers/PaymentFailedConsumer.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Consumers.StockReleasedConsumer/&lt;Consume&gt;d__3" filename="src/Services/Ordering/Ordering.Application/Consumers/StockReleasedConsumer.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="11" hits="0" branch="False" />
-                <line number="12" hits="0" branch="False" />
-                <line number="13" hits="0" branch="False" />
+                <line number="12" hits="1" branch="False" />
+                <line number="13" hits="1" branch="False" />
+                <line number="14" hits="1" branch="False" />
+                <line number="19" hits="1" branch="False" />
+                <line number="20" hits="1" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="11" hits="0" branch="False" />
-            <line number="12" hits="0" branch="False" />
-            <line number="13" hits="0" branch="False" />
+            <line number="12" hits="1" branch="False" />
+            <line number="13" hits="1" branch="False" />
+            <line number="14" hits="1" branch="False" />
+            <line number="19" hits="1" branch="False" />
+            <line number="20" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Exceptions.ValidationException" filename="Ordering.Application/Common/Exceptions/ApplicationExceptions.cs" line-rate="0.909" branch-rate="1" complexity="3">
+        <class name="Ordering.Application.Common.Exceptions.ValidationException" filename="src/Services/Ordering/Ordering.Application/Common/Exceptions/ApplicationExceptions.cs" line-rate="1" branch-rate="1" complexity="3">
           <methods>
-            <method name="get_Errors" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name="get_Errors" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="7" hits="0" branch="False" />
+                <line number="7" hits="2" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="9" hits="1" branch="False" />
-                <line number="10" hits="1" branch="False" />
-                <line number="11" hits="1" branch="False" />
-                <line number="12" hits="1" branch="False" />
+                <line number="9" hits="2" branch="False" />
+                <line number="10" hits="2" branch="False" />
+                <line number="11" hits="2" branch="False" />
+                <line number="12" hits="2" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.Collections.Generic.IEnumerable`1&lt;FluentValidation.Results.ValidationFailure&gt;)" line-rate="1" branch-rate="1" complexity="1">
@@ -375,11 +3005,11 @@
             </method>
           </methods>
           <lines>
-            <line number="7" hits="0" branch="False" />
-            <line number="9" hits="1" branch="False" />
-            <line number="10" hits="1" branch="False" />
-            <line number="11" hits="1" branch="False" />
-            <line number="12" hits="1" branch="False" />
+            <line number="7" hits="2" branch="False" />
+            <line number="9" hits="2" branch="False" />
+            <line number="10" hits="2" branch="False" />
+            <line number="11" hits="2" branch="False" />
+            <line number="12" hits="2" branch="False" />
             <line number="14" hits="1" branch="False" />
             <line number="15" hits="1" branch="False" />
             <line number="16" hits="1" branch="False" />
@@ -388,37 +3018,37 @@
             <line number="19" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Exceptions.NotFoundException" filename="Ordering.Application/Common/Exceptions/ApplicationExceptions.cs" line-rate="0" branch-rate="1" complexity="4">
+        <class name="Ordering.Application.Common.Exceptions.NotFoundException" filename="src/Services/Ordering/Ordering.Application/Common/Exceptions/ApplicationExceptions.cs" line-rate="1" branch-rate="1" complexity="4">
           <methods>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="24" hits="0" branch="False" />
+                <line number="24" hits="3" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="26" hits="0" branch="False" />
+                <line number="26" hits="3" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="(System.String,System.Exception)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(System.String,System.Exception)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="28" hits="0" branch="False" />
+                <line number="28" hits="3" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="(System.String,System.Object)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(System.String,System.Object)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="30" hits="0" branch="False" />
+                <line number="30" hits="3" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="24" hits="0" branch="False" />
-            <line number="26" hits="0" branch="False" />
-            <line number="28" hits="0" branch="False" />
-            <line number="30" hits="0" branch="False" />
+            <line number="24" hits="3" branch="False" />
+            <line number="26" hits="3" branch="False" />
+            <line number="28" hits="3" branch="False" />
+            <line number="30" hits="3" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.Collections.Generic.IEnumerable`1&lt;FluentValidation.IValidator`1&lt;TRequest&gt;&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -436,7 +3066,7 @@
             <line number="16" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;&gt;c" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;&gt;c" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;Handle&gt;b__2_0" signature="(FluentValidation.Results.ValidationResult)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -448,7 +3078,7 @@
             <line number="24" hits="3" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;&gt;c__DisplayClass2_1" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;&gt;c__DisplayClass2_1" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;Handle&gt;b__2" signature="(FluentValidation.IValidator`1&lt;TRequest&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -460,7 +3090,7 @@
             <line number="23" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;Handle&gt;d__2" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="0.6666" branch-rate="0.75" complexity="8">
+        <class name="Ordering.Application.Common.Behaviors.ValidationBehavior`2/&lt;Handle&gt;d__2" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="0.6666" branch-rate="0.75" complexity="8">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.6666" branch-rate="0.75" complexity="8">
               <lines>
@@ -504,7 +3134,7 @@
             <line number="31" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.LoggingBehavior`1" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Ordering.Application.Common.Behaviors.LoggingBehavior`1" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="Process" signature="(TRequest,System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -536,7 +3166,7 @@
             <line number="42" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Microsoft.Extensions.Logging.ILogger`1&lt;TRequest&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -554,7 +3184,7 @@
             <line number="60" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2/&lt;Handle&gt;d__2" filename="Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="0.8887999999999999" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Common.Behaviors.UnhandledExceptionBehavior`2/&lt;Handle&gt;d__2" filename="src/Services/Ordering/Ordering.Application/Common/Behaviors/PipelineBehaviors.cs" line-rate="0.8887999999999999" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8887999999999999" branch-rate="1" complexity="1">
               <lines>
@@ -582,7 +3212,7 @@
             <line number="74" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.UpdateBasketItemDto" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Basket.Commands.UpdateBasketItemDto" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="get_Sku" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -594,7 +3224,7 @@
             <line number="6" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.UpdateBasketCommand" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Basket.Commands.UpdateBasketCommand" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="get_BuyerId" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -606,7 +3236,7 @@
             <line number="8" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.UpdateBasketCommandHandler" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Ordering.Application.Basket.Commands.UpdateBasketCommandHandler" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Handle" signature="(Ordering.Application.Basket.Commands.UpdateBasketCommand,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -634,7 +3264,7 @@
             <line number="17" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommand" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommand" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="get_BuyerId" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -646,7 +3276,7 @@
             <line number="25" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommandHandler" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommandHandler" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Ordering.Application.Common.Interfaces.IBasketService)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -658,7 +3288,7 @@
             <line number="27" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommandHandler/&lt;Handle&gt;d__2" filename="Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Ordering.Application.Basket.Commands.DeleteBasketCommandHandler/&lt;Handle&gt;d__2" filename="src/Services/Ordering/Ordering.Application/Basket/Commands/BasketCommands.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -676,9 +3306,9 @@
         </class>
       </classes>
     </package>
-    <package name="Ordering.Domain" line-rate="0.7719" branch-rate="1" complexity="30">
+    <package name="Ordering.Domain" line-rate="0.7894" branch-rate="1" complexity="30">
       <classes>
-        <class name="Ordering.Domain.Exceptions.OrderingDomainException" filename="Ordering.Domain/Exceptions/OrderingDomainException.cs" line-rate="0.3333" branch-rate="1" complexity="3">
+        <class name="Ordering.Domain.Exceptions.OrderingDomainException" filename="src/Services/Ordering/Ordering.Domain/Exceptions/OrderingDomainException.cs" line-rate="0.3333" branch-rate="1" complexity="3">
           <methods>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -714,7 +3344,7 @@
             <line number="15" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Events.OrderCreatedDomainEvent" filename="Ordering.Domain/Events/OrderingEvents.cs" line-rate="0.8" branch-rate="1" complexity="2">
+        <class name="Ordering.Domain.Events.OrderCreatedDomainEvent" filename="src/Services/Ordering/Ordering.Domain/Events/OrderingEvents.cs" line-rate="0.8" branch-rate="1" complexity="2">
           <methods>
             <method name="get_Order" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -723,22 +3353,22 @@
             </method>
             <method name=".ctor" signature="(Ordering.Domain.Entities.Order)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="10" hits="2" branch="False" />
-                <line number="11" hits="2" branch="False" />
-                <line number="12" hits="2" branch="False" />
-                <line number="13" hits="2" branch="False" />
+                <line number="10" hits="5" branch="False" />
+                <line number="11" hits="5" branch="False" />
+                <line number="12" hits="5" branch="False" />
+                <line number="13" hits="5" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
             <line number="8" hits="0" branch="False" />
-            <line number="10" hits="2" branch="False" />
-            <line number="11" hits="2" branch="False" />
-            <line number="12" hits="2" branch="False" />
-            <line number="13" hits="2" branch="False" />
+            <line number="10" hits="5" branch="False" />
+            <line number="11" hits="5" branch="False" />
+            <line number="12" hits="5" branch="False" />
+            <line number="13" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Events.OrderCancelledDomainEvent" filename="Ordering.Domain/Events/OrderingEvents.cs" line-rate="0.7142000000000001" branch-rate="1" complexity="3">
+        <class name="Ordering.Domain.Events.OrderCancelledDomainEvent" filename="src/Services/Ordering/Ordering.Domain/Events/OrderingEvents.cs" line-rate="0.7142000000000001" branch-rate="1" complexity="3">
           <methods>
             <method name="get_Order" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -752,25 +3382,25 @@
             </method>
             <method name=".ctor" signature="(Ordering.Domain.Entities.Order,System.String)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="21" hits="2" branch="False" />
-                <line number="22" hits="2" branch="False" />
-                <line number="23" hits="2" branch="False" />
-                <line number="24" hits="2" branch="False" />
-                <line number="25" hits="2" branch="False" />
+                <line number="21" hits="3" branch="False" />
+                <line number="22" hits="3" branch="False" />
+                <line number="23" hits="3" branch="False" />
+                <line number="24" hits="3" branch="False" />
+                <line number="25" hits="3" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
             <line number="18" hits="0" branch="False" />
             <line number="19" hits="0" branch="False" />
-            <line number="21" hits="2" branch="False" />
-            <line number="22" hits="2" branch="False" />
-            <line number="23" hits="2" branch="False" />
-            <line number="24" hits="2" branch="False" />
-            <line number="25" hits="2" branch="False" />
+            <line number="21" hits="3" branch="False" />
+            <line number="22" hits="3" branch="False" />
+            <line number="23" hits="3" branch="False" />
+            <line number="24" hits="3" branch="False" />
+            <line number="25" hits="3" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Entities.OrderItem" filename="Ordering.Domain/Entities/Order.cs" line-rate="0.75" branch-rate="1" complexity="4">
+        <class name="Ordering.Domain.Entities.OrderItem" filename="src/Services/Ordering/Ordering.Domain/Entities/Order.cs" line-rate="0.75" branch-rate="1" complexity="4">
           <methods>
             <method name="get_OrderId" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -800,143 +3430,143 @@
             <line number="20" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Entities.Order" filename="Ordering.Domain/Entities/Order.cs" line-rate="1" branch-rate="1" complexity="8">
+        <class name="Ordering.Domain.Entities.Order" filename="src/Services/Ordering/Ordering.Domain/Entities/Order.cs" line-rate="1" branch-rate="1" complexity="8">
           <methods>
             <method name="get_BuyerId" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="25" hits="9" branch="False" />
+                <line number="25" hits="13" branch="False" />
               </lines>
             </method>
             <method name="get_Status" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="26" hits="13" branch="False" />
+                <line number="26" hits="21" branch="False" />
               </lines>
             </method>
             <method name="get_CancellationReason" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="27" hits="3" branch="False" />
+                <line number="27" hits="5" branch="False" />
               </lines>
             </method>
             <method name="get_OrderItems" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="28" hits="8" branch="False" />
+                <line number="28" hits="12" branch="False" />
               </lines>
             </method>
             <method name="Create" signature="(System.String,System.Collections.Generic.List`1&lt;Ordering.Domain.Entities.OrderItem&gt;)" line-rate="1" branch-rate="1" complexity="2">
               <lines>
-                <line number="31" hits="3" branch="False" />
-                <line number="32" hits="3" branch="True" condition-coverage="100% (2/2)">
+                <line number="31" hits="5" branch="False" />
+                <line number="32" hits="5" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="9" type="jump" coverage="100%" />
                   </conditions>
                 </line>
                 <line number="33" hits="1" branch="False" />
-                <line number="35" hits="2" branch="False" />
-                <line number="36" hits="2" branch="False" />
-                <line number="37" hits="2" branch="False" />
-                <line number="38" hits="2" branch="False" />
-                <line number="39" hits="2" branch="False" />
-                <line number="40" hits="2" branch="False" />
-                <line number="42" hits="2" branch="False" />
-                <line number="43" hits="2" branch="False" />
-                <line number="44" hits="2" branch="False" />
+                <line number="35" hits="4" branch="False" />
+                <line number="36" hits="4" branch="False" />
+                <line number="37" hits="4" branch="False" />
+                <line number="38" hits="4" branch="False" />
+                <line number="39" hits="4" branch="False" />
+                <line number="40" hits="4" branch="False" />
+                <line number="42" hits="4" branch="False" />
+                <line number="43" hits="4" branch="False" />
+                <line number="44" hits="4" branch="False" />
               </lines>
             </method>
             <method name="Cancel" signature="(System.String)" line-rate="1" branch-rate="1" complexity="2">
               <lines>
-                <line number="47" hits="2" branch="False" />
-                <line number="48" hits="2" branch="True" condition-coverage="100% (2/2)">
+                <line number="47" hits="4" branch="False" />
+                <line number="48" hits="5" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="12" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="50" hits="2" branch="False" />
-                <line number="51" hits="2" branch="False" />
-                <line number="52" hits="2" branch="False" />
-                <line number="53" hits="2" branch="False" />
+                <line number="50" hits="3" branch="False" />
+                <line number="51" hits="3" branch="False" />
+                <line number="52" hits="3" branch="False" />
+                <line number="53" hits="4" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="25" hits="9" branch="False" />
-            <line number="26" hits="13" branch="False" />
-            <line number="27" hits="3" branch="False" />
-            <line number="28" hits="8" branch="False" />
-            <line number="31" hits="3" branch="False" />
-            <line number="32" hits="3" branch="True" condition-coverage="100% (2/2)">
+            <line number="25" hits="13" branch="False" />
+            <line number="26" hits="21" branch="False" />
+            <line number="27" hits="5" branch="False" />
+            <line number="28" hits="12" branch="False" />
+            <line number="31" hits="5" branch="False" />
+            <line number="32" hits="5" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="9" type="jump" coverage="100%" />
               </conditions>
             </line>
             <line number="33" hits="1" branch="False" />
-            <line number="35" hits="2" branch="False" />
-            <line number="36" hits="2" branch="False" />
-            <line number="37" hits="2" branch="False" />
-            <line number="38" hits="2" branch="False" />
-            <line number="39" hits="2" branch="False" />
-            <line number="40" hits="2" branch="False" />
-            <line number="42" hits="2" branch="False" />
-            <line number="43" hits="2" branch="False" />
-            <line number="44" hits="2" branch="False" />
-            <line number="47" hits="2" branch="False" />
-            <line number="48" hits="2" branch="True" condition-coverage="100% (2/2)">
+            <line number="35" hits="4" branch="False" />
+            <line number="36" hits="4" branch="False" />
+            <line number="37" hits="4" branch="False" />
+            <line number="38" hits="4" branch="False" />
+            <line number="39" hits="4" branch="False" />
+            <line number="40" hits="4" branch="False" />
+            <line number="42" hits="4" branch="False" />
+            <line number="43" hits="4" branch="False" />
+            <line number="44" hits="4" branch="False" />
+            <line number="47" hits="4" branch="False" />
+            <line number="48" hits="5" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="12" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="50" hits="2" branch="False" />
-            <line number="51" hits="2" branch="False" />
-            <line number="52" hits="2" branch="False" />
-            <line number="53" hits="2" branch="False" />
+            <line number="50" hits="3" branch="False" />
+            <line number="51" hits="3" branch="False" />
+            <line number="52" hits="3" branch="False" />
+            <line number="53" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Common.BaseEntity" filename="Ordering.Domain/Common/BaseEntity.cs" line-rate="0.8332999999999999" branch-rate="1" complexity="6">
+        <class name="Ordering.Domain.Common.BaseEntity" filename="src/Services/Ordering/Ordering.Domain/Common/BaseEntity.cs" line-rate="1" branch-rate="1" complexity="6">
           <methods>
             <method name="get_Id" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="7" hits="11" branch="False" />
+                <line number="7" hits="14" branch="False" />
               </lines>
             </method>
             <method name="get_DomainEvents" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="12" hits="4" branch="False" />
+                <line number="12" hits="8" branch="False" />
               </lines>
             </method>
             <method name="AddDomainEvent" signature="(Ordering.Domain.Common.BaseEvent)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="14" hits="4" branch="False" />
+                <line number="14" hits="9" branch="False" />
               </lines>
             </method>
-            <method name="RemoveDomainEvent" signature="(Ordering.Domain.Common.BaseEvent)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="RemoveDomainEvent" signature="(Ordering.Domain.Common.BaseEvent)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="15" hits="0" branch="False" />
+                <line number="15" hits="1" branch="False" />
               </lines>
             </method>
             <method name="ClearDomainEvents" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="16" hits="1" branch="False" />
+                <line number="16" hits="4" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="9" hits="6" branch="False" />
+                <line number="9" hits="9" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="7" hits="11" branch="False" />
-            <line number="12" hits="4" branch="False" />
-            <line number="14" hits="4" branch="False" />
-            <line number="15" hits="0" branch="False" />
-            <line number="16" hits="1" branch="False" />
-            <line number="9" hits="6" branch="False" />
+            <line number="7" hits="14" branch="False" />
+            <line number="12" hits="8" branch="False" />
+            <line number="14" hits="9" branch="False" />
+            <line number="15" hits="1" branch="False" />
+            <line number="16" hits="4" branch="False" />
+            <line number="9" hits="9" branch="False" />
           </lines>
         </class>
-        <class name="Ordering.Domain.Common.BaseAuditableEntity" filename="Ordering.Domain/Common/BaseEntity.cs" line-rate="0.5" branch-rate="1" complexity="4">
+        <class name="Ordering.Domain.Common.BaseAuditableEntity" filename="src/Services/Ordering/Ordering.Domain/Common/BaseEntity.cs" line-rate="0.5" branch-rate="1" complexity="4">
           <methods>
             <method name="get_CreatedAt" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="21" hits="4" branch="False" />
+                <line number="21" hits="6" branch="False" />
               </lines>
             </method>
             <method name="get_CreatedBy" signature="()" line-rate="0" branch-rate="1" complexity="1">
@@ -946,7 +3576,7 @@
             </method>
             <method name="get_LastModifiedAt" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="23" hits="4" branch="False" />
+                <line number="23" hits="6" branch="False" />
               </lines>
             </method>
             <method name="get_LastModifiedBy" signature="()" line-rate="0" branch-rate="1" complexity="1">
@@ -956,9 +3586,9 @@
             </method>
           </methods>
           <lines>
-            <line number="21" hits="4" branch="False" />
+            <line number="21" hits="6" branch="False" />
             <line number="22" hits="0" branch="False" />
-            <line number="23" hits="4" branch="False" />
+            <line number="23" hits="6" branch="False" />
             <line number="24" hits="0" branch="False" />
           </lines>
         </class>

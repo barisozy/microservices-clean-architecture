@@ -1,4 +1,5 @@
 using System.Reflection;
+using ECommerce.Auditing;
 using Inventory.Application.Common.Interfaces;
 using Inventory.Application.Consumers;
 using Inventory.Domain.Common;
@@ -124,12 +125,16 @@ namespace Inventory.Infrastructure
         {
             services.AddHttpContextAccessor();
             services.AddScoped<IUser, CurrentUser>();
-            services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+            services.AddECommerceAuditing();
+            services.AddScoped<AuditableEntityInterceptor>();
+            services.AddScoped<DispatchDomainEventsInterceptor>();
 
             services.AddDbContext<InventoryDbContext>((sp, options) =>
             {
-                options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+                options.AddInterceptors(
+                    sp.GetRequiredService<AuditableEntityInterceptor>(),
+                    sp.GetRequiredService<DispatchDomainEventsInterceptor>()
+                );
                 options.UseNpgsql(configuration.GetConnectionString("InventoryDb"), npgsql =>
                 {
                     npgsql.SetPostgresVersion(18, 0);
