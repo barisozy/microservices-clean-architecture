@@ -29,7 +29,12 @@ jobs:
         run: dotnet restore ECommerce.sln
 
       - name: Test & Collect Coverage
-        run: dotnet test ECommerce.sln --configuration Release --filter "FullyQualifiedName!~ECommerce.IntegrationTests" --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[ECommerce.Contracts]*|[*.Infrastructure]*|[*.Gateway]*|[*.AppHost]*|[ECommerce.ServiceDefaults]*"
+        run: |
+          dotnet test tests/Auditing.UnitTests/Auditing.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          dotnet test tests/Ordering.UnitTests/Ordering.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          dotnet test tests/Inventory.UnitTests/Inventory.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          dotnet test tests/Fulfillment.UnitTests/Fulfillment.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          dotnet test tests/Payments.UnitTests/Payments.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
 
       - name: Generate Report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
