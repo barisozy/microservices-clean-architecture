@@ -1,7 +1,7 @@
-using Payments.Domain.Common;
-using Payments.Domain.Events;
-using Payments.Domain.Entities;
 using System;
+using Payments.Domain.Common;
+using Payments.Domain.Entities;
+using Payments.Domain.Events;
 using Shouldly;
 using Xunit;
 
@@ -27,6 +27,24 @@ public class DomainTests
         entity.AddDomainEvent(domainEvent);
         entity.ClearDomainEvents();
         entity.DomainEvents.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void BaseAuditableEntity_Properties_ShouldBeSetAndGet()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var payment = PaymentRecord.Create(Guid.NewGuid(), "key-123", 99.99m);
+        payment.CreatedAt = now;
+        payment.CreatedBy = "user";
+        payment.LastModifiedAt = now;
+        payment.LastModifiedBy = "user2";
+
+        payment.IdempotencyKey.ShouldBe("key-123");
+        payment.Amount.ShouldBe(99.99m);
+        payment.CreatedAt.ShouldBe(now);
+        payment.CreatedBy.ShouldBe("user");
+        payment.LastModifiedAt.ShouldBe(now);
+        payment.LastModifiedBy.ShouldBe("user2");
     }
 
     [Fact]
