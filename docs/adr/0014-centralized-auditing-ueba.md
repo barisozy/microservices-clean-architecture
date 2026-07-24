@@ -21,25 +21,25 @@ We needed a centralized, resilient mechanism to intercept EF Core data changes, 
 
 We will implement a **Centralized Auditing Service** with distributed, asynchronous event collection:
 
-1. **`ECommerce.Auditing` (Shared Package):**
-   - We extract auditing interception into a reusable NuGet-like shared project.
-   - We implement `AuditableEntityInterceptor`, an EF Core `ISaveChangesInterceptor`. This interceptor automatically scans the `ChangeTracker` for entities implementing `IAuditableEntity`.
-   - Before changes are committed, it extracts the HTTP Context metadata (`UserIp`, `UserAgent`, `Endpoint`, `UserId`) using `IHttpContextAccessor`.
-   - It serializes the entity's Old Values, New Values, and Primary Keys into JSON.
+1. **`ECommerce.Auditing` (Shared Building Block):**
+   - We extract auditing interception and MediatR command auditing into a reusable building block (`ECommerce.Auditing`).
+   - We implement `AuditInterceptor`, an EF Core `ISaveChangesInterceptor`. This interceptor automatically scans the `ChangeTracker` for added, modified, or deleted entities (excluding internal audit/outbox/inbox tables).
+   - Before changes are committed, it extracts the HTTP Context metadata (`IpAddress`, `UserAgent`, `UserRoles`, `UserId`, `TraceId`) using `IHttpContextAccessor`.
+   - It serializes property changes (Old Values and New Values) and Primary Keys into JSON.
 
 2. **Asynchronous Publishing (RabbitMQ):**
-   - The interceptor constructs an `AuditLogCreatedEvent` and publishes it to the event bus (RabbitMQ via MassTransit) rather than writing synchronously to a database.
+   - The interceptor constructs an `AuditLogCreated` event and publishes it to the event bus (RabbitMQ via MassTransit) rather than writing synchronously to a database.
    - This prevents audit logging from adding synchronous latency or creating a single point of failure (if the audit DB is down, transactions shouldn't fail).
 
 3. **`Auditing.Api` (Centralized Microservice):**
-   - A dedicated `Auditing.Api` microservice consumes `AuditLogCreatedEvent` messages from RabbitMQ.
-   - It writes these logs to an isolated `AuditingDb` (PostgreSQL) optimized for temporal and JSONB querying.
-   - It provides specialized endpoints (e.g., `/api/v1/audit-logs`) to query and filter changes by user, entity, or UEBA attributes.
+   - A dedicated `Auditing.Api` microservice consumes `AuditLogCreated` messages from RabbitMQ.
+   - It writes these logs to an isolated `AuditingDb` (PostgreSQL) optimized for temporal and index-backed querying (`Timestamp`, `EntityId`, `UserId`).
+   - It provides specialized endpoints (e.g., `/api/audit-logs`) to query and filter changes by user, entity, or UEBA attributes with pagination.
 
 ## Consequences
 
 - **Pros:**
-  - **Zero-Touch Auditing:** Developers just add `IAuditableEntity` to a domain model. The interception handles the rest transparently.
+  - **Zero-Touch Auditing:** EF Core interceptor handles entity change tracking transparently across microservices.
   - **High Performance:** Asynchronous publishing ensures the primary transaction is not delayed by audit storage.
   - **Security Observability:** Full UEBA telemetry is available for all state-changing operations across the entire platform.
 - **Cons:**
