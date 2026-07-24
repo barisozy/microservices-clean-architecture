@@ -11,11 +11,19 @@ builder.AddBasicServiceDefaults();
 // Configure DB
 builder.Services.AddDbContext<AuditingDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AuditingDb"), npgsql =>
+    var connectionString = builder.Configuration.GetConnectionString("AuditingDb");
+    if (builder.Environment.IsEnvironment("Testing") || string.IsNullOrEmpty(connectionString))
     {
-        npgsql.SetPostgresVersion(18, 0);
-        npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "auditing");
-    });
+        options.UseInMemoryDatabase("AuditingDb_InMemory");
+    }
+    else
+    {
+        options.UseNpgsql(connectionString, npgsql =>
+        {
+            npgsql.SetPostgresVersion(18, 0);
+            npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "auditing");
+        });
+    }
 });
 
 // Configure MassTransit
@@ -34,6 +42,23 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
+app.MapGet("/api/audit-logs", async (AuditingDbContext db, string? entityName, string? userId, int page = 1, int pageSize = 50) =>
+{
+    var query = db.AuditLogs.AsQueryable();
+    if (!string.IsNullOrEmpty(entityName))
+        query = query.Where(x => x.EntityName == entityName);
+    if (!string.IsNullOrEmpty(userId))
+        query = query.Where(x => x.UserId == userId);
+
+    var totalCount = await query.CountAsync();
+    var items = await query.OrderByDescending(x => x.Timestamp)
+                           .Skip((page - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToListAsync();
+
+    return Results.Ok(new { totalCount, page, pageSize, items });
+});
+
 // Auto-migrate
 using (var scope = app.Services.CreateScope())
 {
@@ -42,3 +67,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+public partial class Program { }

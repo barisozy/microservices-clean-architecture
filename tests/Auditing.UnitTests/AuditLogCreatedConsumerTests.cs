@@ -14,28 +14,30 @@ namespace Auditing.UnitTests;
 public class AuditLogCreatedConsumerTests
 {
     [Fact]
-    public async Task Consume_ShouldSaveAuditLogToDatabase()
+    public async Task Consume_ShouldSaveAuditLogToDatabase_WithAllFields()
     {
         // Arrange
         var options = new DbContextOptionsBuilder<AuditingDbContext>()
-            .UseInMemoryDatabase(databaseName: "AuditDb_Test")
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         using var dbContext = new AuditingDbContext(options);
         var consumer = new AuditLogCreatedConsumer(dbContext);
 
+        var messageId = Guid.NewGuid();
+        var timestamp = DateTimeOffset.UtcNow;
         var message = new AuditLogCreated(
-            Guid.NewGuid(),
-            "test-user",
-            "Admin",
-            "127.0.0.1",
-            "Agent",
+            messageId,
+            "test-user-42",
+            "Admin,User",
+            "10.0.0.1",
+            "Mozilla/5.0",
             "Create",
             "Order",
-            "123",
-            "{}",
-            "trace-1",
-            DateTimeOffset.UtcNow
+            "ORD-999",
+            "{\"Total\":100}",
+            "trace-xyz-123",
+            timestamp
         );
 
         var contextMock = new Mock<ConsumeContext<AuditLogCreated>>();
@@ -45,9 +47,18 @@ public class AuditLogCreatedConsumerTests
         await consumer.Consume(contextMock.Object);
 
         // Assert
-        var savedLog = await dbContext.AuditLogs.FirstOrDefaultAsync(x => x.Id == message.Id, TestContext.Current.CancellationToken);
+        var savedLog = await dbContext.AuditLogs.FirstOrDefaultAsync(x => x.Id == messageId, TestContext.Current.CancellationToken);
         savedLog.ShouldNotBeNull();
-        savedLog.UserId.ShouldBe("test-user");
+        savedLog.Id.ShouldBe(messageId);
+        savedLog.UserId.ShouldBe("test-user-42");
+        savedLog.UserRoles.ShouldBe("Admin,User");
+        savedLog.IpAddress.ShouldBe("10.0.0.1");
+        savedLog.UserAgent.ShouldBe("Mozilla/5.0");
+        savedLog.Action.ShouldBe("Create");
         savedLog.EntityName.ShouldBe("Order");
+        savedLog.EntityId.ShouldBe("ORD-999");
+        savedLog.Changes.ShouldBe("{\"Total\":100}");
+        savedLog.TraceId.ShouldBe("trace-xyz-123");
+        savedLog.Timestamp.ShouldBe(timestamp);
     }
 }
