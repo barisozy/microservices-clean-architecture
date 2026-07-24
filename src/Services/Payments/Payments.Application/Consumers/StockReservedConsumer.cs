@@ -14,6 +14,6 @@ public class StockReservedConsumer(ISender sender, ILogger<StockReservedConsumer
         logger.LogInformation("Stock reserved for OrderId: {OrderId}. Proceeding to Payment...", msg.OrderId);
         
         // Pass items from StockReserved to handle specific logic like FAIL_PAYMENT
-        await sender.Send(new ProcessPaymentCommand(msg.OrderId, msg.IdempotencyKey, msg.TotalAmount, msg.Items), context.CancellationToken);
+        await sender.Send(new ProcessPaymentCommand(msg.OrderId, msg.IdempotencyKey, msg.TotalAmount, msg.Items, msg.OrderCreatedAt), context.CancellationToken);
     }
 }

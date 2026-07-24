@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
+            ValidateIssuer = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuer", true),
             ValidIssuer = builder.Configuration["Jwt:Authority"] ?? "http://localhost:8080/realms/ecommerce",
             ValidateAudience = false
         };
@@ -39,7 +39,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<Ordering.Infrastructure.Data.OrderingDbContext>();
-    db.Database.EnsureCreated();
+    await db.Database.EnsureCreatedAsync();
 }
 
 app.MapDefaultEndpoints();

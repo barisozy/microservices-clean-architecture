@@ -4,5 +4,6 @@ public record PaymentCompleted(
     Guid OrderId,
     Guid PaymentId,
     string IdempotencyKey,
-    DateTimeOffset CompletedAt
+    DateTimeOffset CompletedAt,
+    DateTimeOffset OrderCreatedAt
 );

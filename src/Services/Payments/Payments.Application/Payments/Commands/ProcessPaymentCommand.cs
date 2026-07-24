@@ -7,7 +7,7 @@ using Payments.Domain.Entities;
 
 namespace Payments.Application.Payments.Commands;
 
-public record ProcessPaymentCommand(Guid OrderId, string IdempotencyKey, decimal Amount, List<OrderItemContractDto> Items) : IRequest<Guid>;
+public record ProcessPaymentCommand(Guid OrderId, string IdempotencyKey, decimal Amount, List<OrderItemContractDto> Items, DateTimeOffset OrderCreatedAt) : IRequest<Guid>;
 
 public class ProcessPaymentCommandHandler(IPaymentsDbContext context, IPublishEndpoint publishEndpoint, IPaymentReadRepository paymentReadRepository) : IRequestHandler<ProcessPaymentCommand, Guid>
 {
@@ -23,21 +23,21 @@ public class ProcessPaymentCommandHandler(IPaymentsDbContext context, IPublishEn
         {
             payment.Fail("Card declined or insufficient funds (Simulated).");
             context.Payments.Add(payment);
+            
+            await publishEndpoint.Publish(new PaymentFailed(payment.OrderId, payment.IdempotencyKey, "Simulated payment failure.", DateTimeOffset.UtcNow), cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
             
             await paymentReadRepository.SetPaymentStatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
-
-            await publishEndpoint.Publish(new PaymentFailed(payment.OrderId, payment.IdempotencyKey, "Simulated payment failure.", DateTimeOffset.UtcNow), cancellationToken);
         }
         else
         {
             payment.Complete();
             context.Payments.Add(payment);
+            
+            await publishEndpoint.Publish(new PaymentCompleted(payment.OrderId, payment.Id, payment.IdempotencyKey, DateTimeOffset.UtcNow, request.OrderCreatedAt), cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
             
             await paymentReadRepository.SetPaymentStatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
-
-            await publishEndpoint.Publish(new PaymentCompleted(payment.OrderId, payment.Id, payment.IdempotencyKey, DateTimeOffset.UtcNow), cancellationToken);
         }
 
         return payment.Id;

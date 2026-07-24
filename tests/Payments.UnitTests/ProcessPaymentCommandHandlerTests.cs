@@ -35,7 +35,7 @@ public class ProcessPaymentCommandHandlerTests
         var result = await handler.Handle(new ProcessPaymentCommand(Guid.NewGuid(), "key-123", 100, new List<OrderItemContractDto>
         {
             new OrderItemContractDto("SKU-1", 1, 100)
-        }), CancellationToken.None);
+        }, DateTimeOffset.UtcNow), CancellationToken.None);
 
         result.ShouldNotBe(Guid.Empty);
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -57,7 +57,7 @@ public class ProcessPaymentCommandHandlerTests
         var result = await handler.Handle(new ProcessPaymentCommand(Guid.NewGuid(), "key-456", 100, new List<OrderItemContractDto>
         {
             new OrderItemContractDto("FAIL_PAYMENT_SKU", 1, 100)
-        }), CancellationToken.None);
+        }, DateTimeOffset.UtcNow), CancellationToken.None);
 
         result.ShouldNotBe(Guid.Empty);
         contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

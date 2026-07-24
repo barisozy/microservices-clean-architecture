@@ -1,0 +1,15 @@
+groups:
+  - name: SLI_Error_Budget_Alerts
+    rules:
+      # Example: High Error Rate Alert (Burn Rate > 5)
+      - alert: HighAPIErrorRate
+        expr: |
+          rate(ecommerce_http_server_requests_seconds_count{http_response_status_code=~"5.."}[5m]) 
+          / 
+          rate(ecommerce_http_server_requests_seconds_count[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate detected"
+          description: "Over 5% of requests have failed in the last 5 minutes. Error budget is burning rapidly."
