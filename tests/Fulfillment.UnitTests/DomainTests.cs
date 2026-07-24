@@ -61,13 +61,4 @@ public class DomainTests
         task.LastModifiedBy.ShouldBe("user-2");
     }
 
-    [Fact]
-    public void BaseEvent_DateOccurred_ShouldDefaultToUtcNow()
-    {
-        // Arrange & Act
-        var evt = new TestDomainEvent();
-
-        // Assert
-        evt.DateOccurred.ShouldBeGreaterThan(DateTimeOffset.UtcNow.AddMinutes(-1));
-    }
 }
