@@ -43,7 +43,7 @@ jobs:
           targetdir: './coveragereport'
           reporttypes: 'Html;MarkdownSummary'
           assemblyfilters: '+*.Domain;+*.Application;+ECommerce.Auditing;+Auditing.Api'
-          classfilters: '-ECommerce.Contracts.*;-*Exception;-*Dto;-*Event;-*BaseAuditableEntity;-*BaseEntity'
+          classfilters: '-ECommerce.Contracts.*;-*Exception;-*Dto;-*Event;-*BaseAuditableEntity;-*BaseEntity;-*Generated*'
 
       - name: Publish Summary
         run: cat ./coveragereport/Summary.md >> $GITHUB_STEP_SUMMARY
