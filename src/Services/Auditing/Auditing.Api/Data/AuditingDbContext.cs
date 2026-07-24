@@ -26,7 +26,7 @@ public class AuditingDbContext(DbContextOptions<AuditingDbContext> options) : Db
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("auditing");
+        modelBuilder.Entity<AuditLogRecord>().ToTable("AuditLogs", "auditing");
         modelBuilder.Entity<AuditLogRecord>().HasIndex(x => x.Timestamp);
         modelBuilder.Entity<AuditLogRecord>().HasIndex(x => x.EntityId);
         modelBuilder.Entity<AuditLogRecord>().HasIndex(x => x.UserId);
