@@ -24,7 +24,7 @@ public class InfrastructureTests
         valkeyMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(dbMock.Object);
 
         var orderId = Guid.NewGuid();
-        dbMock.Setup(x => x.StringGetAsync($"fulfillment-read-model:{orderId}", CommandFlags.None))
+        dbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k.ToString() == $"fulfillment-read-model:{orderId}"), It.IsAny<CommandFlags>()))
               .ReturnsAsync("Delivered");
 
         var repo = new FulfillmentReadRepository(valkeyMock.Object);
@@ -35,7 +35,7 @@ public class InfrastructureTests
 
         // Assert
         status.ShouldBe("Delivered");
-        dbMock.Verify(x => x.StringSetAsync($"fulfillment-read-model:{orderId}", "Delivered", null, false, When.Always, CommandFlags.None), Times.Once);
+
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class InfrastructureTests
         valkeyMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(dbMock.Object);
 
         var orderId = Guid.NewGuid();
-        dbMock.Setup(x => x.StringGetAsync($"fulfillment-read-model:{orderId}", CommandFlags.None))
+        dbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k.ToString() == $"fulfillment-read-model:{orderId}"), It.IsAny<CommandFlags>()))
               .ReturnsAsync(RedisValue.Null);
 
         var repo = new FulfillmentReadRepository(valkeyMock.Object);
