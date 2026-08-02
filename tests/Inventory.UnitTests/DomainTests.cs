@@ -87,4 +87,31 @@ public class DomainTests
         var evt = new StockReleasedDomainEvent(reservation);
         evt.Reservation.ShouldBe(reservation);
     }
+
+    [Fact]
+    public void Stock_ShouldNotReserveBeyondAvailability_AndReleaseShouldNotBecomeNegative()
+    {
+        var stock = new Stock("SKU-LOW", 2);
+
+        stock.Reserve(3).ShouldBeFalse();
+        stock.ReservedQuantity.ShouldBe(0);
+
+        stock.Release(5);
+        stock.ReservedQuantity.ShouldBe(0);
+    }
+
+    [Fact]
+    public void InventoryDomainException_Constructors_ShouldWorkCorrectly()
+    {
+        var ex1 = new Inventory.Domain.Exceptions.InventoryDomainException();
+        ex1.ShouldNotBeNull();
+
+        var ex2 = new Inventory.Domain.Exceptions.InventoryDomainException("Custom message");
+        ex2.Message.ShouldBe("Custom message");
+
+        var inner = new InvalidOperationException("Inner error");
+        var ex3 = new Inventory.Domain.Exceptions.InventoryDomainException("Wrapped message", inner);
+        ex3.Message.ShouldBe("Wrapped message");
+        ex3.InnerException.ShouldBe(inner);
+    }
 }

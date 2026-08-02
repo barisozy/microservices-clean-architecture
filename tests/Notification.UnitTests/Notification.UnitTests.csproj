@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Shouldly" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Services\Notification\Notification.Domain\Notification.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Services\Notification\Notification.Application\Notification.Application.csproj" />
+    <ProjectReference Include="..\..\src\Services\Notification\Notification.Infrastructure\Notification.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Services\Notification\Notification.Api\Notification.Api.csproj" />
+  </ItemGroup>
+</Project>

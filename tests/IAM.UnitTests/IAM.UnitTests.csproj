@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Shouldly" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Services\IAM\IAM.Domain\IAM.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Services\IAM\IAM.Application\IAM.Application.csproj" />
+    <ProjectReference Include="..\..\src\Services\IAM\IAM.Infrastructure\IAM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Services\IAM\IAM.Api\IAM.Api.csproj" />
+  </ItemGroup>
+</Project>
