@@ -6,4 +6,3 @@ public interface IBasketService
     Task<bool> SetBasketAsync(string buyerId, Dictionary<string, int> items, CancellationToken cancellationToken = default);
     Task<bool> DeleteBasketAsync(string buyerId, CancellationToken cancellationToken = default);
 }
-

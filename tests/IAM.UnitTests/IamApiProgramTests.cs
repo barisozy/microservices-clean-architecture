@@ -160,4 +160,3 @@ public sealed class IamDevelopmentApiProgramTests : IClassFixture<IamDevelopment
         scalar.StatusCode.ShouldBeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
     }
 }
-

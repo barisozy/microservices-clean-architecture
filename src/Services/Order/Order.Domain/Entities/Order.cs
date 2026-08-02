@@ -58,4 +58,3 @@ public class Order : BaseAuditableEntity
         AddDomainEvent(new OrderCancelledDomainEvent(this, reason));
     }
 }
-

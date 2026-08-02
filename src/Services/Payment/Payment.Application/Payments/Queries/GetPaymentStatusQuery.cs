@@ -12,4 +12,3 @@ public class GetPaymenttatusQueryHandler(IPaymentReadRepository readRepository) 
         return await readRepository.GetPaymenttatusAsync(request.OrderId, cancellationToken);
     }
 }
-

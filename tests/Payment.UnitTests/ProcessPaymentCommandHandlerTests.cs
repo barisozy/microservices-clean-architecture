@@ -64,4 +64,3 @@ public class ProcessPaymentCommandHandlerTests
         publishMock.Verify(x => x.Publish(It.IsAny<PaymentFailed>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-

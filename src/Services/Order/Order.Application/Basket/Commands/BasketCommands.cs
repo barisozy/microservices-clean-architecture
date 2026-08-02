@@ -31,4 +31,3 @@ public class DeleteBasketCommandHandler(IBasketService basketService) : IRequest
     public async Task<bool> Handle(DeleteBasketCommand request, CancellationToken cancellationToken)
         => await basketService.DeleteBasketAsync(request.BuyerId, cancellationToken);
 }
-

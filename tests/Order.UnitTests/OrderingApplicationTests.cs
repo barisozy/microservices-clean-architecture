@@ -38,4 +38,3 @@ public class OrderApplicationTests
         result.Errors.ShouldContain(e => e.PropertyName == "OrderId");
     }
 }
-

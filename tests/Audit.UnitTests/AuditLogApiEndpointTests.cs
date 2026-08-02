@@ -119,4 +119,3 @@ public class AuditLogApiEndpointTests
         page2.First().EntityId.ShouldBe("11");
     }
 }
-

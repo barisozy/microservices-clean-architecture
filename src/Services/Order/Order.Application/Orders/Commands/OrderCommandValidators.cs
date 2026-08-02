@@ -35,4 +35,3 @@ public class CancelOrderCommandValidator : AbstractValidator<CancelOrderCommand>
         RuleFor(x => x.Reason).NotEmpty().WithMessage("Reason is required.");
     }
 }
-

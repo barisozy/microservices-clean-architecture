@@ -72,4 +72,3 @@ public class AuditDbContextTests
         record.Timestamp.ShouldBe(now);
     }
 }
-

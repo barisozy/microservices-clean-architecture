@@ -38,4 +38,3 @@ public class StockReleasedConsumerTests
             Times.Once);
     }
 }
-

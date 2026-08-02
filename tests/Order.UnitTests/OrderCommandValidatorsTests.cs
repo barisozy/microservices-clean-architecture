@@ -45,4 +45,3 @@ public class OrderCommandValidatorsTests
         result.Errors.ShouldContain(e => e.PropertyName == "Reason");
     }
 }
-

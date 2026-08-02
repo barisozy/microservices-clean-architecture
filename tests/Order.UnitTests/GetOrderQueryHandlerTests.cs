@@ -45,4 +45,3 @@ public class GetOrderQueryHandlerTests
         result.ShouldBeNull();
     }
 }
-

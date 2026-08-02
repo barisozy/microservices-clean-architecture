@@ -48,4 +48,3 @@ public class BasketCommandHandlerTests
         basketServiceMock.Verify(x => x.DeleteBasketAsync("buyer-1", It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-

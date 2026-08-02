@@ -23,16 +23,16 @@ public class ValkeyBasketService(IConnectionMultiplexer valkey) : IBasketService
     {
         var db = valkey.GetDatabase();
         var key = BasketKey(buyerId);
-        
+
         // Clear and replace (PUT semantics)
         await db.KeyDeleteAsync(key);
-        
+
         if (items.Count > 0)
         {
             var hashEntries = items.Select(kvp => new HashEntry(kvp.Key, kvp.Value)).ToArray();
             await db.HashSetAsync(key, hashEntries);
         }
-        
+
         // Refresh sliding 7-day TTL on every write
         await db.KeyExpireAsync(key, SlidingTtl);
         return true;
@@ -44,4 +44,3 @@ public class ValkeyBasketService(IConnectionMultiplexer valkey) : IBasketService
         return await db.KeyDeleteAsync(BasketKey(buyerId));
     }
 }
-

@@ -82,5 +82,3 @@ public class Orders : IEndpointGroup
 /// </summary>
 public record CreateOrderRequest(List<OrderItemRequest>? Items, string? CouponCode = null);
 public record OrderItemRequest(string Sku, int Quantity, decimal UnitPrice);
-
-

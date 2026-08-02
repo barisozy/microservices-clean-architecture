@@ -19,4 +19,3 @@ public class OrderCreatedConsumer(ISender sender, ILogger<OrderCreatedConsumer> 
         await sender.Send(new ProcessPaymentCommand(msg.OrderId, msg.IdempotencyKey, msg.TotalAmount, msg.Items, msg.CreatedAt), context.CancellationToken);
     }
 }
-

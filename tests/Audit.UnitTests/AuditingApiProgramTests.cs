@@ -123,4 +123,3 @@ public class AuditApiProgramTests : IClassFixture<CustomWebApplicationFactory>
         Timestamp = timestamp
     };
 }
-

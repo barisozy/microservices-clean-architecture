@@ -36,4 +36,3 @@ public class PermissionDeniedConsumer(AuditDbContext dbContext) : IConsumer<Perm
         await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }
-

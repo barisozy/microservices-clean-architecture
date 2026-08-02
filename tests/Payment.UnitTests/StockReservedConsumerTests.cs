@@ -29,4 +29,3 @@ public class OrderCreatedConsumerTests
         // Should not throw
     }
 }
-

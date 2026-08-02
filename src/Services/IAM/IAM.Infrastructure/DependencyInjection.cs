@@ -12,7 +12,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("iam_db") 
+        var connectionString = configuration.GetConnectionString("iam_db")
             ?? configuration.GetConnectionString("IamDb")
             ?? "Host=localhost;Database=iam_db;Username=postgres;Password=postgres";
 

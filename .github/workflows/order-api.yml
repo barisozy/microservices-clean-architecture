@@ -147,4 +147,3 @@ jobs:
           # This uses GitHub OIDC token to sign
           COSIGN_EXPERIMENTAL: "true"
         run: cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
-

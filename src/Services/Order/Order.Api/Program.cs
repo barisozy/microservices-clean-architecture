@@ -54,5 +54,3 @@ app.Run();
 
 // Enables a WebApplicationFactory test host without changing the production entry point.
 public partial class Program;
-
-

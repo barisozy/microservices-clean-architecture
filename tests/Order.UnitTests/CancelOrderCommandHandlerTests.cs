@@ -51,5 +51,3 @@ public class CancelOrderCommandHandlerTests
         publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
-
-

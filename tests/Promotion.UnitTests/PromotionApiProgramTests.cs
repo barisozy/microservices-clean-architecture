@@ -154,4 +154,3 @@ public sealed class PromotionDevelopmentProgramTests : IClassFixture<PromotionDe
         scalar.StatusCode.ShouldBeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
     }
 }
-

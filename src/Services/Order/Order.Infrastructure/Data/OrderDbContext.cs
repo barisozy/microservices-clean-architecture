@@ -28,5 +28,3 @@ public class OrderDbContext : DbContext, IOrderDbContext
         modelBuilder.AddOutboxStateEntity();
     }
 }
-
-
