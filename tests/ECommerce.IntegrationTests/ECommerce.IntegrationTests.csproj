@@ -22,5 +22,6 @@
     <ProjectReference Include="..\..\src\Services\Inventory\Inventory.Api\Inventory.Api.csproj" />
     <ProjectReference Include="..\..\src\Services\Payment\Payment.Api\Payment.Api.csproj" />
     <ProjectReference Include="..\..\src\Services\Fulfillment\Fulfillment.Api\Fulfillment.Api.csproj" />
+    <ProjectReference Include="..\..\src\Services\Catalog\Catalog.Api\Catalog.Api.csproj" />
   </ItemGroup>
 </Project>

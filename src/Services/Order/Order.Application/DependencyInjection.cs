@@ -3,6 +3,9 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Order.Application.Common.Behaviors;
+using Order.Application.Common.Interfaces;
+using Order.Application.Orders.EventHandlers;
+using Order.Domain.Events;
 
 namespace Order.Application;
 
@@ -11,6 +14,9 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<IDomainEventHandler<OrderCreatedDomainEvent>, OrderReadModelUpdater>();
+        services.AddScoped<IDomainEventHandler<OrderCancelledDomainEvent>, OrderReadModelUpdater>();
 
         services.AddMediatR(cfg =>
         {

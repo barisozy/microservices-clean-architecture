@@ -7,6 +7,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Application.Inventory.Commands;
 
+public record SetStockCommand(string Sku, int Quantity) : IRequest<int>;
+
+public sealed class SetStockCommandHandler(
+    IInventoryDbContext context,
+    IStockReadRepository stockReadRepository) : IRequestHandler<SetStockCommand, int>
+{
+    public async Task<int> Handle(SetStockCommand request, CancellationToken cancellationToken)
+    {
+        var stock = await context.Stocks.FirstOrDefaultAsync(
+            candidate => candidate.Sku == request.Sku,
+            cancellationToken);
+        if (stock is null)
+        {
+            stock = new Stock(request.Sku, request.Quantity);
+            context.Stocks.Add(stock);
+        }
+        else
+        {
+            stock.SetQuantity(request.Quantity);
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        await stockReadRepository.SetAvailableQuantityAsync(
+            stock.Sku,
+            stock.AvailableQuantity,
+            cancellationToken);
+        return stock.AvailableQuantity;
+    }
+}
+
 public record ReserveStockCommand(Guid OrderId, string Sku, int Quantity) : IRequest<(Guid ReservationId, bool Success, string Message)>;
 
 public class ReserveStockCommandHandler(IInventoryDbContext context, IStockReadRepository stockReadRepository) : IRequestHandler<ReserveStockCommand, (Guid ReservationId, bool Success, string Message)>
@@ -25,10 +55,9 @@ public class ReserveStockCommandHandler(IInventoryDbContext context, IStockReadR
         }
 
         var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == request.Sku, cancellationToken);
-        if (stock == null)
+        if (stock is null)
         {
-            stock = new Stock(request.Sku, 1000);
-            context.Stocks.Add(stock);
+            return (Guid.Empty, false, "Unknown SKU. Inventory must be provisioned before checkout.");
         }
 
         if (!stock.Reserve(request.Quantity))
@@ -38,7 +67,18 @@ public class ReserveStockCommandHandler(IInventoryDbContext context, IStockReadR
 
         var reservation = InventoryReservation.Create(request.OrderId, request.Sku, request.Quantity);
         context.Reservations.Add(reservation);
-        await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return (Guid.Empty, false, "Inventory changed concurrently. Retry the reservation.");
+        }
+        catch (DbUpdateException)
+        {
+            return (Guid.Empty, false, "A concurrent reservation conflict occurred. Retry the request.");
+        }
 
         // Update Read Model
         await stockReadRepository.SetAvailableQuantityAsync(stock.Sku, stock.AvailableQuantity, cancellationToken);
@@ -55,6 +95,7 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
     {
         var reservation = await context.Reservations.FirstOrDefaultAsync(r => r.Id == request.ReservationId, cancellationToken);
         if (reservation == null) return false;
+        if (reservation.IsReleased) return true;
 
         reservation.Release();
         var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == reservation.Sku, cancellationToken);
@@ -62,7 +103,14 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
 
         await publishEndpoint.Publish(new StockReleased(reservation.OrderId, reservation.Id, DateTimeOffset.UtcNow), cancellationToken);
 
-        await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return false;
+        }
         
         if (stock != null)
         {

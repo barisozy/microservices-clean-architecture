@@ -1,4 +1,5 @@
 using Catalog.Infrastructure.Data;
+using Catalog.Application;
 using Catalog.Application.Common.Interfaces;
 using Catalog.Infrastructure.Services;
 using ECommerce.Contracts.Protos;
@@ -26,6 +27,7 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog");
             });
         });
+        services.AddScoped<ICatalogRepository, CatalogRepository>();
 
         services.AddGrpcClient<IamService.IamServiceClient>(options =>
         {

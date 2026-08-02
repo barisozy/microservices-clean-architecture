@@ -1,9 +1,9 @@
 using ECommerce.Contracts.Protos;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Promotion.Api.Services;
-using Promotion.Domain.Entities;
-using Promotion.Infrastructure.Data;
+using Promotion.Application;
 using Shouldly;
 using Xunit;
 
@@ -12,15 +12,21 @@ namespace Promotion.UnitTests;
 public class PromotionGrpcServiceTests
 {
     [Fact]
-    public async Task ApplyCoupon_ShouldHandlePercentageFixedExpiredAndMissingCoupons()
+    public async Task ApplyCoupon_ShouldReturnApplicationCalculationResults()
     {
-        await using var db = new PromotionDbContext(new DbContextOptionsBuilder<PromotionDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-        db.Coupons.AddRange(
-            new Coupon { Code = "PCT10", DiscountType = "PERCENTAGE", Value = 10, ExpiresAt = DateTime.UtcNow.AddDays(1) },
-            new Coupon { Code = "FIX20", DiscountType = "FIXED", Value = 20, ExpiresAt = DateTime.UtcNow.AddDays(1) },
-            new Coupon { Code = "OLD", DiscountType = "FIXED", Value = 20, ExpiresAt = DateTime.UtcNow.AddDays(-1) });
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        var service = new PromotionGrpcService(db, NullLogger<PromotionGrpcService>.Instance);
+        var sender = new Mock<ISender>();
+        sender.Setup(value => value.Send(It.Is<ApplyCouponQuery>(query => query.Code == "PCT10"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApplyCouponResult(90m, true, "Coupon applied successfully."));
+        sender.Setup(value => value.Send(It.Is<ApplyCouponQuery>(query => query.Code == "FIX20"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApplyCouponResult(0m, true, "Coupon applied successfully."));
+        sender.Setup(value => value.Send(
+                It.Is<ApplyCouponQuery>(query => query.Code == "OLD" || query.Code == "NONE"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ApplyCouponQuery query, CancellationToken _) => new ApplyCouponResult(query.OrderTotal, false, "Coupon code invalid or expired."));
+        var service = new PromotionGrpcService(
+            sender.Object,
+            new ApplyCouponQueryValidator(),
+            NullLogger<PromotionGrpcService>.Instance);
 
         (await service.ApplyCoupon(new ApplyCouponRequest { Code = "PCT10", OrderTotal = 100 }, null!)).DiscountedTotal.ShouldBe(90d);
         (await service.ApplyCoupon(new ApplyCouponRequest { Code = "FIX20", OrderTotal = 15 }, null!)).DiscountedTotal.ShouldBe(0d);

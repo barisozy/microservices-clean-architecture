@@ -1,13 +1,25 @@
 Environment.SetEnvironmentVariable("ASPIRE_ALLOW_UNSECURED_TRANSPORT", "true");
 
 var builder = DistributedApplication.CreateBuilder(args);
+// Docker Compose is generated from this topology through `aspire publish`.
+// Keep this resource declarative so Compose cannot drift from the AppHost.
+builder.AddDockerComposeEnvironment("compose");
 
-// Detect test mode: DistributedApplicationTestingBuilder sets IsRunMode=false
-var isTestMode = !builder.ExecutionContext.IsRunMode;
+// Publish mode is not run mode either; using IsRunMode here caused production
+// Compose output to disable issuer validation and omit Keycloak. Tests opt in
+// explicitly through their environment name.
+var isTestMode = string.Equals(builder.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(builder.Environment.EnvironmentName, "IntegrationTesting", StringComparison.OrdinalIgnoreCase);
 
 // Infrastructure Containers
+var auditAppPassword = builder.AddParameter("audit-app-password", secret: true);
 var postgres = builder.AddPostgres("postgres")
-    .WithImageTag("18.4");
+    .WithImageTag("18.4")
+    .WithDataVolume()
+    .WithEnvironment("AUDIT_APP_PASSWORD", auditAppPassword)
+    .WithBindMount(
+        Path.GetFullPath(Path.Combine("..", "..", "..", "infra", "postgres", "init-databases.sh")),
+        "/docker-entrypoint-initdb.d/001-databases.sh");
 
 var OrderDb = postgres.AddDatabase("OrderDb", "Order_db");
 var inventoryDb = postgres.AddDatabase("InventoryDb", "inventory_db");
@@ -22,27 +34,28 @@ var promotionDb = postgres.AddDatabase("PromotionDb", "promotion_db");
 var AuditDb = postgres.AddDatabase("AuditDb", "Audit_db");
 
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
-    .WithImageTag("4.3.1-management");
+    .WithImageTag("4.3.1-management")
+    .WithDataVolume();
 
 // Only add management UI in interactive run mode
 if (!isTestMode)
-    rabbitmq.WithManagementPlugin();
+    rabbitmq.WithManagementPlugin().WithExternalHttpEndpoints();
 
 // Valkey 9.1 (BSD-3-Clause)
 var valkey = builder.AddValkey("valkey")
     .WithImageTag("9.1");
 
 // Keycloak Container (Realm: ecommerce seeded via realm-export.json)
-// Only start Keycloak in interactive run mode — tests use Jwt:ValidateIssuer=false
-if (!isTestMode)
-{
-    builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26.6.4")
-        .WithEnvironment("KEYCLOAK_ADMIN", "admin")
-        .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", "admin")
-        .WithBindMount(Path.GetFullPath("realm-export.json"), "/opt/keycloak/data/import/realm-export.json")
-        .WithHttpEndpoint(targetPort: 8080, name: "http")
-        .WithArgs("start-dev", "--import-realm");
-}
+var keycloakAdminPassword = builder.AddParameter("keycloak-admin-password", secret: true);
+var keycloakAdminClientSecret = builder.AddParameter("keycloak-admin-client-secret", secret: true);
+var keycloak = builder.AddContainer("keycloak", "quay.io/keycloak/keycloak", "26.6.4")
+    .WithEnvironment("KEYCLOAK_ADMIN", "admin")
+    .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", keycloakAdminPassword)
+    .WithBindMount(Path.GetFullPath("realm-export.json"), "/opt/keycloak/data/import/realm-export.json")
+    .WithVolume("keycloak-data", "/opt/keycloak/data")
+    .WithHttpEndpoint(targetPort: 8080, name: "http")
+    .WithExternalHttpEndpoints()
+    .WithArgs("start-dev", "--import-realm");
 
 const string keycloakAuthority = "http://keycloak:8080/realms/ecommerce";
 var validateIssuer = isTestMode ? "false" : "true";
@@ -98,10 +111,10 @@ var iamApi = builder.AddProject<Projects.IAM_Api>("iam-api")
     .WithEnvironment("Keycloak__BaseUrl", "http://keycloak:8080")
     .WithEnvironment("Keycloak__Realm", "ecommerce")
     .WithEnvironment("Keycloak__AdminClientId", "ecommerce-admin")
-    .WithEnvironment("Keycloak__AdminClientSecret", "dev-only-change-me");
+    .WithEnvironment("Keycloak__AdminClientSecret", keycloakAdminClientSecret);
 
 if (!isTestMode)
-    iamApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
+    iamApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey).WaitFor(keycloak);
 
 var catalogApi = builder.AddProject<Projects.Catalog_Api>("catalog-api")
     .WithReference(catalogDb)
@@ -152,7 +165,11 @@ var AuditApi = builder.AddProject<Projects.Audit_Api>("Audit-api")
     .WithReference(AuditDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment(
+        "ConnectionStrings__AuditDb",
+        Aspire.Hosting.ApplicationModel.ReferenceExpression.Create(
+            $"Host=postgres;Port=5432;Database=Audit_db;Username=app_role;Password={auditAppPassword}"));
 
 if (!isTestMode)
     AuditApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -183,9 +200,10 @@ var gateway = builder.AddProject<Projects.ECommerce_Gateway>("gateway")
     .WithReference(promotionApi)
     .WithReference(AuditApi)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithExternalHttpEndpoints();
 
 if (!isTestMode)
-    gateway.WaitFor(OrderApi).WaitFor(valkey);
+    gateway.WaitFor(OrderApi).WaitFor(valkey).WaitFor(keycloak);
 
 builder.Build().Run();

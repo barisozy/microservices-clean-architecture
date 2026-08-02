@@ -22,7 +22,7 @@ public class GetOrderQueryHandlerTests
             .ReturnsAsync(expectedDto);
 
         var handler = new GetOrderQueryHandler(readRepositoryMock.Object);
-        var result = await handler.Handle(new GetOrderQuery(orderId), CancellationToken.None);
+        var result = await handler.Handle(new GetOrderQuery(orderId, "buyer-123"), CancellationToken.None);
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe(orderId);
@@ -40,7 +40,21 @@ public class GetOrderQueryHandlerTests
             .ReturnsAsync((OrderStatusDto?)null);
 
         var handler = new GetOrderQueryHandler(readRepositoryMock.Object);
-        var result = await handler.Handle(new GetOrderQuery(orderId), CancellationToken.None);
+        var result = await handler.Handle(new GetOrderQuery(orderId, "buyer-123"), CancellationToken.None);
+
+        result.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldHideOrder_WhenBuyerDoesNotOwnIt()
+    {
+        var readRepositoryMock = new Mock<IOrderReadRepository>();
+        var orderId = Guid.NewGuid();
+        readRepositoryMock.Setup(x => x.GetOrderAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderStatusDto(orderId, "Pending", "owner-1"));
+
+        var result = await new GetOrderQueryHandler(readRepositoryMock.Object)
+            .Handle(new GetOrderQuery(orderId, "other-user"), CancellationToken.None);
 
         result.ShouldBeNull();
     }

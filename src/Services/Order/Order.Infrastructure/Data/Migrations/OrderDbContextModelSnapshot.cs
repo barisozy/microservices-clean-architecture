@@ -211,10 +211,16 @@ namespace Order.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("KeycloakSubject")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -224,6 +230,10 @@ namespace Order.Infrastructure.Data.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("Id");
 

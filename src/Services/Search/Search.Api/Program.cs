@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using ECommerce.ServiceDefaults;
+using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Search.Application;
 using Search.Infrastructure;
 using Search.Infrastructure.Data;
-using NpgsqlTypes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,24 +48,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Sprint 6: Postgres full-text tsvector/GIN ts_rank search endpoint
-app.MapGet("/api/v{version:apiVersion}/search", async (string? q, SearchDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/search", async (
+    string? q,
+    ISender sender,
+    IValidator<SearchQuery> validator,
+    CancellationToken cancellationToken) =>
 {
     var startedAt = Stopwatch.GetTimestamp();
     try
     {
-    if (string.IsNullOrWhiteSpace(q))
+    var query = new SearchQuery(q);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid)
     {
-        var all = await db.SearchIndices.Take(20).ToListAsync();
-        return Results.Ok(all);
+        return Results.ValidationProblem(validation.ToDictionary());
     }
-
-    var queryStr = q.Trim();
-    var results = await db.SearchIndices
-        .Where(s => EF.Property<NpgsqlTsVector>(s, "SearchVector").Matches(queryStr))
-        .OrderByDescending(s => EF.Property<NpgsqlTsVector>(s, "SearchVector").Rank(EF.Functions.ToTsQuery(queryStr)))
-        .ToListAsync();
-
-    return Results.Ok(results);
+    return Results.Ok(await sender.Send(query, cancellationToken));
     }
     finally
     {
@@ -72,18 +71,21 @@ app.MapGet("/api/v{version:apiVersion}/search", async (string? q, SearchDbContex
     }
 });
 
-app.MapGet("/api/v{version:apiVersion}/search/suggest", async (string? q, SearchDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/search/suggest", async (
+    string? q,
+    ISender sender,
+    IValidator<SuggestQuery> validator,
+    CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(q)) return Results.Ok(Array.Empty<string>());
 
-    var queryStr = q.Trim();
-    var suggestions = await db.SearchIndices
-        .Where(s => EF.Property<NpgsqlTsVector>(s, "SearchVector").Matches(queryStr))
-        .Select(s => s.Name)
-        .Take(5)
-        .ToListAsync();
-
-    return Results.Ok(suggestions);
+    var query = new SuggestQuery(q);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid)
+    {
+        return Results.ValidationProblem(validation.ToDictionary());
+    }
+    return Results.Ok(await sender.Send(query, cancellationToken));
 });
 
 app.Run();

@@ -11,6 +11,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<global::Order.Domain.
         builder.ToTable("Orders", "order");
         builder.HasKey(o => o.Id);
         builder.Property(o => o.BuyerId).IsRequired().HasMaxLength(200);
+        builder.Property(o => o.CustomerId).IsRequired();
+        builder.Property(o => o.KeycloakSubject).IsRequired();
+        builder.Property(o => o.TotalAmount).HasPrecision(18, 2).IsRequired();
         // Plan Sprint 1: IdempotencyKey UNIQUE constraint — duplicate key returns original OrderId
         builder.Property(o => o.IdempotencyKey).IsRequired().HasMaxLength(100);
         builder.HasIndex(o => o.IdempotencyKey).IsUnique();

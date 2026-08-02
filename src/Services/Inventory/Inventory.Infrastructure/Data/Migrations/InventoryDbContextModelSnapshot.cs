@@ -57,6 +57,9 @@ namespace Inventory.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId", "Sku")
+                        .IsUnique();
+
                     b.ToTable("InventoryReservations", "inventory");
                 });
 
@@ -89,12 +92,23 @@ namespace Inventory.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("Stocks", "inventory");
+                    b.ToTable("Stocks", "inventory", t =>
+                        {
+                            t.HasCheckConstraint("CK_Stocks_Quantity_NonNegative", "\"Quantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_Stocks_ReservedQuantity_Range", "\"ReservedQuantity\" >= 0 AND \"ReservedQuantity\" <= \"Quantity\"");
+                        });
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>

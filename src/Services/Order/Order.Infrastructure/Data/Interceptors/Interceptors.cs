@@ -1,17 +1,17 @@
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Order.Application.Common.Interfaces;
 using Order.Domain.Common;
 
 namespace Order.Infrastructure.Data.Interceptors;
 
 public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
 {
-    private readonly IMediator _mediator;
+    private readonly IDomainEventDispatcher _dispatcher;
 
-    public DispatchDomainEventsInterceptor(IMediator mediator)
+    public DispatchDomainEventsInterceptor(IDomainEventDispatcher dispatcher)
     {
-        _mediator = mediator;
+        _dispatcher = dispatcher;
     }
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -19,11 +19,11 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        await DispatchDomainEvents(eventData.Context);
+        await DispatchDomainEvents(eventData.Context, cancellationToken);
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private async Task DispatchDomainEvents(DbContext? context)
+    private async Task DispatchDomainEvents(DbContext? context, CancellationToken cancellationToken)
     {
         if (context == null) return;
 
@@ -38,7 +38,7 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
 
         foreach (var domainEvent in domainEvents)
         {
-            await _mediator.Publish(domainEvent);
+            await _dispatcher.Dispatch(domainEvent, cancellationToken);
         }
     }
 }

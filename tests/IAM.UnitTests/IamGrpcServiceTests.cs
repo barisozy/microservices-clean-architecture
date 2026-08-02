@@ -1,9 +1,9 @@
 using ECommerce.Contracts.Protos;
 using IAM.Api.Services;
-using IAM.Domain.Entities;
-using IAM.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using IAM.Application;
+using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Shouldly;
 using Xunit;
 
@@ -12,21 +12,27 @@ namespace IAM.UnitTests;
 public class IamGrpcServiceTests
 {
     [Fact]
-    public async Task CheckPermission_ShouldRejectMalformedSubjectAndClassifyKnownAndUnknownSubjects()
+    public async Task CheckPermission_ShouldRejectMalformedSubjectAndReturnApplicationDecision()
     {
-        await using var db = new IamDbContext(new DbContextOptionsBuilder<IamDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var subject = Guid.CreateVersion7();
-        db.Profiles.Add(new IamProfile { KeycloakSubject = subject, Email = "member@example.test" });
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        var service = new IamGrpcService(db, NullLogger<IamGrpcService>.Instance);
+        var sender = new Mock<ISender>();
+        sender.Setup(value => value.Send(
+                It.Is<CheckPermissionQuery>(query => query.Subject == subject.ToString()),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PermissionResult(true, "CUSTOMER"));
+        var service = new IamGrpcService(
+            sender.Object,
+            new CheckPermissionQueryValidator(),
+            NullLogger<IamGrpcService>.Instance);
 
-        var malformed = await service.CheckPermission(new CheckPermissionRequest { Subject = "not-a-guid", Permission = "Catalog.Write" }, null!);
-        var known = await service.CheckPermission(new CheckPermissionRequest { Subject = subject.ToString(), Permission = "Catalog.Read" }, null!);
-        var unknown = await service.CheckPermission(new CheckPermissionRequest { Subject = Guid.CreateVersion7().ToString(), Permission = "Catalog.Read" }, null!);
+        var malformed = await service.CheckPermission(
+            new CheckPermissionRequest { Subject = "", Permission = "Catalog.Write" }, null!);
+        var known = await service.CheckPermission(
+            new CheckPermissionRequest { Subject = subject.ToString(), Permission = "Catalog.Read" }, null!);
 
         malformed.Allowed.ShouldBeFalse();
         malformed.Role.ShouldBe("GUEST");
+        known.Allowed.ShouldBeTrue();
         known.Role.ShouldBe("CUSTOMER");
-        unknown.Role.ShouldBe("ADMIN");
     }
 }

@@ -99,7 +99,7 @@ public sealed class PromotionApiProgramTests : IClassFixture<PromotionApiFactory
     }
 
     [Fact]
-    public async Task CreateCouponEndpoint_PreservesExistingId()
+    public async Task CreateCouponEndpoint_IgnoresClientSuppliedId()
     {
         var existingId = Guid.NewGuid();
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/promotion/coupons")
@@ -119,7 +119,8 @@ public sealed class PromotionApiProgramTests : IClassFixture<PromotionApiFactory
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         using var scope = _factory.Services.CreateScope();
         var created = await scope.ServiceProvider.GetRequiredService<PromotionDbContext>().Coupons.SingleAsync(x => x.Code == "PRESERVED30", TestContext.Current.CancellationToken);
-        created.Id.ShouldBe(existingId);
+        created.Id.ShouldNotBe(existingId);
+        created.Id.ShouldNotBe(Guid.Empty);
     }
 }
 

@@ -1,5 +1,6 @@
 using IAM.Infrastructure.Data;
 using IAM.Application.Common.Interfaces;
+using IAM.Application;
 using IAM.Infrastructure.Identity;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "iam");
             });
         });
+        services.AddScoped<IIamRepository, IamRepository>();
+        services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
 
         var valkeyConnectionString = configuration.GetConnectionString("valkey")
             ?? configuration.GetConnectionString("cache")
