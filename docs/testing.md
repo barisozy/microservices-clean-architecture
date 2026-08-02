@@ -23,7 +23,6 @@ Normal unit test runs do not collect coverage; coverage is intentionally a separ
 - Install the .NET SDK compatible with `global.json`.
 - Run Docker Desktop or another reachable Docker daemon for integration tests.
 - Install the `ReportGenerator` global tool for HTML coverage reports.
-- Fine Code Coverage is an optional Visual Studio extension.
 
 ```powershell
 dotnet --version
@@ -110,8 +109,6 @@ Generated artifacts are not committed to Git. The script removes only the previo
 
 Open `ECommerce.sln` for normal development or `ECommerce.UnitTests.slnf` for unit tests only. Use `Test -> Test Explorer`; normal Test Explorer runs are not expected to produce coverage.
 
-Fine Code Coverage is optional. Install it from `Extensions -> Manage Extensions`, restart Visual Studio, and use the repository's `finecodecoverage-settings.xml` so it uses Coverlet. On incompatible IDE versions, use `dotnet run --project eng/ECommerce.TestRunner -- --suite Coverage --open-report` instead.
-
 Do not use `Test -> Analyze Code Coverage` in this repository. It may invoke the Microsoft profiler and produce misleading `Empty results generated`, `No binaries were instrumented`, or `%0.00` output. Use the standard Coverlet command.
 
 ## Common issues
@@ -148,7 +145,6 @@ The local script and CI use the same solution filters, coverage settings, and co
 | `.config/dotnet-tools.json` | Pinned repository-local ReportGenerator tool |
 | `.runsettings` | Standard IDE/CLI test settings without coverage |
 | `coverage.runsettings` | Coverlet, Cobertura, and exclusion settings |
-| `finecodecoverage-settings.xml` | Optional Fine Code Coverage settings |
 | `tests/Directory.Build.props` | Central test packages and shared test properties |
 | `tests/xunit.runner.json` | xUnit execution and parallelism settings |
 | `ECommerce.*Tests.slnf` | Suite-based solution filters |
