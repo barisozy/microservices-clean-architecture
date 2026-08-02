@@ -52,39 +52,6 @@ namespace Inventory.Infrastructure.Data
         }
     }
 
-    public class AuditableEntityInterceptor(IUser currentUser) : SaveChangesInterceptor
-    {
-        public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
-        {
-            UpdateEntities(eventData.Context);
-            return base.SavingChanges(eventData, result);
-        }
-
-        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
-        {
-            UpdateEntities(eventData.Context);
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
-        }
-
-        private void UpdateEntities(DbContext? context)
-        {
-            if (context == null) return;
-            foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
-            {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedBy = currentUser.Id;
-                    entry.Entity.CreatedAt = DateTimeOffset.UtcNow;
-                }
-                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                {
-                    entry.Entity.LastModifiedBy = currentUser.Id;
-                    entry.Entity.LastModifiedAt = DateTimeOffset.UtcNow;
-                }
-            }
-        }
-    }
-
     public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesInterceptor
     {
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
@@ -126,13 +93,12 @@ namespace Inventory.Infrastructure
             services.AddHttpContextAccessor();
             services.AddScoped<IUser, CurrentUser>();
             services.AddECommerceAuditing();
-            services.AddScoped<AuditableEntityInterceptor>();
             services.AddScoped<DispatchDomainEventsInterceptor>();
 
             services.AddDbContext<InventoryDbContext>((sp, options) =>
             {
                 options.AddInterceptors(
-                    sp.GetRequiredService<AuditableEntityInterceptor>(),
+                    sp.GetRequiredService<ECommerce.Auditing.AuditableEntityInterceptor>(),
                     sp.GetRequiredService<DispatchDomainEventsInterceptor>()
                 );
                 options.UseNpgsql(configuration.GetConnectionString("InventoryDb"), npgsql =>
@@ -153,23 +119,27 @@ namespace Inventory.Infrastructure
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderCancelledConsumer>();
-                x.AddConsumer<OrderCreatedConsumer>();
                 x.AddConsumer<PaymentFailedConsumer>();
 
                 x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
                 {
-                    o.UsePostgres();
+                    o.UsePostgres(enableSchemaCaching: false);
                     o.UseBusOutbox();
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
+                    o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
                 });
+                x.AddConfigureEndpointsCallback((context, _, endpoint) =>
+                    endpoint.UseEntityFrameworkOutbox<InventoryDbContext>(context));
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                     cfg.Host(new Uri(rabbitConnectionString));
+                    cfg.AutoStart = true;
                     
                     // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
                     // 1. Retry policy (Retry x3)
-                    cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                    cfg.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(500)));
                     
                     // 2 & 3. Dead letter queue (DLQ) & Poison message handling
                     // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue.
@@ -182,4 +152,3 @@ namespace Inventory.Infrastructure
         }
     }
 }
-

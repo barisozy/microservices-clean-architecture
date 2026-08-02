@@ -11,5 +11,6 @@ public interface IUser
 public interface IFulfillmentDbContext
 {
     DbSet<FulfillmentTask> Tasks { get; }
+    DbSet<Shipment> Shipments { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

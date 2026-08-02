@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerce.Contracts.Protos";
+
+package iam;
+
+service IamService {
+  rpc CheckPermission (CheckPermissionRequest) returns (CheckPermissionResponse);
+}
+
+message CheckPermissionRequest {
+  string subject = 1;
+  string permission = 2;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+  string role = 2;
+}

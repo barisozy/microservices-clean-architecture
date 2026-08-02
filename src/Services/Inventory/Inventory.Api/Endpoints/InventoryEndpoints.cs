@@ -10,7 +10,7 @@ public class InventoryEndpoints : IEndpointGroup
 {
     public void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/inventory");
+        var group = app.MapGroup("/api/v{version:apiVersion}/inventory");
 
         group.MapGet("/{sku}/availability", GetAvailability)
              .CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)).SetVaryByRouteValue("sku"));

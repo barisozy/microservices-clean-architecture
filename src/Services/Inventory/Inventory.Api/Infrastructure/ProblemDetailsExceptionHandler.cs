@@ -23,11 +23,15 @@ public class ProblemDetailsExceptionHandler : IExceptionHandler
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An error occurred while processing your request.",
-            Detail = exception.Message
+            Detail = "An unexpected server error occurred."
         };
 
         httpContext.Response.StatusCode = problemDetails.Status.Value;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(
+            problemDetails,
+            options: null,
+            contentType: "application/problem+json",
+            cancellationToken: cancellationToken);
 
         return true;
     }
