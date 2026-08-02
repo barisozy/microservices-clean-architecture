@@ -4,10 +4,10 @@
 Accepted
 
 ## Context
-Each microservice requires a reliable relational database to store its state (Orders, Stock, Payments, Fulfillment Tasks). We need an ORM that is fully supported by .NET 10 to interact with the database efficiently while supporting modern patterns like Interceptors.
+Each microservice requires a reliable relational database to store its state (Orders, Stock, Payments, Shipments, Catalog data and AuditEntries). We need an ORM that is fully supported by .NET 10 to interact with the database efficiently while supporting modern patterns like interceptors.
 
 ## Decision
-We will use **PostgreSQL** as the primary relational database and **Entity Framework Core (EF Core)** as the ORM. Each microservice will have its own database schema or database to enforce the database-per-service pattern, preventing direct database-level coupling between services.
+We will use **PostgreSQL 18.4** as the primary relational database and **Entity Framework Core 10** as the ORM. Each microservice owns exactly one schema and DbContext; cross-schema joins and shared tables are prohibited.
 
 ## Consequences
 **Positive:**

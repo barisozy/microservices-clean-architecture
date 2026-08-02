@@ -1,22 +1,33 @@
 using ECommerce.ServiceDefaults;
-using Scalar.AspNetCore;
 using Fulfillment.Application;
+using Fulfillment.Application.Common.Interfaces;
 using Fulfillment.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddBasicServiceDefaults();
+builder.AddKeycloakJwtAuthentication();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<Fulfillment.Infrastructure.FulfillmentDbContext>();
-    await db.Database.EnsureCreatedAsync();
+    var db = scope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
+    if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
+    {
+        await db.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        await db.Database.MigrateAsync();
+    }
 }
 
 app.MapDefaultEndpoints();
@@ -26,5 +37,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseExceptionHandler();
+app.UseProblemDetailsStatusCodePages();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGet("/api/v{version:apiVersion}/fulfillment/shipments/{orderId:guid}", async (Guid orderId, IFulfillmentDbContext db) =>
+{
+    var shipment = await db.Shipments.FirstOrDefaultAsync(s => s.OrderId == orderId);
+    return shipment != null ? Results.Ok(shipment) : Results.NotFound();
+}).RequireAuthorization();
 
 app.Run();

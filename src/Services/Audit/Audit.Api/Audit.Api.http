@@ -1,0 +1,6 @@
+@Audit.Api_HostAddress = http://localhost:5192
+
+GET {{Audit.Api_HostAddress}}/api/v1/audit
+Accept: application/json
+
+###

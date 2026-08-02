@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-As the number of microservices grows, ensuring that changes in a provider API (e.g., `Ordering.Api`) do not break consumer contracts (e.g., `Payments.Api` or `Gateway`) becomes challenging. End-to-end (E2E) tests are slow, brittle, and require complex environment setups. Traditional mocked unit tests do not guarantee that the actual API matches the mocked responses.
+As the number of microservices grows, ensuring that changes in a provider API (e.g., `Order.Api`) do not break consumer contracts (e.g., `Payment.Api` or `Gateway`) becomes challenging. End-to-end (E2E) tests are slow, brittle, and require complex environment setups. Traditional mocked unit tests do not guarantee that the actual API matches the mocked responses.
 
 ## Decision
 We adopted **Consumer-Driven Contract (CDC) Testing** using `PactNet` integrated with `xUnit`.

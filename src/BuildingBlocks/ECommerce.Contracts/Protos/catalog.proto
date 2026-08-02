@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerce.Contracts.Protos";
+
+package catalog;
+
+service CatalogService {
+  rpc GetPriceSnapshot (GetPriceSnapshotRequest) returns (GetPriceSnapshotResponse);
+}
+
+message GetPriceSnapshotRequest {
+  string sku = 1;
+}
+
+message GetPriceSnapshotResponse {
+  double unit_price = 1;
+  bool available = 2;
+}

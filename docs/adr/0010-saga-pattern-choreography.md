@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-A complete e-commerce transaction spans multiple microservices: an order is created (Ordering), stock is reserved (Inventory), payment is processed (Payments), and the items are shipped (Fulfillment). Since microservices hold independent databases to adhere to true microservice principles, we cannot use a traditional 2PC (Two-Phase Commit) transaction. If any step fails (e.g., payment is rejected), all previously successful steps must be rolled back to maintain eventual consistency.
+A complete e-commerce transaction spans multiple microservices: an order is created (Order), stock is reserved (Inventory), payment is processed (Payment), and the items are shipped (Fulfillment). Since microservices hold independent databases to adhere to true microservice principles, we cannot use a traditional 2PC (Two-Phase Commit) transaction. If any step fails (e.g., payment is rejected), all previously successful steps must be rolled back to maintain eventual consistency.
 
 ## Decision
 We will implement the **Choreography-based Saga Pattern** using MassTransit and RabbitMQ. 

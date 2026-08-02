@@ -13,6 +13,17 @@ public class ReserveStockCommandHandler(IInventoryDbContext context, IStockReadR
 {
     public async Task<(Guid ReservationId, bool Success, string Message)> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
     {
+        var reservations = context.Reservations;
+        var existingReservation = reservations is null
+            ? null
+            : await reservations.FirstOrDefaultAsync(
+                reservation => reservation.OrderId == request.OrderId && reservation.Sku == request.Sku,
+                cancellationToken);
+        if (existingReservation is not null)
+        {
+            return (existingReservation.Id, true, "Stock was already reserved for this order and SKU.");
+        }
+
         var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == request.Sku, cancellationToken);
         if (stock == null)
         {
@@ -65,25 +76,12 @@ public class ReleaseStockCommandHandler(IInventoryDbContext context, IPublishEnd
 
 public record GetStockAvailabilityQuery(string Sku) : IRequest<int>;
 
-public class GetStockAvailabilityQueryHandler(IInventoryDbContext context, IStockReadRepository stockReadRepository) : IRequestHandler<GetStockAvailabilityQuery, int>
+public class GetStockAvailabilityQueryHandler(IStockReadRepository stockReadRepository) : IRequestHandler<GetStockAvailabilityQuery, int>
 {
     public async Task<int> Handle(GetStockAvailabilityQuery request, CancellationToken cancellationToken)
     {
-        // 1. Try get from Read Model (Valkey)
-        var cachedQuantity = await stockReadRepository.GetAvailableQuantityAsync(request.Sku, cancellationToken);
-        if (cachedQuantity.HasValue)
-        {
-            return cachedQuantity.Value;
-        }
-
-        // 2. Fallback to Write Model (PostgreSQL)
-        var stock = await context.Stocks.FirstOrDefaultAsync(s => s.Sku == request.Sku, cancellationToken);
-        var availableQuantity = stock?.AvailableQuantity ?? 0;
-
-        // 3. Update Read Model for future queries
-        await stockReadRepository.SetAvailableQuantityAsync(request.Sku, availableQuantity, cancellationToken);
-
-        return availableQuantity;
+        // CQRS read-side isolation: queries never fall through to the write DbContext.
+        return await stockReadRepository.GetAvailableQuantityAsync(request.Sku, cancellationToken) ?? 0;
     }
 }
 

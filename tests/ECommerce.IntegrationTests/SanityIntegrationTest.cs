@@ -45,6 +45,13 @@ public class InfrastructureAvailabilityTest(InfrastructureFixture fixture)
         connStr.ShouldNotBeNullOrEmpty();
         connStr.ShouldContain("amqp://");
     }
+
+    [Fact]
+    public async Task Keycloak_ShouldIssueCustomerToken()
+    {
+        var token = await fixture.GetCustomerAccessTokenAsync(TestContext.Current.CancellationToken);
+        token.ShouldNotBeNullOrWhiteSpace();
+    }
 }
 
 /// <summary>

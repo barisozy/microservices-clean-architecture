@@ -64,33 +64,27 @@ public class InventoryCommandsTests
     [Fact]
     public async Task GetStockAvailabilityQueryHandler_Should_Return_Quantity()
     {
-        var contextMock = new Mock<IInventoryDbContext>();
-        var stock = new Stock("SKU-1", 100);
-        contextMock.Setup(x => x.Stocks).ReturnsDbSet(new List<Stock> { stock });
-
         var readRepoMock = new Mock<IStockReadRepository>();
         readRepoMock.Setup(x => x.GetAvailableQuantityAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((int?)null); // Simulate cache miss
+            .ReturnsAsync((int?)null);
 
-        var handler = new GetStockAvailabilityQueryHandler(contextMock.Object, readRepoMock.Object);
+        var handler = new GetStockAvailabilityQueryHandler(readRepoMock.Object);
         var result = await handler.Handle(new GetStockAvailabilityQuery("SKU-1"), CancellationToken.None);
 
-        result.ShouldBe(100);
+        result.ShouldBe(0);
     }
 
     [Fact]
     public async Task GetStockAvailabilityQueryHandler_Should_Return_Cached_Quantity()
     {
-        var contextMock = new Mock<IInventoryDbContext>();
         var readRepoMock = new Mock<IStockReadRepository>();
         readRepoMock.Setup(x => x.GetAvailableQuantityAsync("SKU-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(55);
 
-        var handler = new GetStockAvailabilityQueryHandler(contextMock.Object, readRepoMock.Object);
+        var handler = new GetStockAvailabilityQueryHandler(readRepoMock.Object);
         var result = await handler.Handle(new GetStockAvailabilityQuery("SKU-1"), CancellationToken.None);
 
         result.ShouldBe(55);
-        contextMock.Verify(x => x.Stocks, Times.Never);
     }
 
     [Fact]

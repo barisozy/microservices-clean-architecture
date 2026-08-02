@@ -4,7 +4,7 @@ namespace Fulfillment.Domain.Common;
 
 public abstract class BaseEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.CreateVersion7();
 
     private readonly List<object> _domainEvents = new();
 

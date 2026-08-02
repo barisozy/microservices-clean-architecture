@@ -13,20 +13,7 @@ using Polly;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddBasicServiceDefaults();
-
-// Security: Inbound JWT Validation
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.Authority = builder.Configuration["Jwt:Authority"] ?? "http://localhost:8080/realms/ecommerce";
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuer", true),
-            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "http://localhost:8080/realms/ecommerce",
-            ValidateAudience = false
-        };
-    });
+builder.AddKeycloakJwtAuthentication();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -73,6 +60,41 @@ builder.Services.AddRateLimiter(options =>
                 });
         }
     });
+
+    // Apply sliding window rate limiter globally to all POST requests via YARP
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        // Only rate-limit POST requests
+        if (!HttpMethods.IsPost(httpContext.Request.Method))
+            return RateLimitPartition.GetNoLimiter("no-limit");
+
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var multiplexer = httpContext.RequestServices.GetService<IConnectionMultiplexer>();
+
+        if (multiplexer != null && multiplexer.IsConnected)
+        {
+            return RedisRateLimitPartition.GetSlidingWindowRateLimiter(
+                partitionKey: clientIp,
+                factory: _ => new RedisSlidingWindowRateLimiterOptions
+                {
+                    ConnectionMultiplexerFactory = () => multiplexer,
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromSeconds(1)
+                });
+        }
+        else
+        {
+            return RateLimitPartition.GetSlidingWindowLimiter(
+                partitionKey: clientIp,
+                factory: _ => new SlidingWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromSeconds(1),
+                    SegmentsPerWindow = 4,
+                    QueueLimit = 0
+                });
+        }
+    });
 });
 
 // Outbound Concurrency Limiter / Bulkhead (Max 10 concurrent requests)
@@ -91,6 +113,8 @@ builder.Services.AddReverseProxy()
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.UseExceptionHandler();
+app.UseProblemDetailsStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();

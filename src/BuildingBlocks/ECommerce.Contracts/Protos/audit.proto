@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerce.Contracts.Protos";
+
+package audit;
+
+service AuditService {
+  rpc Verify (VerifyRequest) returns (VerifyResponse);
+}
+
+message VerifyRequest {
+  int64 from_id = 1;
+  int64 to_id = 2;
+}
+
+message VerifyResponse {
+  bool valid = 1;
+  int64 broken_at_id = 2;
+  string error_message = 3;
+}

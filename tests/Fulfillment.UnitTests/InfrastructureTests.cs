@@ -6,6 +6,8 @@ using Fulfillment.Infrastructure;
 using Fulfillment.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shouldly;
 using StackExchange.Redis;
@@ -103,5 +105,27 @@ public class InfrastructureTests
         // Assert
         var entityType = dbContext.Model.FindEntityType(typeof(FulfillmentTask));
         entityType.ShouldNotBeNull();
+        dbContext.Model.FindEntityType(typeof(Shipment)).ShouldNotBeNull();
+    }
+
+    [Fact]
+    public void AddInfrastructureServices_ShouldRegisterOwnedInfrastructureTypes()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:FulfillmentDb"] = "Host=localhost;Database=fulfillment",
+                ["ConnectionStrings:valkey"] = "localhost:6379",
+                ["ConnectionStrings:rabbitmq"] = "amqp://guest:guest@localhost:5672"
+            })
+            .Build();
+        var services = new ServiceCollection();
+
+        services.AddInfrastructureServices(configuration);
+
+        services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IFulfillmentDbContext));
+        services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IUser));
+        services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IFulfillmentReadRepository));
+        services.ShouldContain(s => s.ServiceType == typeof(IConnectionMultiplexer));
     }
 }

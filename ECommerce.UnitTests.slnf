@@ -1,0 +1,18 @@
+{
+  "solution": {
+    "path": "ECommerce.sln",
+    "projects": [
+      "tests\\Audit.UnitTests\\Audit.UnitTests.csproj",
+      "tests\\Catalog.UnitTests\\Catalog.UnitTests.csproj",
+      "tests\\Customer.UnitTests\\Customer.UnitTests.csproj",
+      "tests\\Fulfillment.UnitTests\\Fulfillment.UnitTests.csproj",
+      "tests\\IAM.UnitTests\\IAM.UnitTests.csproj",
+      "tests\\Inventory.UnitTests\\Inventory.UnitTests.csproj",
+      "tests\\Notification.UnitTests\\Notification.UnitTests.csproj",
+      "tests\\Order.UnitTests\\Order.UnitTests.csproj",
+      "tests\\Payment.UnitTests\\Payment.UnitTests.csproj",
+      "tests\\Promotion.UnitTests\\Promotion.UnitTests.csproj",
+      "tests\\Search.UnitTests\\Search.UnitTests.csproj"
+    ]
+  }
+}
