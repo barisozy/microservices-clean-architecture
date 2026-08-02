@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-and-coverage:
-    name: Unit, Integration, Contract & Coverage
+    name: Run Tests and Generate Coverage
     runs-on: ubuntu-latest
     permissions:
       contents: write
