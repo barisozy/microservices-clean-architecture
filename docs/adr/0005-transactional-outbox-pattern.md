@@ -9,6 +9,8 @@ In an event-driven architecture, services must update their local database and p
 ## Decision
 We will implement the **Transactional Outbox Pattern** using the **MassTransit Entity Framework Core Outbox** integration. Instead of directly publishing messages to RabbitMQ, messages are written to an `OutboxMessage` table within the same database transaction as the business entity changes. A background worker then reads from this table and reliably dispatches the messages to RabbitMQ.
 
+All PostgreSQL registrations use `UsePostgres(enableSchemaCaching: false)`. This is required when multiple service DbContexts execute in the same process, such as the Testcontainers integration suite, so the outbox worker resolves the owning schema rather than a previously cached schema.
+
 ## Consequences
 **Positive:**
 - Guarantees at-least-once delivery of events.

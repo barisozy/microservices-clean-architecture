@@ -1,13 +1,12 @@
 # ADR 0001: Microservices and Clean Architecture
-
 ## Status
 Accepted
 
 ## Context
-The e-commerce platform requires high scalability, fault isolation, and the ability for multiple teams to work independently. A monolithic architecture would couple all domains (Ordering, Inventory, Fulfillment, Payments) together, making independent scaling and deployments difficult. Additionally, we need a way to organize code within each service to separate domain logic from infrastructure concerns.
+The e-commerce platform requires high scalability, fault isolation, and the ability for multiple teams to work independently. A monolithic architecture would couple all domains (Order, Inventory, Fulfillment, Payment) together, making independent scaling and deployments difficult. Additionally, we need a way to organize code within each service to separate domain logic from infrastructure concerns.
 
 ## Decision
-We will use a **Microservices Architecture** grouped by bounded contexts (Ordering, Inventory, Fulfillment, Payments). 
+We will use a **Microservices Architecture** grouped by bounded contexts (Order, Inventory, Fulfillment, Payment).
 Each microservice will follow **Clean Architecture / Domain-Driven Design (DDD)** principles, separating layers into:
 - **Domain**: Core business entities and rules.
 - **Application**: Use cases, MediatR handlers, and interfaces.

@@ -7,7 +7,7 @@ Accepted
 Certain data structures, such as the user's shopping basket (cart), are ephemeral and frequently updated. Storing them in a relational database adds unnecessary read/write pressure. Additionally, we need a caching layer to improve response times for read-heavy operations. While Redis has been the standard, its recent licensing changes make it less attractive for open-source and enterprise usage.
 
 ## Decision
-We will use **Valkey** (a truly open-source, BSD-3-Clause fork of Redis) as the distributed caching provider. Specifically, the Basket service and API Gateways will use Valkey as their primary data store to achieve high read/write throughput and caching capabilities while remaining fully compatible with existing Redis client libraries (like `StackExchange.Redis`).
+We will use **Valkey 9.1** (BSD-3-Clause) as the distributed caching provider. The Order service owns the basket hash; services also use Valkey-backed read models, locks and Gateway rate-limit state. Valkey remains compatible with `StackExchange.Redis`.
 
 ## Consequences
 **Positive:**

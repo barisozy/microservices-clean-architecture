@@ -1,6 +1,4 @@
-# 14. Centralized Auditing & UEBA Telemetry
-
-Date: 2026-07-23
+# ADR 0014: Compliance Audit Service and Cross-Cutting Entity Auditing
 
 ## Status
 
@@ -8,40 +6,23 @@ Accepted
 
 ## Context
 
-Enterprise-grade microservices require a unified trail of data modification events (Creates, Updates, Deletes) to ensure compliance, non-repudiation, and security auditing. Beyond just knowing "what" changed in the database, security teams require **User and Entity Behavior Analytics (UEBA)** telemetry: the user's ID, IP address, device footprint (User Agent), and the precise API endpoint that triggered the action.
+The platform needs two distinct audit concerns:
 
-Implementing this per microservice leads to:
-1. Fragmented data that is difficult to query.
-2. Boilerplate code replicated across services.
-3. Tight coupling to specific storage technologies within domains that shouldn't know about auditing.
+1. Ordinary entities need consistent `CreatedAt`, `CreatedBy`, `LastModifiedAt` and `LastModifiedBy` values.
+2. Compliance-relevant security and administration events need an immutable, independently queryable trail.
 
-We needed a centralized, resilient mechanism to intercept EF Core data changes, extract UEBA telemetry from the HTTP context, and funnel this information reliably to a specialized Auditing Service.
+The former must not turn every domain write into a remote call. The latter must be append-only and detectable if tampered with.
 
 ## Decision
 
-We will implement a **Centralized Auditing Service** with distributed, asynchronous event collection:
+`ECommerce.Auditing` remains a small shared building block. Its `AuditableEntityInterceptor` populates audit fields during EF Core saves. It is not a messaging producer and is not the Audit microservice.
 
-1. **`ECommerce.Auditing` (Shared Building Block):**
-   - We extract auditing interception and MediatR command auditing into a reusable building block (`ECommerce.Auditing`).
-   - We implement `AuditInterceptor`, an EF Core `ISaveChangesInterceptor`. This interceptor automatically scans the `ChangeTracker` for added, modified, or deleted entities (excluding internal audit/outbox/inbox tables).
-   - Before changes are committed, it extracts the HTTP Context metadata (`IpAddress`, `UserAgent`, `UserRoles`, `UserId`, `TraceId`) using `IHttpContextAccessor`.
-   - It serializes property changes (Old Values and New Values) and Primary Keys into JSON.
+`Audit.Api` is the dedicated compliance microservice. It consumes `PermissionDenied`, `CouponWritten` and `UserRegistered` integration events through MassTransit inbox deduplication. It appends `AuditEntries` in its own `audit` schema, with each row linked by SHA-256 to the previous row hash. PostgreSQL permissions revoke `UPDATE` and `DELETE` from the application role; the DbContext also rejects modified or deleted audit entries.
 
-2. **Asynchronous Publishing (RabbitMQ):**
-   - The interceptor constructs an `AuditLogCreated` event and publishes it to the event bus (RabbitMQ via MassTransit) rather than writing synchronously to a database.
-   - This prevents audit logging from adding synchronous latency or creating a single point of failure (if the audit DB is down, transactions shouldn't fail).
-
-3. **`Auditing.Api` (Centralized Microservice):**
-   - A dedicated `Auditing.Api` microservice consumes `AuditLogCreated` messages from RabbitMQ.
-   - It writes these logs to an isolated `AuditingDb` (PostgreSQL) optimized for temporal and index-backed querying (`Timestamp`, `EntityId`, `UserId`).
-   - It provides specialized endpoints (e.g., `/api/audit-logs`) to query and filter changes by user, entity, or UEBA attributes with pagination.
+The read-only REST query endpoint requires IAM `ADMIN` permission. The `AuditService.Verify` gRPC method recalculates a requested hash-chain range and reports the first broken entry.
 
 ## Consequences
 
-- **Pros:**
-  - **Zero-Touch Auditing:** EF Core interceptor handles entity change tracking transparently across microservices.
-  - **High Performance:** Asynchronous publishing ensures the primary transaction is not delayed by audit storage.
-  - **Security Observability:** Full UEBA telemetry is available for all state-changing operations across the entire platform.
-- **Cons:**
-  - Increases RabbitMQ message volume.
-  - If a service commits a transaction but crashes before the outbox/event is dispatched to RabbitMQ, the audit log might theoretically be delayed (handled by MassTransit Outbox guaranteeing at-least-once delivery).
+- Business write paths stay independent of the compliance service.
+- Compliance records are append-only, idempotent and independently verifiable.
+- `ECommerce.Auditing` and `Audit.Api` have intentionally separate responsibilities and names.

@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-While the architecture favors asynchronous event-driven communication for state changes, there are scenarios where a service needs immediate, synchronous data from another service (e.g., Ordering needing to query Inventory status synchronously). Standard HTTP/REST JSON APIs can have higher serialization overhead and lack strict typing.
+While the architecture favors asynchronous event-driven communication for state changes, there are scenarios where a service needs immediate, synchronous data from another service (e.g., Order needing to query Inventory status synchronously). Standard HTTP/REST JSON APIs can have higher serialization overhead and lack strict typing.
 
 ## Decision
 We will use **gRPC** for synchronous service-to-service communication within the backend.
