@@ -14,7 +14,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("promotion_db") 
+        var connectionString = configuration.GetConnectionString("promotion_db")
             ?? configuration.GetConnectionString("PromotionDb")
             ?? "Host=localhost;Database=promotion_db;Username=postgres;Password=postgres";
 

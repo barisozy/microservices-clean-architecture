@@ -24,5 +24,3 @@ public class CancelOrderCommandHandler(IOrderDbContext context, IPublishEndpoint
         return true;
     }
 }
-
-

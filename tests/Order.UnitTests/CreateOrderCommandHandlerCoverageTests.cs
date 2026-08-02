@@ -153,7 +153,7 @@ public class CreateOrderCommandHandlerCoverageTests
                 .ReturnsAsync((Order.Domain.Entities.Order?)null);
             OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Guid?)null);
-            
+
             SetupLockAcquired(true);
 
             Inventory.Setup(x => x.ReserveStockAsync(

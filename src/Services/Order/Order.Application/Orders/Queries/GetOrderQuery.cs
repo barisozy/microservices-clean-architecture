@@ -15,4 +15,3 @@ public class GetOrderQueryHandler(IOrderReadRepository readRepository) : IReques
         return await readRepository.GetOrderAsync(request.OrderId, cancellationToken);
     }
 }
-

@@ -43,6 +43,3 @@ public class ProcessPaymentCommandHandler(IPaymentDbContext context, IPublishEnd
         return payment.Id;
     }
 }
-
-
-

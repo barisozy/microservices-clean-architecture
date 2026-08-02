@@ -11,7 +11,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("search_db") 
+        var connectionString = configuration.GetConnectionString("search_db")
             ?? configuration.GetConnectionString("SearchDb")
             ?? "Host=localhost;Database=search_db;Username=postgres;Password=postgres";
 

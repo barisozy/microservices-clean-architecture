@@ -24,4 +24,3 @@ public class PaymentFailedDomainEvent : BaseEvent
         Reason = reason;
     }
 }
-

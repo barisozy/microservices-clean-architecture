@@ -27,4 +27,3 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(i => i.Sku).IsRequired().HasMaxLength(100);
     }
 }
-

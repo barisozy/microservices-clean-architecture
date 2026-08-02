@@ -17,4 +17,3 @@
     <ProjectReference Include="..\..\src\Services\Payment\Payment.Application\Payment.Application.csproj" />
   </ItemGroup>
 </Project>
-

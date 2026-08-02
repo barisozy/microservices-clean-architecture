@@ -65,4 +65,3 @@ public class AuditLogCreatedConsumerTests
         savedLog.Timestamp.ShouldBe(timestamp);
     }
 }
-

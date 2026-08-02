@@ -36,4 +36,3 @@ public class CouponWrittenConsumer(AuditDbContext dbContext) : IConsumer<CouponW
         await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }
-

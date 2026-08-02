@@ -41,4 +41,3 @@ public class GetPaymenttatusQueryHandlerTests
         result.ShouldBeNull();
     }
 }
-

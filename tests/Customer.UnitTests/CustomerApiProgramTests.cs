@@ -126,4 +126,3 @@ public sealed class CustomerDevelopmentProgramTests : IClassFixture<CustomerDeve
         scalar.StatusCode.ShouldBeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
     }
 }
-

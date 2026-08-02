@@ -25,4 +25,3 @@ public class OrderReadRepository(IConnectionMultiplexer valkey) : IOrderReadRepo
         await _database.StringSetAsync(Prefix + order.Id, value);
     }
 }
-

@@ -55,4 +55,3 @@ public class BasketEndpoints : IEndpointGroup
         return TypedResults.Ok(result);
     }
 }
-

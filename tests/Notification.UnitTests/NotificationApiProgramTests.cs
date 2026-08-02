@@ -109,4 +109,3 @@ public sealed class DevelopmentNotificationApiProgramTests : IClassFixture<Devel
         scalar.StatusCode.ShouldBeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
     }
 }
-

@@ -40,4 +40,3 @@ public class AuditLogCreatedConsumer(AuditDbContext dbContext) : IConsumer<Audit
         await dbContext.SaveChangesAsync(context.CancellationToken);
     }
 }
-

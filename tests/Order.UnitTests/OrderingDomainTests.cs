@@ -132,6 +132,3 @@ public class OrderDomainTests
         order.DomainEvents.ShouldBeEmpty();
     }
 }
-
-
-

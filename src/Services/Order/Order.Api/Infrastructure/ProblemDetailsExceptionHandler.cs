@@ -53,4 +53,3 @@ public class ProblemDetailsExceptionHandler : IExceptionHandler
         return true;
     }
 }
-

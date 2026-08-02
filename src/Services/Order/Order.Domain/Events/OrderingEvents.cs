@@ -24,6 +24,3 @@ public class OrderCancelledDomainEvent : BaseEvent
         Reason = reason;
     }
 }
-
-
-

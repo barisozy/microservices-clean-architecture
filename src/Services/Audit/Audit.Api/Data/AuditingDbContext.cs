@@ -47,4 +47,3 @@ public class AuditDbContext(DbContextOptions<AuditDbContext> options) : DbContex
         modelBuilder.Entity<AuditLogRecord>().HasIndex(x => x.IdempotencyKey).IsUnique();
     }
 }
-

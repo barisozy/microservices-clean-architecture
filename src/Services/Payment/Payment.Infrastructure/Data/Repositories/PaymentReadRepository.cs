@@ -21,4 +21,3 @@ public class PaymentReadRepository(IConnectionMultiplexer valkey) : IPaymentRead
         await _database.StringSetAsync(Prefix + orderId, status);
     }
 }
-

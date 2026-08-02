@@ -15,4 +15,3 @@ public class DependencyInjectionTests
         Assert.NotEmpty(services);
     }
 }
-

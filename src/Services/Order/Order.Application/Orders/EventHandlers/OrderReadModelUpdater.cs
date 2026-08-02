@@ -29,4 +29,3 @@ public class OrderReadModelUpdater(IOrderReadRepository readRepository) :
         await readRepository.SetOrderAsync(dto, cancellationToken);
     }
 }
-

@@ -45,5 +45,3 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.Run();
-
-

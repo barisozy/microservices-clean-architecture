@@ -19,4 +19,3 @@ public class StockReleasedConsumer(ISender sender, ILogger<StockReleasedConsumer
         await sender.Send(new CancelOrderCommand(msg.OrderId, "Saga Rollback: Stock Released (Payment Failed)"), context.CancellationToken);
     }
 }
-

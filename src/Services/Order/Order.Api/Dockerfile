@@ -23,5 +23,3 @@ EXPOSE 8080
 COPY --from=build /app/publish .
 USER app
 ENTRYPOINT ["dotnet", "Order.Api.dll"]
-
-

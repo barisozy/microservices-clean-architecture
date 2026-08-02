@@ -23,4 +23,3 @@ public abstract class BaseAuditableEntity : BaseEntity
     public DateTimeOffset LastModifiedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? LastModifiedBy { get; set; }
 }
-

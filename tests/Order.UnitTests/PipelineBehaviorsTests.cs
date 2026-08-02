@@ -79,4 +79,3 @@ public class PipelineBehaviorsTests
             await behavior.Handle(new DummyRequest(), nextMock.Object, CancellationToken.None));
     }
 }
-

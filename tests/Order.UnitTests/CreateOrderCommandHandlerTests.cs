@@ -27,7 +27,7 @@ public class CreateOrderCommandHandlerTests
         dbContextMock.Setup(x => x.Orders).Returns(dbSetMock.Object);
 
         var publishEndpointMock = new Mock<IPublishEndpoint>();
-        
+
         var orderCacheMock = new Mock<IOrderCache>();
         orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid?)null);
@@ -68,4 +68,3 @@ public class CreateOrderCommandHandlerTests
         dbContextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
-
