@@ -1,5 +1,11 @@
 # E-Commerce Microservices Platform
 
+[![NuGet Version](https://img.shields.io/nuget/v/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=blue)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/BarisOzy.Microservices.CleanArchitecture.Template?style=flat-square&color=green)](https://www.nuget.org/packages/BarisOzy.Microservices.CleanArchitecture.Template)
+[![Template Build](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/nuget-publish.yml?style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions/workflows/nuget-publish.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/barisozy/microservices-clean-architecture/codeql.yml?label=CodeQL&style=flat-square&logo=github)](https://github.com/barisozy/microservices-clean-architecture/actions/workflows/codeql.yml)
+[![Test Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/barisozy/f649be1e7df40784c5be106c328e8b26/raw/coverage.json)](#)
+
 Production-oriented .NET 10 microservices reference platform. It uses independently deployable services, per-service PostgreSQL schemas, RabbitMQ/MassTransit integration events, gRPC for synchronous calls, Valkey for disposable read models and Aspire for local orchestration.
 
 ## Architecture
