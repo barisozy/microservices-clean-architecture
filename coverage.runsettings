@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <MaxCpuCount>1</MaxCpuCount>
+    <ResultsDirectory>artifacts/test-results/coverage</ResultsDirectory>
+  </RunConfiguration>
+
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[*.UnitTests]*,[*.IntegrationTests]*,[*.ContractTests]*,[ECommerce.Contracts]*,[ECommerce.AppHost]*</Exclude>
+          <ExcludeByAttribute>System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute,System.Runtime.CompilerServices.CompilerGeneratedAttribute,System.CodeDom.Compiler.GeneratedCodeAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/artifacts/**,**/Migrations/**/*.cs,**/*.generated.cs,**/*.g.cs,**/*.g.i.cs,**/*.AssemblyInfo.cs,**/OpenApiXmlCommentSupport.generated.cs</ExcludeByFile>
+          <ExcludeAssembliesWithoutSources>MissingAll</ExcludeAssembliesWithoutSources>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>false</UseSourceLink>
+          <DeterministicReport>true</DeterministicReport>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

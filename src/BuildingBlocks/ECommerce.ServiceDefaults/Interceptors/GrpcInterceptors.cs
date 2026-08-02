@@ -2,6 +2,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
 
 namespace ECommerce.ServiceDefaults.Interceptors;
 
@@ -24,9 +25,9 @@ public class GrpcJwtHeaderInterceptor : Interceptor
         if (httpContext != null && httpContext.Request.Headers.TryGetValue(HeaderNames.Authorization, out var authorizationHeader))
         {
             var headers = context.Options.Headers ?? new Metadata();
-            if (headers.Get("Authorization") == null)
+            if (headers.Get("authorization") == null)
             {
-                headers.Add("Authorization", authorizationHeader.ToString());
+                headers.Add("authorization", authorizationHeader.ToString());
             }
 
             var newOptions = context.Options.WithHeaders(headers);
@@ -44,6 +45,19 @@ public class GrpcTraceContextInterceptor : Interceptor
         ClientInterceptorContext<TRequest, TResponse> context,
         AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
+        var activityId = Activity.Current?.Id;
+        if (!string.IsNullOrWhiteSpace(activityId))
+        {
+            var headers = context.Options.Headers ?? new Metadata();
+            if (headers.Get("traceparent") == null)
+            {
+                headers.Add("traceparent", activityId);
+            }
+
+            var newOptions = context.Options.WithHeaders(headers);
+            context = new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host, newOptions);
+        }
+
         return continuation(request, context);
     }
 }

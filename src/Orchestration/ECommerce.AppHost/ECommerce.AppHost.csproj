@@ -13,7 +13,7 @@
     <PackageReference Include="Aspire.Hosting.AppHost" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     <PackageReference Include="Aspire.Hosting.RabbitMQ" />
-    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Aspire.Hosting.Valkey" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,11 +23,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Ordering\Ordering.Api\Ordering.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Order\Order.Api\Order.Api.csproj" />
     <ProjectReference Include="..\..\Services\Inventory\Inventory.Api\Inventory.Api.csproj" />
-    <ProjectReference Include="..\..\Services\Payments\Payments.Api\Payments.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Payment\Payment.Api\Payment.Api.csproj" />
     <ProjectReference Include="..\..\Services\Fulfillment\Fulfillment.Api\Fulfillment.Api.csproj" />
+    <ProjectReference Include="..\..\Services\IAM\IAM.Api\IAM.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Catalog\Catalog.Api\Catalog.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Customer\Customer.Api\Customer.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Search\Search.Api\Search.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Notification\Notification.Api\Notification.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Promotion\Promotion.Api\Promotion.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Audit\Audit.Api\Audit.Api.csproj" />
     <ProjectReference Include="..\..\Gateways\ECommerce.Gateway\ECommerce.Gateway.csproj" />
-    <ProjectReference Include="..\..\Services\Auditing\Auditing.Api\Auditing.Api.csproj" />
   </ItemGroup>
 </Project>

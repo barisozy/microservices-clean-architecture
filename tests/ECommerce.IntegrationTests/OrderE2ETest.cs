@@ -1,167 +1,228 @@
 using System.Net.Http.Json;
-using Xunit;
-using Shouldly;
-using Aspire.Hosting;
-using Aspire.Hosting.Testing;
-using System.Text.Json;
+using ECommerce.Contracts.Events.v1;
+using ECommerce.Contracts.Protos;
+using Fulfillment.Infrastructure;
+using Inventory.Infrastructure.Data;
+using MassTransit;
+using MassTransit.EntityFrameworkCoreIntegration;
+using Grpc.Net.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Net.Http.Headers;
+using Order.Domain.Entities;
+using Order.Infrastructure.Data;
+using Payment.Infrastructure.Data;
+using Shouldly;
+using Xunit;
 
 namespace ECommerce.IntegrationTests;
 
-public class OrderE2ETest
+/// <summary>
+/// Sprint 1 and Sprint 2 acceptance tests. PostgreSQL, RabbitMQ, Valkey,
+/// Keycloak, Inventory gRPC, Payment, and Fulfillment are all real components.
+/// </summary>
+[Collection("IntegrationTests")]
+public sealed class OrderE2ETest : IAsyncLifetime
 {
-    [Fact]
-    public async Task CreateOrder_EndToEnd_SagaScenarios_ShouldSucceed()
+    private readonly InfrastructureFixture _infra;
+    private ServiceFactory<Inventory.Api.IInventoryApiMarker> _inventoryFactory = null!;
+    private ServiceFactory<Payment.Api.IPaymentApiMarker> _paymentFactory = null!;
+    private ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker> _fulfillmentFactory = null!;
+    private ServiceFactory<Order.Api.IOrderApiMarker> _orderFactory = null!;
+    private HttpClient _orderClient = null!;
+    private string _accessToken = string.Empty;
+
+    public OrderE2ETest(InfrastructureFixture infra) => _infra = infra;
+
+    public async ValueTask InitializeAsync()
     {
-        // Arrange - Create HttpClients targeting the docker-compose environment
-        var keycloakClient = new HttpClient { BaseAddress = new Uri("http://localhost:8081") };
-        var gatewayClient = new HttpClient { BaseAddress = new Uri("http://localhost:8080") };
-        
-        string token = string.Empty;
-        string lastError = string.Empty;
-        var timeout = DateTime.UtcNow.AddSeconds(120);
-        while (DateTime.UtcNow < timeout)
-        {
-            try
-            {
-                var content = new FormUrlEncodedContent(new[]
-                {
-                    new KeyValuePair<string, string>("client_id", "ecommerce-gateway"),
-                    new KeyValuePair<string, string>("username", "demouser"),
-                    new KeyValuePair<string, string>("password", "password123"),
-                    new KeyValuePair<string, string>("grant_type", "password")
-                });
+        _accessToken = await _infra.GetCustomerAccessTokenAsync(TestContext.Current.CancellationToken);
+        _inventoryFactory = new ServiceFactory<Inventory.Api.IInventoryApiMarker>(_infra);
+        _paymentFactory = new ServiceFactory<Payment.Api.IPaymentApiMarker>(_infra);
+        _fulfillmentFactory = new ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker>(_infra);
 
-                var response = await keycloakClient.PostAsync("/realms/ecommerce/protocol/openid-connect/token", content, TestContext.Current.CancellationToken);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
-                    token = json.GetProperty("access_token").GetString() ?? "";
-                    break;
-                }
-                else 
-                {
-                    lastError = $"Status: {response.StatusCode}, Content: {await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}";
-                }
-            }
-            catch (Exception ex)
-            {
-                lastError = ex.Message;
-            }
-            await Task.Delay(5000, TestContext.Current.CancellationToken);
-        }
+        _inventoryFactory.CreateClient().Dispose();
+        _paymentFactory.CreateClient().Dispose();
+        _fulfillmentFactory.CreateClient().Dispose();
 
-        token.ShouldNotBeNullOrEmpty($"Failed to obtain JWT token from Keycloak. Is Keycloak healthy? Last Error: {lastError}");
-
-        gatewayClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        // =========================================================================
-        // SCENARIO 1: SUCCESSFUL ORDER CREATION (AND IDEMPOTENCY)
-        // =========================================================================
-        var idempotencyKey1 = Guid.NewGuid().ToString();
-        var successPayload = new
-        {
-            items = new[]
-            {
-                new { sku = "PROD-SUCCESS", quantity = 1, unitPrice = 100.0m }
-            }
-        };
-
-        HttpResponseMessage? orderResponse = null;
-        for (int i = 0; i < 60; i++)
-        {
-            try
-            {
-                var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/orders");
-                request.Headers.Add("Idempotency-Key", idempotencyKey1);
-                request.Content = JsonContent.Create(successPayload);
-
-                orderResponse = await gatewayClient.SendAsync(request, TestContext.Current.CancellationToken);
-                
-                if (orderResponse.IsSuccessStatusCode)
-                    break;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Gateway Retry {i}/60] Failed: {ex.Message}");
-                if (i == 59) throw;
-            }
-            await Task.Delay(2000, TestContext.Current.CancellationToken);
-        }
-        
-        orderResponse.ShouldNotBeNull();
-        orderResponse.IsSuccessStatusCode.ShouldBeTrue($"Expected 2xx but got {orderResponse.StatusCode}");
-        
-        var successOrderId = await orderResponse.Content.ReadFromJsonAsync<Guid>(cancellationToken: TestContext.Current.CancellationToken);
-        successOrderId.ShouldNotBe(Guid.Empty);
-
-        // Verify Idempotency - send exact same request again
-        var retryRequest = new HttpRequestMessage(HttpMethod.Post, "/api/v1/orders");
-        retryRequest.Headers.Add("Idempotency-Key", idempotencyKey1);
-        retryRequest.Content = JsonContent.Create(successPayload);
-        var retryResponse = await gatewayClient.SendAsync(retryRequest, TestContext.Current.CancellationToken);
-        retryResponse.IsSuccessStatusCode.ShouldBeTrue();
-        var retryOrderId = await retryResponse.Content.ReadFromJsonAsync<Guid>(cancellationToken: TestContext.Current.CancellationToken);
-        retryOrderId.ShouldBe(successOrderId, "Idempotency failed: expected same OrderId for the same Idempotency-Key.");
-
-        // Poll order status (Success flow ends in Pending in the read model currently)
-        await VerifyOrderStatusAsync(gatewayClient, successOrderId, "Pending");
-
-        // =========================================================================
-        // SCENARIO 2: PAYMENT FAILURE SAGA (CANCELLATION)
-        // =========================================================================
-        var idempotencyKey2 = Guid.NewGuid().ToString();
-        var failurePayload = new
-        {
-            items = new[]
-            {
-                new { sku = "FAIL_PAYMENT_SKU", quantity = 1, unitPrice = 50.0m }
-            }
-        };
-
-        var failRequest = new HttpRequestMessage(HttpMethod.Post, "/api/v1/orders");
-        failRequest.Headers.Add("Idempotency-Key", idempotencyKey2);
-        failRequest.Content = JsonContent.Create(failurePayload);
-
-        var failResponse = await gatewayClient.SendAsync(failRequest, TestContext.Current.CancellationToken);
-        failResponse.IsSuccessStatusCode.ShouldBeTrue();
-        var failedOrderId = await failResponse.Content.ReadFromJsonAsync<Guid>(cancellationToken: TestContext.Current.CancellationToken);
-        failedOrderId.ShouldNotBe(Guid.Empty);
-
-        // Wait for the Saga to rollback and Cancel the order
-        await VerifyOrderStatusAsync(gatewayClient, failedOrderId, "Cancelled");
+        _orderFactory = new ServiceFactory<Order.Api.IOrderApiMarker>(
+            _infra,
+            orderDependencies: new OrderServiceDependencies(_inventoryFactory, _accessToken));
+        _orderClient = _orderFactory.CreateClient();
+        _orderClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
     }
 
-    private static async Task VerifyOrderStatusAsync(HttpClient client, Guid orderId, string expectedStatus)
+    public ValueTask DisposeAsync()
     {
-        string currentStatus = string.Empty;
-        var timeout = DateTime.UtcNow.AddSeconds(60); // Max wait for saga to complete
-        
-        while (DateTime.UtcNow < timeout)
+        _orderClient.Dispose();
+        _orderFactory.Dispose();
+        _fulfillmentFactory.Dispose();
+        _paymentFactory.Dispose();
+        _inventoryFactory.Dispose();
+        return ValueTask.CompletedTask;
+    }
+
+    [Fact]
+    public async Task InventoryGrpcService_AcceptsTheKeycloakJwt()
+    {
+        using var channel = GrpcChannel.ForAddress("http://inventory.integration.test", new GrpcChannelOptions
         {
-            var response = await client.GetAsync($"/api/v1/orders/{orderId}", TestContext.Current.CancellationToken);
-            if (response.IsSuccessStatusCode)
+            HttpHandler = new OrderServiceDependencies(_inventoryFactory, _accessToken).CreateInventoryHandler()
+        });
+        var client = new InventoryService.InventoryServiceClient(channel);
+        var result = await client.ReserveStockAsync(new ReserveStockRequest
+        {
+            OrderId = Guid.CreateVersion7().ToString("D"),
+            Sku = "GRPC-AUTH-CHECK",
+            Quantity = 1
+        }, cancellationToken: TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue(result.Message);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithKeycloakJwt_PublishesOutboxMessage_AndShipsOrder()
+    {
+        var orderId = await CreateOrderAsync("PROD-SUCCESS");
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            return await db.Set<OutboxMessage>()
+                .AnyAsync(message => message.MessageType.Contains(nameof(OrderCreated)), TestContext.Current.CancellationToken);
+        });
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _paymentFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
+            return await db.Payment.AnyAsync(payment => payment.OrderId == orderId, TestContext.Current.CancellationToken);
+        }, diagnostics: GetPaymentDeliveryDiagnosticsAsync);
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _fulfillmentFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
+            return await db.Shipments.AnyAsync(shipment => shipment.OrderId == orderId, TestContext.Current.CancellationToken);
+        });
+
+        using var fulfillmentScope = _fulfillmentFactory.Services.CreateScope();
+        var fulfillmentDb = fulfillmentScope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
+        var shipment = await fulfillmentDb.Shipments.SingleAsync(x => x.OrderId == orderId, TestContext.Current.CancellationToken);
+        shipment.Status.ShouldBe("SHIPPED");
+        shipment.TrackingNumber.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task DuplicateIdempotencyKey_ReturnsTheOriginalOrderId()
+    {
+        var key = Guid.CreateVersion7().ToString("D");
+        var first = await CreateOrderAsync("PROD-IDEMPOTENT", key);
+        var second = await CreateOrderAsync("PROD-IDEMPOTENT", key);
+
+        second.ShouldBe(first);
+    }
+
+    [Fact]
+    public async Task PaymentFailure_CancelsOrder_ReleasesStock_AndDeduplicatesRedelivery()
+    {
+        var orderId = await CreateOrderAsync("FAIL_PAYMENT-SKU");
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == orderId, TestContext.Current.CancellationToken);
+            return order?.Status == OrderStatus.Cancelled;
+        }, TimeSpan.FromSeconds(5));
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _inventoryFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            var reservation = await db.Reservations.SingleOrDefaultAsync(x => x.OrderId == orderId, TestContext.Current.CancellationToken);
+            return reservation?.IsReleased == true;
+        }, TimeSpan.FromSeconds(5));
+
+        var duplicateMessageId = Guid.CreateVersion7();
+        var duplicate = new PaymentFailed(orderId, Guid.CreateVersion7().ToString("D"), "duplicate delivery", DateTimeOffset.UtcNow);
+        var bus = _orderFactory.Services.GetRequiredService<IBus>();
+        await bus.Publish(duplicate, context => context.MessageId = duplicateMessageId, TestContext.Current.CancellationToken);
+        await bus.Publish(duplicate, context => context.MessageId = duplicateMessageId, TestContext.Current.CancellationToken);
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            return await db.Set<InboxState>()
+                .CountAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken) == 1;
+        });
+    }
+
+    private async Task<Guid> CreateOrderAsync(string sku, string? idempotencyKey = null)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/orders");
+        request.Headers.Add("Idempotency-Key", idempotencyKey ?? Guid.CreateVersion7().ToString("D"));
+        request.Content = JsonContent.Create(new
+        {
+            items = new[] { new { sku, quantity = 1, unitPrice = 100m } }
+        });
+
+        using var response = await _orderClient.SendAsync(request, TestContext.Current.CancellationToken);
+        var diagnostic = response.Headers.TryGetValues("X-Integration-Authentication-Failure", out var values)
+            ? string.Join("; ", values)
+            : await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Created, diagnostic);
+        var orderId = await response.Content.ReadFromJsonAsync<Guid>(TestContext.Current.CancellationToken);
+        orderId.ShouldNotBe(Guid.Empty);
+        return orderId;
+    }
+
+    private async Task<string> GetPaymentDeliveryDiagnosticsAsync()
+    {
+        using var scope = _orderFactory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+        var messages = await db.Set<OutboxMessage>()
+            .Where(message => message.MessageType.Contains(nameof(OrderCreated)))
+            .Select(message => new
             {
-                var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-                try
-                {
-                    var orderDto = JsonSerializer.Deserialize<JsonElement>(content);
-                    if (orderDto.TryGetProperty("status", out var statusProp))
-                    {
-                        currentStatus = statusProp.GetString() ?? "";
-                        if (currentStatus.Equals(expectedStatus, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return; // Success!
-                        }
-                    }
-                }
-                catch { }
-            }
-            await Task.Delay(2000, TestContext.Current.CancellationToken);
+                message.SequenceNumber,
+                message.OutboxId,
+                message.MessageType,
+                message.DestinationAddress,
+                message.SourceAddress,
+                message.SentTime,
+                message.EnqueueTime
+            })
+            .ToListAsync(TestContext.Current.CancellationToken);
+        var states = await db.Set<OutboxState>()
+            .Select(state => new { state.OutboxId, state.Created, state.Delivered, state.LastSequenceNumber })
+            .ToListAsync(TestContext.Current.CancellationToken);
+        var hostedServices = _orderFactory.Services.GetServices<Microsoft.Extensions.Hosting.IHostedService>()
+            .Select(service => service.GetType().FullName)
+            .ToArray();
+        var rabbit = await _infra.GetRabbitMqDiagnosticsAsync(TestContext.Current.CancellationToken);
+        return $"Outbox messages: {System.Text.Json.JsonSerializer.Serialize(messages)}; " +
+               $"outbox states: {System.Text.Json.JsonSerializer.Serialize(states)}; " +
+               $"hosted services: {System.Text.Json.JsonSerializer.Serialize(hostedServices)}; RabbitMQ: {rabbit}";
+    }
+
+    private static async Task EventuallyAsync(
+        Func<Task<bool>> assertion,
+        TimeSpan? timeout = null,
+        Func<Task<string>>? diagnostics = null)
+    {
+        var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(20));
+        while (DateTime.UtcNow < deadline)
+        {
+            if (await assertion()) return;
+            await Task.Delay(250, TestContext.Current.CancellationToken);
         }
 
-        currentStatus.ShouldBe(expectedStatus, $"Order {orderId} did not reach expected status '{expectedStatus}' within timeout. Last known status: '{currentStatus}'");
+        var diagnosticMessage = diagnostics is null
+            ? string.Empty
+            : $" RabbitMQ diagnostics: {await diagnostics()}";
+        (await assertion()).ShouldBeTrue($"The expected asynchronous workflow did not complete before the timeout.{diagnosticMessage}");
     }
 }

@@ -23,5 +23,6 @@ EXPOSE 8080
 # gRPC needs HTTP/2
 EXPOSE 8081
 COPY --from=build /app/publish .
+USER app
 ENTRYPOINT ["dotnet", "Inventory.Api.dll"]
 

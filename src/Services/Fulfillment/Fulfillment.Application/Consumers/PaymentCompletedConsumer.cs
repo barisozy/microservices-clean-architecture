@@ -3,6 +3,7 @@ using ECommerce.Contracts.Events.v1;
 using Fulfillment.Application.Common.Interfaces;
 using Fulfillment.Domain.Entities;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Fulfillment.Application.Consumers;
@@ -32,6 +33,22 @@ public class PaymentCompletedConsumer(
         };
 
         context.Tasks.Add(task);
+
+        var existingShipment = await context.Shipments.FirstOrDefaultAsync(s => s.OrderId == message.OrderId, contextEvent.CancellationToken);
+        if (existingShipment == null)
+        {
+            context.Shipments.Add(new Shipment
+            {
+                OrderId = message.OrderId,
+                TrackingNumber = task.TrackingNumber,
+                Status = "SHIPPED",
+                ShippedAt = DateTime.UtcNow
+            });
+        }
+
+        await publishEndpoint.Publish(
+            new OrderShipped(message.OrderId, task.TrackingNumber, DateTimeOffset.UtcNow),
+            contextEvent.CancellationToken);
         await context.SaveChangesAsync(contextEvent.CancellationToken);
 
         await readRepository.SetFulfillmentStatusAsync(message.OrderId, task.Status, contextEvent.CancellationToken);
@@ -41,10 +58,8 @@ public class PaymentCompletedConsumer(
         if (message.OrderCreatedAt != default)
         {
             var duration = (DateTimeOffset.UtcNow - message.OrderCreatedAt).TotalSeconds;
-            _createToShipDuration.Record(duration, new KeyValuePair<string, object?>("orderId", message.OrderId.ToString()));
+            _createToShipDuration.Record(duration);
             logger.LogInformation("Recorded order.create_to_ship.duration: {Duration}s", duration);
         }
-
-        await publishEndpoint.Publish(new OrderShipped(message.OrderId, task.TrackingNumber, DateTimeOffset.UtcNow), contextEvent.CancellationToken);
     }
 }

@@ -1,15 +1,32 @@
-# .NET Build & Publish Outputs
-bin/
-obj/
-artifacts/
-out/
-publish/
-test-results/
+# .NET build, publish, NuGet and test outputs
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+[Oo]ut/
+[Pp]ublish/
+[Pp]ackages/
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+project.assets.json
+project.nuget.cache
+*.dgspec.json
+
 TestResults/
+test-results/
 coverage/
 coveragereport/
+*.coverage
+*.coveragexml
+*.trx
+*.lcov
+**/coverage*.xml
+**/coverage*.json
+**/coverage*.info
 
-# Visual Studio & IDE Files
+# IDEs and local tooling
+.agents/
 .vs/
 .idea/
 .vscode/
@@ -19,20 +36,27 @@ coveragereport/
 *.sln.docstates
 *.userprefs
 *.pidb
-*.suo
+*.rsuser
+*.DotSettings.user
 
-# Environment & Secret Files
-.env
-.env.local
-.env.*.local
-!.env.example
-
-# Aspire & Local Build Artifacts
+# Local runtime state
 .aspire/
-nupkg/
-plan/
+.local/
+*.pid
+*.pidb
+*.log
+logs/
 
-# OS Generated Files
+# Environment files and secrets (keep the committed template only)
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+secrets.*.json
+
+# OS-generated files
 .DS_Store
 Thumbs.db
-desktop.ini
+Desktop.ini
