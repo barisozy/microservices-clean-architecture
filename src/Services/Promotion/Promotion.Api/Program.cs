@@ -1,14 +1,13 @@
 using System.Security.Claims;
-using ECommerce.Contracts.Events.v1;
 using ECommerce.ServiceDefaults;
-using MassTransit;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Promotion.Api.Services;
 using Promotion.Application;
 using Promotion.Application.Common.Interfaces;
-using Promotion.Domain.Entities;
 using Promotion.Infrastructure;
 using Promotion.Infrastructure.Data;
 using Scalar.AspNetCore;
@@ -60,18 +59,23 @@ app.UseAuthorization();
 app.MapGrpcService<PromotionGrpcService>()
     .RequireAuthorization();
 
-app.MapGet("/api/v{version:apiVersion}/promotion/coupons", async (PromotionDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/promotion/coupons", async (
+    ISender sender,
+    IValidator<GetCouponsQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var coupons = await db.Coupons.ToListAsync();
-    return Results.Ok(coupons);
+    var query = new GetCouponsQuery();
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(query, cancellationToken));
 });
 
 app.MapPost("/api/v{version:apiVersion}/promotion/coupons", async (
-    Coupon coupon,
+    CreateCouponRequest request,
     ClaimsPrincipal principal,
-    PromotionDbContext db,
+    ISender sender,
+    IValidator<CreateCouponCommand> validator,
     IIamPermissionChecker permissionChecker,
-    IPublishEndpoint publishEndpoint,
     CancellationToken cancellationToken) =>
 {
     if (!app.Environment.IsEnvironment("Testing"))
@@ -85,36 +89,24 @@ app.MapPost("/api/v{version:apiVersion}/promotion/coupons", async (
         }
     }
 
-    if (string.IsNullOrWhiteSpace(coupon.Code) || coupon.Value <= 0)
-    {
-        return Results.Problem(
-            statusCode: StatusCodes.Status400BadRequest,
-            title: "Coupon code and a positive value are required.");
-    }
-
-    if (coupon.ExpiresAt <= DateTime.UtcNow)
-    {
-        return Results.Problem(
-            statusCode: StatusCodes.Status422UnprocessableEntity,
-            title: "Expired coupons cannot be created.");
-    }
-
-    if (coupon.Id == Guid.Empty) coupon.Id = Guid.CreateVersion7();
-    db.Coupons.Add(coupon);
-    if (!app.Environment.IsEnvironment("Testing"))
-    {
-        var actor = principal.FindFirstValue("sub")
-            ?? principal.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? "system";
-        await publishEndpoint.Publish(
-            new CouponWritten(actor, coupon.Code, "Created", DateTimeOffset.UtcNow),
-            cancellationToken);
-    }
-
-    await db.SaveChangesAsync(cancellationToken);
+    var actor = principal.FindFirstValue("sub")
+        ?? principal.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? "system";
+    var command = new CreateCouponCommand(
+        request.Code,
+        request.DiscountType,
+        request.Value,
+        request.ExpiresAt,
+        actor,
+        !app.Environment.IsEnvironment("Testing"));
+    var validation = await validator.ValidateAsync(command, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var coupon = await sender.Send(command, cancellationToken);
     return Results.Created($"/api/v1/promotion/coupons/{coupon.Id}", coupon);
 }).RequireAuthorization("AdminOnly");
 
 app.Run();
 
 public partial class Program;
+
+public sealed record CreateCouponRequest(string Code, string DiscountType, decimal Value, DateTime ExpiresAt);

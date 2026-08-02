@@ -1,251 +1,588 @@
-# =============================================================================
-# E-Commerce Microservices Platform
-# =============================================================================
-# Usage:
-#   docker compose up -d
-# =============================================================================
-
-networks:
-  ecommerce-net:
-
-volumes:
-  postgres-data:
-  rabbitmq-data:
-  valkey-data:
-  keycloak-data:
-  prometheus-data:
-
 services:
-  # ─── Infrastructure ──────────────────────────────────────────────────────────
+  compose-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    ports:
+      - "18888"
+    expose:
+      - "18889"
+      - "18890"
+    networks:
+      - "aspire"
+    restart: "always"
   postgres:
-    image: postgres:18.4-alpine
+    image: "docker.io/library/postgres:18.4"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      AUDIT_APP_PASSWORD: "${AUDIT_APP_PASSWORD}"
+    expose:
+      - "5432"
     volumes:
-      - postgres-data:/var/lib/postgresql
-      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - type: "volume"
+        target: "/var/lib/postgresql"
+        source: "ecommerce.apphost-4bbdf6ccdc-postgres-data"
+        read_only: false
+      - type: "bind"
+        target: "/docker-entrypoint-initdb.d/001-databases.sh"
+        source: "${POSTGRES_BINDMOUNT_0}"
+        read_only: false
     networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
+      - "aspire"
   rabbitmq:
-    image: rabbitmq:3.13-management-alpine
+    image: "docker.io/library/rabbitmq:4.3.1-management"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD}"
+    ports:
+      - "15672"
+    expose:
+      - "5672"
     volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
+      - type: "volume"
+        target: "/var/lib/rabbitmq"
+        source: "ecommerce.apphost-4bbdf6ccdc-rabbitmq-data"
+        read_only: false
     networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
+      - "aspire"
   valkey:
-    image: valkey/valkey:9.1-alpine
-    command: ["valkey-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
-    volumes:
-      - valkey-data:/data
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.6.4
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    volumes:
-      - ./src/Orchestration/ECommerce.AppHost/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
-      - keycloak-data:/opt/keycloak/data
-    command: ["start-dev", "--import-realm"]
-    ports:
-      - "8081:8080"
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "sh -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-
-  # ─── Microservices ──────────────────────────────────────────────────────────
-
-  Order-api:
-    image: ecommerce-Order-api:latest
-    build:
-      context: .
-      dockerfile: src/Services/Order/Order.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__OrderDb: "Host=postgres;Database=Order_db;Username=postgres;Password=postgres"
-      ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
-      ConnectionStrings__valkey: "valkey:6379"
-      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__ValidateIssuer: "false"
-      Services__InventoryApi: "http://inventory-api:8080"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: Order-api
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  inventory-api:
-    image: ecommerce-inventory-api:latest
-    build:
-      context: .
-      dockerfile: src/Services/Inventory/Inventory.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__InventoryDb: "Host=postgres;Database=inventory_db;Username=postgres;Password=postgres"
-      ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
-      ConnectionStrings__valkey: "valkey:6379"
-      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__ValidateIssuer: "false"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: inventory-api
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  Payment-api:
-    image: ecommerce-Payment-api:latest
-    build:
-      context: .
-      dockerfile: src/Services/Payment/Payment.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__PaymentDb: "Host=postgres;Database=Payment_db;Username=postgres;Password=postgres"
-      ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
-      ConnectionStrings__valkey: "valkey:6379"
-      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__ValidateIssuer: "false"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: Payment-api
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  fulfillment-api:
-    image: ecommerce-fulfillment-api:latest
-    build:
-      context: .
-      dockerfile: src/Services/Fulfillment/Fulfillment.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__FulfillmentDb: "Host=postgres;Database=fulfillment_db;Username=postgres;Password=postgres"
-      ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
-      ConnectionStrings__valkey: "valkey:6379"
-      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__ValidateIssuer: "false"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: fulfillment-api
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  Audit-api:
-    image: ecommerce-Audit-api:latest
-    build:
-      context: .
-      dockerfile: src/Services/Audit/Audit.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__AuditDb: "Host=postgres;Database=Audit_db;Username=postgres;Password=postgres"
-      ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: Audit-api
-    networks:
-      - ecommerce-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  gateway:
-    image: ecommerce-gateway:latest
-    build:
-      context: .
-      dockerfile: src/Gateways/ECommerce.Gateway/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__valkey: "valkey:6379"
-      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
-      Jwt__ValidateIssuer: "false"
-      ReverseProxy__Clusters__Order-cluster__Destinations__destination1__Address: "http://Order-api:8080"
-      ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: "http://inventory-api:8080"
-      ReverseProxy__Clusters__Payment-cluster__Destinations__destination1__Address: "http://Payment-api:8080"
-      ReverseProxy__Clusters__fulfillment-cluster__Destinations__destination1__Address: "http://fulfillment-api:8080"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: gateway
-    ports:
-      - "8080:8080"
-    networks:
-      - ecommerce-net
-  # ─── Observability ────────────────────────────────────────────────
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.110.0
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./infra/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
-    ports:
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
-      - "8889:8889" # Prometheus metrics endpoint
-    networks:
-      - ecommerce-net
-  prometheus:
-    image: prom/prometheus:v2.54.1
+    image: "docker.io/valkey/valkey:9.1"
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-    volumes:
-      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./infra/prometheus/slo_alerts.yml:/etc/prometheus/slo_alerts.yml:ro
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
+      - "-c"
+      - "valkey-server --requirepass $$VALKEY_PASSWORD"
+    entrypoint:
+      - "/bin/sh"
+    environment:
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+    expose:
+      - "6379"
     networks:
-      - ecommerce-net
+      - "aspire"
+  keycloak:
+    image: "quay.io/keycloak/keycloak:26.6.4"
+    command:
+      - "start-dev"
+      - "--import-realm"
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD}"
+    ports:
+      - "8080"
+    volumes:
+      - type: "bind"
+        target: "/opt/keycloak/data/import/realm-export.json"
+        source: "${KEYCLOAK_BINDMOUNT_0}"
+        read_only: false
+      - type: "volume"
+        target: "/opt/keycloak/data"
+        source: "keycloak-data"
+        read_only: false
+    networks:
+      - "aspire"
+  order-api:
+    image: "${ORDER_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${ORDER_API_PORT}"
+      ConnectionStrings__OrderDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=Order_db"
+      ORDERDB_HOST: "postgres"
+      ORDERDB_PORT: "5432"
+      ORDERDB_USERNAME: "postgres"
+      ORDERDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      ORDERDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/Order_db"
+      ORDERDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/Order_db"
+      ORDERDB_DATABASENAME: "Order_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      INVENTORY_API_HTTP: "http://inventory-api:${INVENTORY_API_PORT}"
+      services__inventory-api__http__0: "http://inventory-api:${INVENTORY_API_PORT}"
+      INVENTORY_API_HTTPS: "https://inventory-api:${INVENTORY_API_PORT}"
+      CATALOG_API_HTTP: "http://catalog-api:${CATALOG_API_PORT}"
+      services__catalog-api__http__0: "http://catalog-api:${CATALOG_API_PORT}"
+      CATALOG_API_HTTPS: "https://catalog-api:${CATALOG_API_PORT}"
+      PROMOTION_API_HTTP: "http://promotion-api:${PROMOTION_API_PORT}"
+      services__promotion-api__http__0: "http://promotion-api:${PROMOTION_API_PORT}"
+      PROMOTION_API_HTTPS: "https://promotion-api:${PROMOTION_API_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "Order-api"
+    expose:
+      - "${ORDER_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  inventory-api:
+    image: "${INVENTORY_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${INVENTORY_API_PORT}"
+      ConnectionStrings__InventoryDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=inventory_db"
+      INVENTORYDB_HOST: "postgres"
+      INVENTORYDB_PORT: "5432"
+      INVENTORYDB_USERNAME: "postgres"
+      INVENTORYDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      INVENTORYDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/inventory_db"
+      INVENTORYDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/inventory_db"
+      INVENTORYDB_DATABASENAME: "inventory_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "inventory-api"
+    expose:
+      - "${INVENTORY_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  payment-api:
+    image: "${PAYMENT_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${PAYMENT_API_PORT}"
+      ConnectionStrings__PaymentDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=Payment_db"
+      PAYMENTDB_HOST: "postgres"
+      PAYMENTDB_PORT: "5432"
+      PAYMENTDB_USERNAME: "postgres"
+      PAYMENTDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      PAYMENTDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/Payment_db"
+      PAYMENTDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/Payment_db"
+      PAYMENTDB_DATABASENAME: "Payment_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "Payment-api"
+    expose:
+      - "${PAYMENT_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  fulfillment-api:
+    image: "${FULFILLMENT_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${FULFILLMENT_API_PORT}"
+      ConnectionStrings__FulfillmentDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=fulfillment_db"
+      FULFILLMENTDB_HOST: "postgres"
+      FULFILLMENTDB_PORT: "5432"
+      FULFILLMENTDB_USERNAME: "postgres"
+      FULFILLMENTDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      FULFILLMENTDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fulfillment_db"
+      FULFILLMENTDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/fulfillment_db"
+      FULFILLMENTDB_DATABASENAME: "fulfillment_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "fulfillment-api"
+    expose:
+      - "${FULFILLMENT_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  iam-api:
+    image: "${IAM_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${IAM_API_PORT}"
+      ConnectionStrings__IamDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=iam_db"
+      IAMDB_HOST: "postgres"
+      IAMDB_PORT: "5432"
+      IAMDB_USERNAME: "postgres"
+      IAMDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      IAMDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/iam_db"
+      IAMDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/iam_db"
+      IAMDB_DATABASENAME: "iam_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      Keycloak__BaseUrl: "http://keycloak:8080"
+      Keycloak__Realm: "ecommerce"
+      Keycloak__AdminClientId: "ecommerce-admin"
+      Keycloak__AdminClientSecret: "${KEYCLOAK_ADMIN_CLIENT_SECRET}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "iam-api"
+    expose:
+      - "${IAM_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+      keycloak:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  catalog-api:
+    image: "${CATALOG_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${CATALOG_API_PORT}"
+      ConnectionStrings__CatalogDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=catalog_db"
+      CATALOGDB_HOST: "postgres"
+      CATALOGDB_PORT: "5432"
+      CATALOGDB_USERNAME: "postgres"
+      CATALOGDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      CATALOGDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/catalog_db"
+      CATALOGDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/catalog_db"
+      CATALOGDB_DATABASENAME: "catalog_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      IAM_API_HTTP: "http://iam-api:${IAM_API_PORT}"
+      services__iam-api__http__0: "http://iam-api:${IAM_API_PORT}"
+      IAM_API_HTTPS: "https://iam-api:${IAM_API_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "catalog-api"
+    expose:
+      - "${CATALOG_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  customer-api:
+    image: "${CUSTOMER_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${CUSTOMER_API_PORT}"
+      ConnectionStrings__CustomerDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=customer_db"
+      CUSTOMERDB_HOST: "postgres"
+      CUSTOMERDB_PORT: "5432"
+      CUSTOMERDB_USERNAME: "postgres"
+      CUSTOMERDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      CUSTOMERDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/customer_db"
+      CUSTOMERDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/customer_db"
+      CUSTOMERDB_DATABASENAME: "customer_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      IAM_API_HTTP: "http://iam-api:${IAM_API_PORT}"
+      services__iam-api__http__0: "http://iam-api:${IAM_API_PORT}"
+      IAM_API_HTTPS: "https://iam-api:${IAM_API_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "customer-api"
+    expose:
+      - "${CUSTOMER_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  search-api:
+    image: "${SEARCH_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${SEARCH_API_PORT}"
+      ConnectionStrings__SearchDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=search_db"
+      SEARCHDB_HOST: "postgres"
+      SEARCHDB_PORT: "5432"
+      SEARCHDB_USERNAME: "postgres"
+      SEARCHDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      SEARCHDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/search_db"
+      SEARCHDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/search_db"
+      SEARCHDB_DATABASENAME: "search_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "search-api"
+    expose:
+      - "${SEARCH_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  notification-api:
+    image: "${NOTIFICATION_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${NOTIFICATION_API_PORT}"
+      ConnectionStrings__NotificationDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=notification_db"
+      NOTIFICATIONDB_HOST: "postgres"
+      NOTIFICATIONDB_PORT: "5432"
+      NOTIFICATIONDB_USERNAME: "postgres"
+      NOTIFICATIONDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      NOTIFICATIONDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/notification_db"
+      NOTIFICATIONDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/notification_db"
+      NOTIFICATIONDB_DATABASENAME: "notification_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "notification-api"
+    expose:
+      - "${NOTIFICATION_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  promotion-api:
+    image: "${PROMOTION_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${PROMOTION_API_PORT}"
+      ConnectionStrings__PromotionDb: "Host=postgres;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=promotion_db"
+      PROMOTIONDB_HOST: "postgres"
+      PROMOTIONDB_PORT: "5432"
+      PROMOTIONDB_USERNAME: "postgres"
+      PROMOTIONDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      PROMOTIONDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/promotion_db"
+      PROMOTIONDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/promotion_db"
+      PROMOTIONDB_DATABASENAME: "promotion_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      IAM_API_HTTP: "http://iam-api:${IAM_API_PORT}"
+      services__iam-api__http__0: "http://iam-api:${IAM_API_PORT}"
+      IAM_API_HTTPS: "https://iam-api:${IAM_API_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "promotion-api"
+    expose:
+      - "${PROMOTION_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  audit-api:
+    image: "${AUDIT_API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${AUDIT_API_PORT}"
+      ConnectionStrings__AuditDb: "Host=postgres;Port=5432;Database=Audit_db;Username=app_role;Password=${AUDIT_APP_PASSWORD}"
+      AUDITDB_HOST: "postgres"
+      AUDITDB_PORT: "5432"
+      AUDITDB_USERNAME: "postgres"
+      AUDITDB_PASSWORD: "${POSTGRES_PASSWORD}"
+      AUDITDB_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/Audit_db"
+      AUDITDB_JDBCCONNECTIONSTRING: "jdbc:postgresql://postgres:5432/Audit_db"
+      AUDITDB_DATABASENAME: "Audit_db"
+      ConnectionStrings__rabbitmq: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "guest"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_URI: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      IAM_API_HTTP: "http://iam-api:${IAM_API_PORT}"
+      services__iam-api__http__0: "http://iam-api:${IAM_API_PORT}"
+      IAM_API_HTTPS: "https://iam-api:${IAM_API_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "Audit-api"
+    expose:
+      - "${AUDIT_API_PORT}"
+    depends_on:
+      postgres:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  gateway:
+    image: "${GATEWAY_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${GATEWAY_PORT}"
+      ConnectionStrings__valkey: "valkey:6379,password=${VALKEY_PASSWORD}"
+      VALKEY_HOST: "valkey"
+      VALKEY_PORT: "6379"
+      VALKEY_PASSWORD: "${VALKEY_PASSWORD}"
+      VALKEY_URI: "valkey://:${VALKEY_PASSWORD}@valkey:6379"
+      ORDER_API_HTTP: "http://Order-api:${ORDER_API_PORT}"
+      services__Order-api__http__0: "http://Order-api:${ORDER_API_PORT}"
+      ORDER_API_HTTPS: "https://Order-api:${ORDER_API_PORT}"
+      INVENTORY_API_HTTP: "http://inventory-api:${INVENTORY_API_PORT}"
+      services__inventory-api__http__0: "http://inventory-api:${INVENTORY_API_PORT}"
+      INVENTORY_API_HTTPS: "https://inventory-api:${INVENTORY_API_PORT}"
+      PAYMENT_API_HTTP: "http://Payment-api:${PAYMENT_API_PORT}"
+      services__Payment-api__http__0: "http://Payment-api:${PAYMENT_API_PORT}"
+      PAYMENT_API_HTTPS: "https://Payment-api:${PAYMENT_API_PORT}"
+      FULFILLMENT_API_HTTP: "http://fulfillment-api:${FULFILLMENT_API_PORT}"
+      services__fulfillment-api__http__0: "http://fulfillment-api:${FULFILLMENT_API_PORT}"
+      FULFILLMENT_API_HTTPS: "https://fulfillment-api:${FULFILLMENT_API_PORT}"
+      IAM_API_HTTP: "http://iam-api:${IAM_API_PORT}"
+      services__iam-api__http__0: "http://iam-api:${IAM_API_PORT}"
+      IAM_API_HTTPS: "https://iam-api:${IAM_API_PORT}"
+      CATALOG_API_HTTP: "http://catalog-api:${CATALOG_API_PORT}"
+      services__catalog-api__http__0: "http://catalog-api:${CATALOG_API_PORT}"
+      CATALOG_API_HTTPS: "https://catalog-api:${CATALOG_API_PORT}"
+      CUSTOMER_API_HTTP: "http://customer-api:${CUSTOMER_API_PORT}"
+      services__customer-api__http__0: "http://customer-api:${CUSTOMER_API_PORT}"
+      CUSTOMER_API_HTTPS: "https://customer-api:${CUSTOMER_API_PORT}"
+      SEARCH_API_HTTP: "http://search-api:${SEARCH_API_PORT}"
+      services__search-api__http__0: "http://search-api:${SEARCH_API_PORT}"
+      SEARCH_API_HTTPS: "https://search-api:${SEARCH_API_PORT}"
+      NOTIFICATION_API_HTTP: "http://notification-api:${NOTIFICATION_API_PORT}"
+      services__notification-api__http__0: "http://notification-api:${NOTIFICATION_API_PORT}"
+      NOTIFICATION_API_HTTPS: "https://notification-api:${NOTIFICATION_API_PORT}"
+      PROMOTION_API_HTTP: "http://promotion-api:${PROMOTION_API_PORT}"
+      services__promotion-api__http__0: "http://promotion-api:${PROMOTION_API_PORT}"
+      PROMOTION_API_HTTPS: "https://promotion-api:${PROMOTION_API_PORT}"
+      AUDIT_API_HTTP: "http://Audit-api:${AUDIT_API_PORT}"
+      services__Audit-api__http__0: "http://Audit-api:${AUDIT_API_PORT}"
+      AUDIT_API_HTTPS: "https://Audit-api:${AUDIT_API_PORT}"
+      Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
+      Jwt__ValidateIssuer: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "gateway"
+    ports:
+      - "${GATEWAY_PORT}"
+    depends_on:
+      order-api:
+        condition: "service_started"
+      valkey:
+        condition: "service_started"
+      keycloak:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  ecommerce.apphost-4bbdf6ccdc-postgres-data:
+    driver: "local"
+  ecommerce.apphost-4bbdf6ccdc-rabbitmq-data:
+    driver: "local"
+  keycloak-data:
+    driver: "local"

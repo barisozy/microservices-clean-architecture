@@ -2,8 +2,9 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using ECommerce.Contracts.Protos;
 using Grpc.Core;
-using Microsoft.EntityFrameworkCore;
-using Promotion.Infrastructure.Data;
+using FluentValidation;
+using MediatR;
+using Promotion.Application;
 
 namespace Promotion.Api.Services;
 
@@ -12,12 +13,17 @@ public class PromotionGrpcService : PromotionService.PromotionServiceBase
     private static readonly Meter Meter = new("Promotion.Api");
     private static readonly Histogram<double> CouponApplyDuration =
         Meter.CreateHistogram<double>("promotion.coupon_apply.duration", "ms");
-    private readonly PromotionDbContext _dbContext;
+    private readonly ISender _sender;
+    private readonly IValidator<ApplyCouponQuery> _validator;
     private readonly ILogger<PromotionGrpcService> _logger;
 
-    public PromotionGrpcService(PromotionDbContext dbContext, ILogger<PromotionGrpcService> logger)
+    public PromotionGrpcService(
+        ISender sender,
+        IValidator<ApplyCouponQuery> validator,
+        ILogger<PromotionGrpcService> logger)
     {
-        _dbContext = dbContext;
+        _sender = sender;
+        _validator = validator;
         _logger = logger;
     }
 
@@ -29,34 +35,23 @@ public class PromotionGrpcService : PromotionService.PromotionServiceBase
         var cancellationToken = context?.CancellationToken ?? CancellationToken.None;
         _logger.LogInformation("Applying coupon code '{Code}' to order total '{Total}'", request.Code, request.OrderTotal);
 
-        var coupon = await _dbContext.Coupons.FirstOrDefaultAsync(
-            c => c.Code == request.Code,
-            cancellationToken);
-        if (coupon == null || coupon.ExpiresAt < DateTime.UtcNow)
+        var query = new ApplyCouponQuery(request.Code, (decimal)request.OrderTotal);
+        var validation = await _validator.ValidateAsync(query, cancellationToken);
+        if (!validation.IsValid)
         {
             return new ApplyCouponResponse
             {
                 DiscountedTotal = request.OrderTotal,
                 IsValid = false,
-                Message = "Coupon code invalid or expired."
+                Message = string.Join("; ", validation.Errors.Select(error => error.ErrorMessage))
             };
         }
-
-        double discounted = request.OrderTotal;
-        if (coupon.DiscountType.Equals("PERCENTAGE", StringComparison.OrdinalIgnoreCase))
-        {
-            discounted = request.OrderTotal * (1.0 - (double)coupon.Value / 100.0);
-        }
-        else if (coupon.DiscountType.Equals("FIXED", StringComparison.OrdinalIgnoreCase))
-        {
-            discounted = Math.Max(0, request.OrderTotal - (double)coupon.Value);
-        }
-
+        var result = await _sender.Send(query, cancellationToken);
         return new ApplyCouponResponse
         {
-            DiscountedTotal = discounted,
-            IsValid = true,
-            Message = "Coupon applied successfully."
+            DiscountedTotal = (double)result.DiscountedTotal,
+            IsValid = result.IsValid,
+            Message = result.Message
         };
         }
         finally

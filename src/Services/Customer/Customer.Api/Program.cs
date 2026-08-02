@@ -1,9 +1,10 @@
 using Customer.Application;
 using Customer.Application.Common.Interfaces;
-using Customer.Domain.Entities;
 using Customer.Infrastructure;
 using Customer.Infrastructure.Data;
 using ECommerce.ServiceDefaults;
+using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Security.Claims;
@@ -45,19 +46,27 @@ app.UseProblemDetailsStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var getProfileEndpoint = app.MapGet("/api/v{version:apiVersion}/customers/me", async (ClaimsPrincipal user, CustomerDbContext db) =>
+var getProfileEndpoint = app.MapGet("/api/v{version:apiVersion}/customers/me", async (
+    ClaimsPrincipal user,
+    ISender sender,
+    IValidator<GetProfileQuery> validator,
+    CancellationToken cancellationToken) =>
 {
     var sub = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
     if (!Guid.TryParse(sub, out var subjectGuid)) return Results.Unauthorized();
 
-    var profile = await db.Profiles.FirstOrDefaultAsync(p => p.KeycloakSubject == subjectGuid);
+    var query = new GetProfileQuery(subjectGuid);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var profile = await sender.Send(query, cancellationToken);
     return profile != null ? Results.Ok(profile) : Results.NotFound();
 });
 
 var updateProfileEndpoint = app.MapPut("/api/v{version:apiVersion}/customers/me", async (
     ClaimsPrincipal user,
-    CustomerProfile updatedProfile,
-    CustomerDbContext db,
+    UpdateProfileRequest request,
+    ISender sender,
+    IValidator<UpdateProfileCommand> validator,
     IIamPermissionChecker permissionChecker,
     CancellationToken cancellationToken) =>
 {
@@ -69,35 +78,32 @@ var updateProfileEndpoint = app.MapPut("/api/v{version:apiVersion}/customers/me"
         return Results.Forbid();
     }
 
-    var profile = await db.Profiles.FirstOrDefaultAsync(p => p.KeycloakSubject == subjectGuid);
-    if (profile == null)
-    {
-        updatedProfile.KeycloakSubject = subjectGuid;
-        db.Profiles.Add(updatedProfile);
-    }
-    else
-    {
-        profile.DisplayName = updatedProfile.DisplayName;
-        profile.Email = updatedProfile.Email;
-    }
-
-    await db.SaveChangesAsync(cancellationToken);
-    return Results.Ok(profile ?? updatedProfile);
+    var command = new UpdateProfileCommand(subjectGuid, request.DisplayName, request.Email);
+    var validation = await validator.ValidateAsync(command, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(command, cancellationToken));
 });
 
-var getAddressesEndpoint = app.MapGet("/api/v{version:apiVersion}/customers/me/addresses", async (ClaimsPrincipal user, CustomerDbContext db) =>
+var getAddressesEndpoint = app.MapGet("/api/v{version:apiVersion}/customers/me/addresses", async (
+    ClaimsPrincipal user,
+    ISender sender,
+    IValidator<GetAddressesQuery> validator,
+    CancellationToken cancellationToken) =>
 {
     var sub = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
     if (!Guid.TryParse(sub, out var subjectGuid)) return Results.Unauthorized();
 
-    var addresses = await db.Addresses.Where(a => a.CustomerId == subjectGuid).ToListAsync();
-    return Results.Ok(addresses);
+    var query = new GetAddressesQuery(subjectGuid);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(query, cancellationToken));
 });
 
 var createAddressEndpoint = app.MapPost("/api/v{version:apiVersion}/customers/me/addresses", async (
     ClaimsPrincipal user,
-    Address address,
-    CustomerDbContext db,
+    CreateAddressRequest request,
+    ISender sender,
+    IValidator<CreateAddressCommand> validator,
     IIamPermissionChecker permissionChecker,
     CancellationToken cancellationToken) =>
 {
@@ -109,11 +115,10 @@ var createAddressEndpoint = app.MapPost("/api/v{version:apiVersion}/customers/me
         return Results.Forbid();
     }
 
-    address.CustomerId = subjectGuid;
-    if (address.Id == Guid.Empty) address.Id = Guid.CreateVersion7();
-    db.Addresses.Add(address);
-    await db.SaveChangesAsync(cancellationToken);
-
+    var command = new CreateAddressCommand(subjectGuid, request.Line1, request.City, request.PostalCode);
+    var validation = await validator.ValidateAsync(command, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var address = await sender.Send(command, cancellationToken);
     return Results.Created($"/api/v1/customers/me/addresses/{address.Id}", address);
 });
 
@@ -128,3 +133,6 @@ if (!app.Environment.IsEnvironment("Testing"))
 app.Run();
 
 public partial class Program;
+
+public sealed record UpdateProfileRequest(string DisplayName, string Email);
+public sealed record CreateAddressRequest(string Line1, string City, string PostalCode);

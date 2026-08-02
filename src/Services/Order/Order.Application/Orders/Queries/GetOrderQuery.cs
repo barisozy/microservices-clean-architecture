@@ -6,12 +6,15 @@ namespace Order.Application.Orders.Queries;
 
 public record OrderStatusDto(Guid Id, string Status, string BuyerId);
 
-public record GetOrderQuery(Guid OrderId) : IRequest<OrderStatusDto?>;
+public record GetOrderQuery(Guid OrderId, string BuyerId) : IRequest<OrderStatusDto?>;
 
 public class GetOrderQueryHandler(IOrderReadRepository readRepository) : IRequestHandler<GetOrderQuery, OrderStatusDto?>
 {
     public async Task<OrderStatusDto?> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
-        return await readRepository.GetOrderAsync(request.OrderId, cancellationToken);
+        var order = await readRepository.GetOrderAsync(request.OrderId, cancellationToken);
+        return order is not null && string.Equals(order.BuyerId, request.BuyerId, StringComparison.Ordinal)
+            ? order
+            : null;
     }
 }

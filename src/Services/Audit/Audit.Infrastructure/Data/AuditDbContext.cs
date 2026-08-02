@@ -60,9 +60,25 @@ public sealed class AuditDbContext(DbContextOptions<AuditDbContext> options) : D
             """
             DO $$
             BEGIN
-                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_role') THEN
-                    REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM app_role;
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_role') THEN
+                    RAISE EXCEPTION 'Required audit application role app_role does not exist';
                 END IF;
+
+                REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM app_role;
+
+                CREATE OR REPLACE FUNCTION audit.prevent_audit_entry_mutation()
+                RETURNS trigger
+                LANGUAGE plpgsql
+                AS $fn$
+                BEGIN
+                    RAISE EXCEPTION 'AuditEntries is append-only';
+                END;
+                $fn$;
+
+                DROP TRIGGER IF EXISTS audit_entries_append_only ON audit."AuditEntries";
+                CREATE TRIGGER audit_entries_append_only
+                    BEFORE UPDATE OR DELETE ON audit."AuditEntries"
+                    FOR EACH ROW EXECUTE FUNCTION audit.prevent_audit_entry_mutation();
             END $$;
             """,
             cancellationToken);

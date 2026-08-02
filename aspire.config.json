@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/Orchestration/ECommerce.AppHost/ECommerce.AppHost.csproj"
+  }
+}

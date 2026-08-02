@@ -1,4 +1,3 @@
-using MediatR;
 using Order.Application.Common.Interfaces;
 using Order.Application.Orders.Queries;
 using Order.Domain.Events;
@@ -6,8 +5,8 @@ using Order.Domain.Events;
 namespace Order.Application.Orders.EventHandlers;
 
 public class OrderReadModelUpdater(IOrderReadRepository readRepository) : 
-    INotificationHandler<OrderCreatedDomainEvent>,
-    INotificationHandler<OrderCancelledDomainEvent>
+    IDomainEventHandler<OrderCreatedDomainEvent>,
+    IDomainEventHandler<OrderCancelledDomainEvent>
 {
     public async Task Handle(OrderCreatedDomainEvent notification, CancellationToken cancellationToken)
     {

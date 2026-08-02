@@ -11,7 +11,7 @@
   <Target Name="ValidateOnionArchitecture" BeforeTargets="PrepareForBuild">
     <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Domain'))">
       <_ForbiddenDomainPackage Include="@(PackageReference)"
-        Condition="'%(Identity)' != 'MediatR'" />
+        Condition="true" />
       <_ForbiddenDomainProjectReference Include="@(ProjectReference)" />
     </ItemGroup>
 
@@ -21,6 +21,9 @@
           Or '%(Identity)' == 'StackExchange.Redis'
           Or '%(Identity)' == 'MassTransit.RabbitMQ'
           Or '%(Identity)' == 'Grpc.AspNetCore'" />
+      <_ForbiddenApplicationProjectReference Include="@(ProjectReference)"
+        Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Infrastructure'))
+          Or $([System.String]::Copy('%(Filename)').EndsWith('.Api'))" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(_CurrentServiceRoot)' != ''">
@@ -30,11 +33,13 @@
     </ItemGroup>
 
     <Error Condition="'@(_ForbiddenDomainPackage)' != ''"
-      Text="Onion violation in $(MSBuildProjectName): Domain may only reference MediatR for the INotification marker. Forbidden packages: @(_ForbiddenDomainPackage, ', ')." />
+      Text="Onion violation in $(MSBuildProjectName): Domain projects must have zero package dependencies. Forbidden packages: @(_ForbiddenDomainPackage, ', ')." />
     <Error Condition="'@(_ForbiddenDomainProjectReference)' != ''"
       Text="Onion violation in $(MSBuildProjectName): Domain projects cannot reference compiled projects. References: @(_ForbiddenDomainProjectReference, ', ')." />
     <Error Condition="'@(_ForbiddenApplicationPackage)' != ''"
       Text="Onion violation in $(MSBuildProjectName): Application references infrastructure packages: @(_ForbiddenApplicationPackage, ', ')." />
+    <Error Condition="'@(_ForbiddenApplicationProjectReference)' != ''"
+      Text="Onion violation in $(MSBuildProjectName): Application cannot reference Infrastructure or Api projects: @(_ForbiddenApplicationProjectReference, ', ')." />
     <Error Condition="'@(_CrossServiceProjectReference)' != ''"
       Text="Microservice isolation violation in $(MSBuildProjectName): cross-service ProjectReference detected: @(_CrossServiceProjectReference, ', ')." />
   </Target>

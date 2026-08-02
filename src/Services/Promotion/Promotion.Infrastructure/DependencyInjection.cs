@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Promotion.Infrastructure.Data;
+using Promotion.Application;
 using Promotion.Application.Common.Interfaces;
 using Promotion.Infrastructure.Services;
 using ECommerce.Contracts.Protos;
@@ -26,6 +27,7 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "promotion");
             });
         });
+        services.AddScoped<IPromotionRepository, PromotionRepository>();
 
         services.AddGrpcClient<IamService.IamServiceClient>(options =>
         {

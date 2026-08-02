@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Npgsql;
 
 namespace Audit.Infrastructure;
 
@@ -21,7 +22,21 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("AuditDb")
             ?? configuration.GetConnectionString("audit_db")
-            ?? "Host=localhost;Database=audit_db;Username=postgres;Password=postgres";
+            ?? "Host=localhost;Database=audit_db;Username=app_role;Password=app_role";
+
+        // A superuser connection makes REVOKE UPDATE/DELETE meaningless. Development
+        // and the in-memory test host may use their local bootstrap account, but a
+        // deployed Audit service must use the constrained application role.
+        if (!environment.IsDevelopment() && !environment.IsEnvironment("Testing"))
+        {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString);
+            if (string.Equals(builder.Username, "postgres", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(builder.Username))
+            {
+                throw new InvalidOperationException(
+                    "AuditDb must use the least-privilege app_role connection in non-development environments.");
+            }
+        }
 
         services.AddDbContext<AuditDbContext>(options =>
         {

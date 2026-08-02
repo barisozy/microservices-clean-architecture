@@ -1,17 +1,13 @@
 using ECommerce.Contracts.Protos;
 using Grpc.Core;
-using Inventory.Application.Common.Interfaces;
-using Inventory.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Inventory.Application.Inventory.Commands;
 using MediatR;
 
 namespace Inventory.Api.Services;
 
 public class InventoryGrpcService(
-    IInventoryDbContext dbContext,
     ILogger<InventoryGrpcService> logger,
-    ISender? sender = null) : InventoryService.InventoryServiceBase
+    ISender sender) : InventoryService.InventoryServiceBase
 {
     public override async Task<ReserveStockResponse> ReserveStock(ReserveStockRequest request, ServerCallContext context)
     {
@@ -27,28 +23,23 @@ public class InventoryGrpcService(
             };
         }
 
-        if (sender is not null)
+        if (string.IsNullOrWhiteSpace(request.Sku) || request.Quantity <= 0)
         {
-            var result = await sender.Send(
-                new ReserveStockCommand(orderId, request.Sku, request.Quantity),
-                context.CancellationToken);
             return new ReserveStockResponse
             {
-                ReservationId = result.ReservationId.ToString("D"),
-                IsSuccess = result.Success,
-                Message = result.Message
+                IsSuccess = false,
+                Message = "SKU is required and Quantity must be greater than zero"
             };
         }
 
-        var reservation = InventoryReservation.Create(orderId, request.Sku, request.Quantity);
-        dbContext.Reservations.Add(reservation);
-        await dbContext.SaveChangesAsync(context.CancellationToken);
-
+        var result = await sender.Send(
+            new ReserveStockCommand(orderId, request.Sku, request.Quantity),
+            context.CancellationToken);
         return new ReserveStockResponse
         {
-            ReservationId = reservation.Id.ToString(),
-            IsSuccess = true,
-            Message = "Stock reserved successfully"
+            ReservationId = result.ReservationId.ToString("D"),
+            IsSuccess = result.Success,
+            Message = result.Message
         };
     }
 
@@ -65,35 +56,11 @@ public class InventoryGrpcService(
             };
         }
 
-        if (sender is not null)
-        {
-            var released = await sender.Send(new ReleaseStockCommand(reservationId), context.CancellationToken);
-            return new ReleaseStockResponse
-            {
-                IsSuccess = released,
-                Message = released ? "Stock released successfully" : "Reservation not found"
-            };
-        }
-
-        var reservation = await dbContext.Reservations
-            .FirstOrDefaultAsync(r => r.Id == reservationId, context.CancellationToken);
-
-        if (reservation == null)
-        {
-            return new ReleaseStockResponse
-            {
-                IsSuccess = false,
-                Message = "Reservation not found"
-            };
-        }
-
-        reservation.Release();
-        await dbContext.SaveChangesAsync(context.CancellationToken);
-
+        var released = await sender.Send(new ReleaseStockCommand(reservationId), context.CancellationToken);
         return new ReleaseStockResponse
         {
-            IsSuccess = true,
-            Message = "Stock released successfully"
+            IsSuccess = released,
+            Message = released ? "Stock released successfully" : "Reservation not found"
         };
     }
 }

@@ -54,17 +54,19 @@ public class CreateOrderCommandHandlerCoverageTests
     }
 
     [Fact]
-    public async Task Handle_ContinuesWithClientPrice_WhenCatalogIsUnavailable()
+    public async Task Handle_UsesCachedPrice_WhenCatalogIsUnavailable()
     {
         var fixture = new HandlerFixture();
         fixture.Catalog.Setup(x => x.GetPriceSnapshotAsync(
                 It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .Throws(new RpcException(new Status(StatusCode.Unavailable, "catalog unavailable")));
+        fixture.OrderCache.Setup(x => x.GetCatalogPriceAsync("SKU-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(15m);
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 12)]), CancellationToken.None);
 
         fixture.Publisher.Verify(x => x.Publish(
-            It.Is<OrderCreated>(e => e.TotalAmount == 24m && e.Items.Single().UnitPrice == 12m),
+            It.Is<OrderCreated>(e => e.TotalAmount == 30m && e.Items.Single().UnitPrice == 15m),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -159,6 +161,9 @@ public class CreateOrderCommandHandlerCoverageTests
             Inventory.Setup(x => x.ReserveStockAsync(
                     It.IsAny<ReserveStockRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
                 .Returns(Call(new ReserveStockResponse { IsSuccess = inventorySucceeded, Message = "out of stock" }));
+            Catalog.Setup(x => x.GetPriceSnapshotAsync(
+                    It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+                .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = 50 }));
 
             Handler = new CreateOrderCommandHandler(
                 Context.Object, Publisher.Object, OrderCache.Object, BasketService.Object, Inventory.Object,

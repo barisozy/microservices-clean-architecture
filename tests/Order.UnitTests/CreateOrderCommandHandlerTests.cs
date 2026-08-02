@@ -48,6 +48,15 @@ public class CreateOrderCommandHandlerTests
         inventoryClientMock.Setup(x => x.ReserveStockAsync(It.IsAny<ReserveStockRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .Returns(reserveCall);
 
+        var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
+            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = 100 }),
+            Task.FromResult(new Metadata()),
+            () => Status.DefaultSuccess,
+            () => new Metadata(),
+            () => { });
+        catalogClientMock.Setup(x => x.GetPriceSnapshotAsync(It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .Returns(catalogCall);
+
         var handler = new CreateOrderCommandHandler(
             dbContextMock.Object,
             publishEndpointMock.Object,

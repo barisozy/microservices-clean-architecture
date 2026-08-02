@@ -105,7 +105,10 @@ public class CreateOrderCommandHandler(
         var finalItems = new List<OrderItem>();
         foreach (var item in orderItemsDto)
         {
-            decimal unitPrice = item.UnitPrice;
+            // Prices are a Catalog-owned concern. The request value is deliberately
+            // ignored: accepting it when Catalog is unavailable would let callers
+            // create orders at an arbitrary price.
+            decimal? unitPrice = null;
             try
             {
                 GetPriceSnapshotResponse priceSnapshot;
@@ -114,17 +117,19 @@ public class CreateOrderCommandHandler(
                     priceSnapshot = await catalogClient.GetPriceSnapshotAsync(
                         new GetPriceSnapshotRequest { Sku = item.Sku }, cancellationToken: cancellationToken);
                 }
-                if (priceSnapshot.Available && priceSnapshot.UnitPrice > 0)
+                if (!priceSnapshot.Available || priceSnapshot.UnitPrice <= 0)
                 {
-                    unitPrice = (decimal)priceSnapshot.UnitPrice;
-                    try
-                    {
-                        await orderCache.SetCatalogPriceAsync(item.Sku, unitPrice, cancellationToken);
-                    }
-                    catch (Exception exception)
-                    {
-                        logger.LogWarning(exception, "Could not cache catalog price for SKU {Sku}", item.Sku);
-                    }
+                    throw new OrderDomainException($"SKU '{item.Sku}' is unavailable in Catalog.");
+                }
+
+                unitPrice = (decimal)priceSnapshot.UnitPrice;
+                try
+                {
+                    await orderCache.SetCatalogPriceAsync(item.Sku, unitPrice.Value, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "Could not cache catalog price for SKU {Sku}", item.Sku);
                 }
             }
             catch (Exception ex)
@@ -149,18 +154,29 @@ public class CreateOrderCommandHandler(
                     "Catalog price snapshot failed for SKU {Sku}; cached snapshot availability: {HasCachedPrice}",
                     item.Sku,
                     cachedPrice.HasValue);
+
+                if (!unitPrice.HasValue)
+                {
+                    throw new OrderDomainException(
+                        $"Catalog price snapshot is unavailable for SKU '{item.Sku}', and no cached snapshot exists.",
+                        ex);
+                }
             }
 
             finalItems.Add(new OrderItem
             {
                 Sku = item.Sku,
                 Quantity = item.Quantity,
-                UnitPrice = unitPrice
+                UnitPrice = unitPrice!.Value
             });
         }
 
         // Sprint 1: Sync gRPC call to Inventory.Api — reserve stock BEFORE creating the order
-        var order = global::Order.Domain.Entities.Order.Create(request.CustomerId.ToString(), request.IdempotencyKey, finalItems);
+        var order = global::Order.Domain.Entities.Order.Create(
+            request.CustomerId,
+            request.KeycloakSubject,
+            request.IdempotencyKey,
+            finalItems);
 
         var reservationIds = new List<string>();
         foreach (var item in finalItems)
@@ -225,6 +241,8 @@ public class CreateOrderCommandHandler(
                 logger.LogWarning(ex, "Failed to apply coupon {Code}. Proceeding with original total.", request.CouponCode);
             }
         }
+
+        order.SetTotalAmount(totalAmount);
 
         context.Orders.Add(order);
 

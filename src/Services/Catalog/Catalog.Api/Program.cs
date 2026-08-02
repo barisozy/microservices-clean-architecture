@@ -1,12 +1,11 @@
 using Catalog.Api.Services;
 using Catalog.Application;
 using Catalog.Application.Common.Interfaces;
-using Catalog.Domain.Entities;
 using Catalog.Infrastructure;
 using Catalog.Infrastructure.Data;
-using ECommerce.Contracts.Events.v1;
 using ECommerce.ServiceDefaults;
-using MassTransit;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -58,24 +57,36 @@ app.UseOutputCache();
 app.MapGrpcService<CatalogGrpcService>()
     .RequireAuthorization();
 
-app.MapGet("/api/v{version:apiVersion}/catalog/products", async (CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/products", async (
+    ISender sender,
+    IValidator<GetProductsQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var products = await db.Products.ToListAsync();
-    return Results.Ok(products);
+    var query = new GetProductsQuery();
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(query, cancellationToken));
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
-app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}", async (string sku, CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}", async (
+    string sku,
+    ISender sender,
+    IValidator<GetProductQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var product = await db.Products.FirstOrDefaultAsync(p => p.Sku == sku);
+    var query = new GetProductQuery(sku);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var product = await sender.Send(query, cancellationToken);
     return product != null ? Results.Ok(product) : Results.NotFound();
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
 var createProductEndpoint = app.MapPost("/api/v{version:apiVersion}/catalog/products", async (
-    Product product,
+    CreateProductRequest request,
     ClaimsPrincipal principal,
-    CatalogDbContext db,
+    ISender sender,
+    IValidator<CreateProductCommand> validator,
     IIamPermissionChecker permissionChecker,
-    IPublishEndpoint publishEndpoint,
     CancellationToken cancellationToken) =>
 {
     if (!app.Environment.IsEnvironment("Testing"))
@@ -89,12 +100,16 @@ var createProductEndpoint = app.MapPost("/api/v{version:apiVersion}/catalog/prod
         }
     }
 
-    if (product.Id == Guid.Empty) product.Id = Guid.CreateVersion7();
-    db.Products.Add(product);
-    await publishEndpoint.Publish(
-        new ProductUpserted(product.Sku, product.Name, product.Price),
-        cancellationToken);
-    await db.SaveChangesAsync(cancellationToken);
+    var command = new CreateProductCommand(
+        request.Sku,
+        request.Name,
+        request.Description,
+        request.Price,
+        request.BrandId,
+        request.CategoryId);
+    var validation = await validator.ValidateAsync(command, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var product = await sender.Send(command, cancellationToken);
     return Results.Created($"/api/v1/catalog/products/{product.Sku}", product);
 });
 if (!app.Environment.IsEnvironment("Testing"))
@@ -102,34 +117,64 @@ if (!app.Environment.IsEnvironment("Testing"))
     createProductEndpoint.RequireAuthorization("AdminOnly");
 }
 
-app.MapGet("/api/v{version:apiVersion}/catalog/categories", async (CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/categories", async (
+    ISender sender,
+    IValidator<GetCategoriesQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var categories = await db.Categories.ToListAsync();
-    return Results.Ok(categories);
+    var query = new GetCategoriesQuery();
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(query, cancellationToken));
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
-app.MapGet("/api/v{version:apiVersion}/catalog/brands", async (CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/brands", async (
+    ISender sender,
+    IValidator<GetBrandsQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var brands = await db.Brands.ToListAsync();
-    return Results.Ok(brands);
+    var query = new GetBrandsQuery();
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    return Results.Ok(await sender.Send(query, cancellationToken));
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
-app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}/variants", async (string sku, CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}/variants", async (
+    string sku,
+    ISender sender,
+    IValidator<GetVariantsQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var product = await db.Products.FirstOrDefaultAsync(p => p.Sku == sku);
-    if (product == null) return Results.NotFound();
-    var variants = await db.Variants.Where(v => v.ProductId == product.Id).ToListAsync();
+    var query = new GetVariantsQuery(sku);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var variants = await sender.Send(query, cancellationToken);
+    if (variants is null) return Results.NotFound();
     return Results.Ok(variants);
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
-app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}/images", async (string sku, CatalogDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/catalog/products/{sku}/images", async (
+    string sku,
+    ISender sender,
+    IValidator<GetImagesQuery> validator,
+    CancellationToken cancellationToken) =>
 {
-    var product = await db.Products.FirstOrDefaultAsync(p => p.Sku == sku);
-    if (product == null) return Results.NotFound();
-    var images = await db.Images.Where(i => i.ProductId == product.Id).ToListAsync();
+    var query = new GetImagesQuery(sku);
+    var validation = await validator.ValidateAsync(query, cancellationToken);
+    if (!validation.IsValid) return Results.ValidationProblem(validation.ToDictionary());
+    var images = await sender.Send(query, cancellationToken);
+    if (images is null) return Results.NotFound();
     return Results.Ok(images);
 }).CacheOutput(p => p.Expire(TimeSpan.FromSeconds(5)));
 
 app.Run();
 
 public partial class Program;
+
+public sealed record CreateProductRequest(
+    string Sku,
+    string Name,
+    string Description,
+    decimal Price,
+    Guid BrandId,
+    Guid CategoryId);

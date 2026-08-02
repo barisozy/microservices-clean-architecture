@@ -105,7 +105,7 @@ public class InventoryCommandsTests
     }
 
     [Fact]
-    public async Task ReserveStock_ShouldCreateNewStock_IfNotFound()
+    public async Task ReserveStock_ShouldRejectUnknownSku_IfNotProvisioned()
     {
         var dbContextMock = new Mock<IInventoryDbContext>();
         var stocks = new List<Stock>();
@@ -118,8 +118,30 @@ public class InventoryCommandsTests
 
         var result = await handler.Handle(new ReserveStockCommand(Guid.NewGuid(), "SKU_NEW", 10), CancellationToken.None);
 
-        result.Success.ShouldBeTrue();
-        dbContextMock.Verify(x => x.Stocks.Add(It.IsAny<Stock>()), Times.Once);
+        result.Success.ShouldBeFalse();
+        result.Message.ShouldBe("Unknown SKU. Inventory must be provisioned before checkout.");
+        dbContextMock.Verify(x => x.Stocks.Add(It.IsAny<Stock>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ReserveStock_ShouldFailSafe_WhenOptimisticConcurrencyDetectsAConflict()
+    {
+        var dbContextMock = new Mock<IInventoryDbContext>();
+        dbContextMock.Setup(x => x.Stocks).ReturnsDbSet([new Stock("SKU1", 100)]);
+        dbContextMock.Setup(x => x.Reservations).ReturnsDbSet(new List<InventoryReservation>());
+        dbContextMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new DbUpdateConcurrencyException("conflict"));
+        var readRepoMock = new Mock<IStockReadRepository>();
+
+        var result = await new ReserveStockCommandHandler(dbContextMock.Object, readRepoMock.Object)
+            .Handle(new ReserveStockCommand(Guid.NewGuid(), "SKU1", 1), CancellationToken.None);
+
+        result.Success.ShouldBeFalse();
+        result.ReservationId.ShouldBe(Guid.Empty);
+        result.Message.ShouldContain("concurrently");
+        readRepoMock.Verify(
+            repository => repository.SetAvailableQuantityAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -136,5 +158,23 @@ public class InventoryCommandsTests
         var result = await handler.Handle(new ReleaseStockCommand(Guid.NewGuid()), CancellationToken.None);
 
         result.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ReleaseStock_ShouldBeIdempotent_WhenReservationWasAlreadyReleased()
+    {
+        var dbContextMock = new Mock<IInventoryDbContext>();
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 2);
+        reservation.Release();
+        dbContextMock.Setup(x => x.Reservations).ReturnsDbSet([reservation]);
+        var publishEndpointMock = new Mock<IPublishEndpoint>();
+        var readRepoMock = new Mock<IStockReadRepository>();
+
+        var result = await new ReleaseStockCommandHandler(dbContextMock.Object, publishEndpointMock.Object, readRepoMock.Object)
+            .Handle(new ReleaseStockCommand(reservation.Id), CancellationToken.None);
+
+        result.ShouldBeTrue();
+        publishEndpointMock.Verify(x => x.Publish(It.IsAny<StockReleased>(), It.IsAny<CancellationToken>()), Times.Never);
+        dbContextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
