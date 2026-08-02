@@ -1,6 +1,7 @@
 using Customer.Infrastructure.Consumers;
 using Customer.Infrastructure.Data;
 using Customer.Application.Common.Interfaces;
+using Customer.Application;
 using Customer.Infrastructure.Services;
 using ECommerce.Contracts.Protos;
 using ECommerce.ServiceDefaults.Interceptors;
@@ -27,6 +28,7 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "customer");
             });
         });
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddGrpcClient<IamService.IamServiceClient>(options =>
         {

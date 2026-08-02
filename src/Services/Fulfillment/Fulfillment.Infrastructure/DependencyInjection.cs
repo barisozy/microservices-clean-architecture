@@ -24,7 +24,12 @@ public class FulfillmentDbContext : DbContext, IFulfillmentDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("fulfillment");
-        modelBuilder.Entity<Shipment>(b => b.HasKey(s => s.OrderId));
+        modelBuilder.Entity<Shipment>(b =>
+        {
+            b.HasKey(s => s.OrderId);
+            b.Property(s => s.TrackingNumber).IsRequired().HasMaxLength(64);
+            b.HasIndex(s => s.TrackingNumber).IsUnique();
+        });
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();

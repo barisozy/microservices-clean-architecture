@@ -41,6 +41,7 @@ coveragereport/
 
 # Local runtime state
 .aspire/
+.tools/
 .local/
 *.pid
 *.pidb

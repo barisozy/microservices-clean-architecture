@@ -9,11 +9,11 @@ As the microservices grow, the read and write characteristics of the system dive
 ## Decision
 We will enforce CQRS (Command Query Responsibility Segregation) at the service level, backed by physical read/write separation:
 - **Write Model (PostgreSQL)**: All commands (e.g., creating orders, reserving stock) are executed against the domain entities and persisted to PostgreSQL using EF Core.
-- **Read Model (Valkey)**: Upon a successful write, a pre-computed read model is updated and persisted to Valkey (Redis-compatible cache). All queries fetch data directly from Valkey via specialized ReadRepositories, achieving O(1) read performance.
+- **Read Model**: Each service uses a dedicated read path rather than exposing its write-side DbContext to API endpoints. Latency-sensitive projections such as Order and Inventory availability are maintained in Valkey (Redis-compatible cache); Search owns a PostgreSQL `tsvector` read model, while Catalog, Customer, Promotion, IAM and Audit use service-local query repositories with output/cache policies where appropriate.
 
 ## Consequences
 **Positive:**
-- Blazing fast read operations (sub-millisecond) offloading pressure from PostgreSQL.
+- Blazing fast read operations for Valkey-backed projections while preserving service-specific search and compliance query capabilities.
 - Clean separation of concerns in the Application layer (MediatR Commands vs. Queries).
 - Independent scaling of read and write storage layers.
 

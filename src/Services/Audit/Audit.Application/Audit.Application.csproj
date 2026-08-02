@@ -7,6 +7,8 @@
   <ItemGroup>
     <PackageReference Include="MediatR" />
     <PackageReference Include="MassTransit" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Audit.Domain\Audit.Domain.csproj" />

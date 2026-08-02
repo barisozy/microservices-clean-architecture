@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Search.Infrastructure.Consumers;
 using Search.Infrastructure.Data;
+using Search.Application;
 
 namespace Search.Infrastructure;
 
@@ -23,6 +24,7 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "search");
             });
         });
+        services.AddScoped<ISearchReadRepository, SearchReadRepository>();
 
         services.AddMassTransit(x =>
         {

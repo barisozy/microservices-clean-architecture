@@ -53,10 +53,12 @@ public class Orders : IEndpointGroup
     }
 
     private static async Task<Results<Ok<OrderStatusDto>, NotFound>> GetOrder(
+        HttpContext httpContext,
         ISender sender,
         Guid orderId)
     {
-        var result = await sender.Send(new GetOrderQuery(orderId));
+        var buyerId = GetUserId(httpContext).ToString("D");
+        var result = await sender.Send(new GetOrderQuery(orderId, buyerId));
         if (result is null) return TypedResults.NotFound();
         return TypedResults.Ok(result);
     }

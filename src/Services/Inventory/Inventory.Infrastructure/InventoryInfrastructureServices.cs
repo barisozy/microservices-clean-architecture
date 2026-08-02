@@ -38,6 +38,7 @@ namespace Inventory.Infrastructure.Data
             builder.ToTable("InventoryReservations", "inventory");
             builder.HasKey(r => r.Id);
             builder.Property(r => r.Sku).IsRequired().HasMaxLength(100);
+            builder.HasIndex(r => new { r.OrderId, r.Sku }).IsUnique();
         }
     }
 
@@ -45,10 +46,17 @@ namespace Inventory.Infrastructure.Data
     {
         public void Configure(EntityTypeBuilder<Stock> builder)
         {
-            builder.ToTable("Stocks", "inventory");
+            builder.ToTable("Stocks", "inventory", table =>
+            {
+                table.HasCheckConstraint("CK_Stocks_Quantity_NonNegative", "\"Quantity\" >= 0");
+                table.HasCheckConstraint(
+                    "CK_Stocks_ReservedQuantity_Range",
+                    "\"ReservedQuantity\" >= 0 AND \"ReservedQuantity\" <= \"Quantity\"");
+            });
             builder.HasKey(s => s.Id);
             builder.Property(s => s.Sku).IsRequired().HasMaxLength(100);
             builder.HasIndex(s => s.Sku).IsUnique();
+            builder.Property<uint>("xmin").IsRowVersion();
         }
     }
 

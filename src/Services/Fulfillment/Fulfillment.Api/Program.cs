@@ -1,7 +1,9 @@
 using ECommerce.ServiceDefaults;
 using Fulfillment.Application;
 using Fulfillment.Application.Common.Interfaces;
+using Fulfillment.Application.Shipments;
 using Fulfillment.Infrastructure;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -43,9 +45,12 @@ app.UseProblemDetailsStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/api/v{version:apiVersion}/fulfillment/shipments/{orderId:guid}", async (Guid orderId, IFulfillmentDbContext db) =>
+app.MapGet("/api/v{version:apiVersion}/fulfillment/shipments/{orderId:guid}", async (
+    Guid orderId,
+    ISender sender,
+    CancellationToken cancellationToken) =>
 {
-    var shipment = await db.Shipments.FirstOrDefaultAsync(s => s.OrderId == orderId);
+    var shipment = await sender.Send(new GetShipmentQuery(orderId), cancellationToken);
     return shipment != null ? Results.Ok(shipment) : Results.NotFound();
 }).RequireAuthorization();
 

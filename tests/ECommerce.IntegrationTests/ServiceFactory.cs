@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Data;
 using StackExchange.Redis;
 
 namespace ECommerce.IntegrationTests;
@@ -42,6 +44,8 @@ public sealed class ServiceFactory<TProgram> : WebApplicationFactory<TProgram>
             ["ConnectionStrings:InventoryDb"] = _fixture.PostgresConnectionString,
             ["ConnectionStrings:PaymentDb"] = _fixture.PostgresConnectionString,
             ["ConnectionStrings:FulfillmentDb"] = _fixture.PostgresConnectionString,
+            ["ConnectionStrings:CatalogDb"] = _fixture.PostgresConnectionString,
+            ["ConnectionStrings:catalog_db"] = _fixture.PostgresConnectionString,
             ["ConnectionStrings:rabbitmq"] = _fixture.RabbitMqConnectionString,
             ["ConnectionStrings:valkey"] = _fixture.ValkeyConnectionString,
             ["Jwt:Authority"] = _fixture.KeycloakAuthority,
@@ -65,6 +69,19 @@ public sealed class ServiceFactory<TProgram> : WebApplicationFactory<TProgram>
         builder.ConfigureAppConfiguration(configuration => configuration.AddInMemoryCollection(config));
         builder.ConfigureServices(services =>
         {
+            if (typeof(TProgram) == typeof(Catalog.Api.ICatalogApiMarker))
+            {
+                services.RemoveAll<CatalogDbContext>();
+                services.RemoveAll<DbContextOptions<CatalogDbContext>>();
+                services.AddDbContext<CatalogDbContext>(options => options.UseNpgsql(
+                    _fixture.PostgresConnectionString,
+                    npgsql =>
+                    {
+                        npgsql.SetPostgresVersion(18, 0);
+                        npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog");
+                    }));
+            }
+
             services.RemoveAll<IExceptionHandler>();
             services.AddSingleton<IExceptionHandler, TestExceptionHandler>();
 
@@ -90,6 +107,11 @@ public sealed class ServiceFactory<TProgram> : WebApplicationFactory<TProgram>
                 services.AddGrpcClient<InventoryService.InventoryServiceClient>(options =>
                         options.Address = new Uri("http://inventory.integration.test"))
                     .ConfigurePrimaryHttpMessageHandler(_ => _orderDependencies.CreateInventoryHandler());
+
+                services.RemoveAll<CatalogService.CatalogServiceClient>();
+                services.AddGrpcClient<CatalogService.CatalogServiceClient>(options =>
+                        options.Address = new Uri("http://catalog.integration.test"))
+                    .ConfigurePrimaryHttpMessageHandler(_ => _orderDependencies.CreateCatalogHandler());
             }
 
             services.RemoveAll<IConnectionMultiplexer>();
@@ -111,10 +133,14 @@ internal sealed class TestExceptionHandler : IExceptionHandler
 
 public sealed class OrderServiceDependencies(
     WebApplicationFactory<Inventory.Api.IInventoryApiMarker> inventoryFactory,
+    WebApplicationFactory<Catalog.Api.ICatalogApiMarker> catalogFactory,
     string accessToken)
 {
     public HttpMessageHandler CreateInventoryHandler() =>
         new BearerTokenHandler(inventoryFactory.Server.CreateHandler(), accessToken);
+
+    public HttpMessageHandler CreateCatalogHandler() =>
+        new BearerTokenHandler(catalogFactory.Server.CreateHandler(), accessToken);
 
     private sealed class BearerTokenHandler(HttpMessageHandler innerHandler, string token) : DelegatingHandler(innerHandler)
     {

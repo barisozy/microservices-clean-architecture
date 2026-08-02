@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Reflection;
 using ECommerce.Auditing;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -119,14 +118,17 @@ public class OrderInfrastructureTests
         using var context = new OrderDbContext(options);
         var order = global::Order.Domain.Entities.Order.Create("buyer", "key", []);
         context.Orders.Add(order);
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(x => x.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        var interceptor = new DispatchDomainEventsInterceptor(mediator.Object);
+        var dispatcher = new Mock<IDomainEventDispatcher>();
+        dispatcher.Setup(x => x.Dispatch(It.IsAny<Order.Domain.Common.BaseEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var interceptor = new DispatchDomainEventsInterceptor(dispatcher.Object);
 
         var method = typeof(DispatchDomainEventsInterceptor).GetMethod("DispatchDomainEvents", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        await (Task)method.Invoke(interceptor, [context])!;
+        await (Task)method.Invoke(interceptor, [context, CancellationToken.None])!;
 
-        mediator.Invocations.Count(invocation => invocation.Method.Name == nameof(IMediator.Publish)).ShouldBe(1);
+        dispatcher.Verify(
+            value => value.Dispatch(It.IsAny<Order.Domain.Common.BaseEvent>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         order.DomainEvents.ShouldBeEmpty();
     }
 

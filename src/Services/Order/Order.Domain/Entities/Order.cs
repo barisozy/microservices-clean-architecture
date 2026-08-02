@@ -23,6 +23,9 @@ public class OrderItem : BaseEntity
 public class Order : BaseAuditableEntity
 {
     public string BuyerId { get; set; } = string.Empty;
+    public Guid CustomerId { get; private set; }
+    public Guid KeycloakSubject { get; private set; }
+    public decimal TotalAmount { get; private set; }
     /// <summary>
     /// Plan Sprint 1: IdempotencyKey (Guid v7, caller-generated) — UNIQUE constraint on Orders.
     /// A repeated key returns the original 201 body instead of creating a second order.
@@ -47,6 +50,28 @@ public class Order : BaseAuditableEntity
 
         order.AddDomainEvent(new OrderCreatedDomainEvent(order));
         return order;
+    }
+
+    public static Order Create(
+        Guid customerId,
+        Guid keycloakSubject,
+        string idempotencyKey,
+        List<OrderItem> items)
+    {
+        if (customerId == Guid.Empty) throw new OrderDomainException("CustomerId is required.");
+        if (keycloakSubject == Guid.Empty) throw new OrderDomainException("KeycloakSubject is required.");
+
+        var order = Create(keycloakSubject.ToString("D"), idempotencyKey, items);
+        order.CustomerId = customerId;
+        order.KeycloakSubject = keycloakSubject;
+        order.TotalAmount = items.Sum(item => item.Quantity * item.UnitPrice);
+        return order;
+    }
+
+    public void SetTotalAmount(decimal totalAmount)
+    {
+        if (totalAmount < 0) throw new OrderDomainException("Order total cannot be negative.");
+        TotalAmount = totalAmount;
     }
 
     public void Cancel(string reason)

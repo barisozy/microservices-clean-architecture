@@ -72,9 +72,13 @@ namespace Fulfillment.Infrastructure.Data.Migrations
 
                     b.Property<string>("TrackingNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("OrderId");
+
+                    b.HasIndex("TrackingNumber")
+                        .IsUnique();
 
                     b.ToTable("Shipments", "fulfillment");
                 });

@@ -1,8 +1,11 @@
 using System.Net.Http.Json;
 using ECommerce.Contracts.Events.v1;
 using ECommerce.Contracts.Protos;
+using Catalog.Domain.Entities;
+using Catalog.Infrastructure.Data;
 using Fulfillment.Infrastructure;
 using Inventory.Infrastructure.Data;
+using Inventory.Domain.Entities;
 using MassTransit;
 using MassTransit.EntityFrameworkCoreIntegration;
 using Grpc.Net.Client;
@@ -27,6 +30,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
     private ServiceFactory<Inventory.Api.IInventoryApiMarker> _inventoryFactory = null!;
     private ServiceFactory<Payment.Api.IPaymentApiMarker> _paymentFactory = null!;
     private ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker> _fulfillmentFactory = null!;
+    private ServiceFactory<Catalog.Api.ICatalogApiMarker> _catalogFactory = null!;
     private ServiceFactory<Order.Api.IOrderApiMarker> _orderFactory = null!;
     private HttpClient _orderClient = null!;
     private string _accessToken = string.Empty;
@@ -39,14 +43,18 @@ public sealed class OrderE2ETest : IAsyncLifetime
         _inventoryFactory = new ServiceFactory<Inventory.Api.IInventoryApiMarker>(_infra);
         _paymentFactory = new ServiceFactory<Payment.Api.IPaymentApiMarker>(_infra);
         _fulfillmentFactory = new ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker>(_infra);
+        _catalogFactory = new ServiceFactory<Catalog.Api.ICatalogApiMarker>(_infra);
 
         _inventoryFactory.CreateClient().Dispose();
         _paymentFactory.CreateClient().Dispose();
         _fulfillmentFactory.CreateClient().Dispose();
+        _catalogFactory.CreateClient().Dispose();
+
+        await SeedCatalogAndInventoryAsync();
 
         _orderFactory = new ServiceFactory<Order.Api.IOrderApiMarker>(
             _infra,
-            orderDependencies: new OrderServiceDependencies(_inventoryFactory, _accessToken));
+            orderDependencies: new OrderServiceDependencies(_inventoryFactory, _catalogFactory, _accessToken));
         _orderClient = _orderFactory.CreateClient();
         _orderClient.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
@@ -57,6 +65,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
         _orderClient.Dispose();
         _orderFactory.Dispose();
         _fulfillmentFactory.Dispose();
+        _catalogFactory.Dispose();
         _paymentFactory.Dispose();
         _inventoryFactory.Dispose();
         return ValueTask.CompletedTask;
@@ -67,7 +76,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
     {
         using var channel = GrpcChannel.ForAddress("http://inventory.integration.test", new GrpcChannelOptions
         {
-            HttpHandler = new OrderServiceDependencies(_inventoryFactory, _accessToken).CreateInventoryHandler()
+            HttpHandler = new OrderServiceDependencies(_inventoryFactory, _catalogFactory, _accessToken).CreateInventoryHandler()
         });
         var client = new InventoryService.InventoryServiceClient(channel);
         var result = await client.ReserveStockAsync(new ReserveStockRequest
@@ -177,6 +186,41 @@ public sealed class OrderE2ETest : IAsyncLifetime
         var orderId = await response.Content.ReadFromJsonAsync<Guid>(TestContext.Current.CancellationToken);
         orderId.ShouldNotBe(Guid.Empty);
         return orderId;
+    }
+
+    private async Task SeedCatalogAndInventoryAsync()
+    {
+        var skus = new[] { "PROD-SUCCESS", "PROD-IDEMPOTENT", "FAIL_PAYMENT-SKU", "GRPC-AUTH-CHECK" };
+
+        using (var scope = _catalogFactory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+            foreach (var sku in skus)
+            {
+                if (!await db.Products.AnyAsync(product => product.Sku == sku, TestContext.Current.CancellationToken))
+                {
+                    db.Products.Add(new Product
+                    {
+                        Sku = sku,
+                        Name = $"Integration {sku}",
+                        Description = "Integration test product",
+                        Price = 100m
+                    });
+                }
+            }
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
+        using (var scope = _inventoryFactory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            foreach (var sku in skus)
+            {
+                if (!await db.Stocks.AnyAsync(stock => stock.Sku == sku, TestContext.Current.CancellationToken))
+                    db.Stocks.Add(new Stock(sku, 100));
+            }
+            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
     }
 
     private async Task<string> GetPaymentDeliveryDiagnosticsAsync()

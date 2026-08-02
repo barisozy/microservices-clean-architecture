@@ -6,10 +6,10 @@ Accepted
 The e-commerce platform requires high scalability, fault isolation, and the ability for multiple teams to work independently. A monolithic architecture would couple all domains (Order, Inventory, Fulfillment, Payment) together, making independent scaling and deployments difficult. Additionally, we need a way to organize code within each service to separate domain logic from infrastructure concerns.
 
 ## Decision
-We will use a **Microservices Architecture** grouped by bounded contexts (Order, Inventory, Fulfillment, Payment).
+We will use a **Microservices Architecture** grouped by bounded contexts: Gateway, Order, Inventory, Payment, Fulfillment, IAM, Catalog, Customer, Search, Notification, Promotion and Audit.
 Each microservice will follow **Clean Architecture / Domain-Driven Design (DDD)** principles, separating layers into:
 - **Domain**: Core business entities and rules.
-- **Application**: Use cases, MediatR handlers, and interfaces.
+- **Application**: Use cases, MediatR handlers, validation and interfaces.
 - **Infrastructure**: Database access, external services, and messaging configurations.
 - **Presentation (API/Gateways)**: API endpoints and routing.
 
