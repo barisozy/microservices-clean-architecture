@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-and-coverage:
-    name: Run Tests and Generate Coverage
+    name: Unit, Integration, Contract & Coverage
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,31 +28,68 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore ECommerce.sln
 
-      - name: Test & Collect Coverage
+      - name: Unit tests with coverage
         run: |
-          dotnet test tests/Auditing.UnitTests/Auditing.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
-          dotnet test tests/Ordering.UnitTests/Ordering.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
-          dotnet test tests/Inventory.UnitTests/Inventory.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
-          dotnet test tests/Fulfillment.UnitTests/Fulfillment.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
-          dotnet test tests/Payments.UnitTests/Payments.UnitTests.csproj --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+          dotnet test ECommerce.UnitTests.slnf \
+            --configuration Release \
+            --no-restore \
+            --disable-build-servers \
+            -m:1 \
+            --settings coverage.runsettings \
+            --logger "trx;LogFilePrefix=unit" \
+            --results-directory artifacts/test-results/unit
 
-      - name: Generate Report
+      - name: Integration tests
+        run: |
+          dotnet test ECommerce.IntegrationTests.slnf \
+            --configuration Release \
+            --no-restore \
+            --disable-build-servers \
+            -m:1 \
+            --logger "trx;LogFilePrefix=integration" \
+            --results-directory artifacts/test-results/integration
+
+      - name: Contract tests
+        run: |
+          dotnet test ECommerce.ContractTests.slnf \
+            --configuration Release \
+            --no-restore \
+            --disable-build-servers \
+            -m:1 \
+            --logger "trx;LogFilePrefix=contract" \
+            --results-directory artifacts/test-results/contract
+
+      - name: Generate Coverage Report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
-          reports: './coverage/**/coverage.cobertura.xml'
-          targetdir: './coveragereport'
-          reporttypes: 'Html;MarkdownSummary'
-          assemblyfilters: '+*.Domain;+*.Application;+ECommerce.Auditing;+Auditing.Api'
-          classfilters: '-ECommerce.Contracts.*;-*Exception;-*Dto;-*Event;-*BaseAuditableEntity;-*BaseEntity;-*Generated*'
+          reports: 'artifacts/test-results/unit/*/coverage.cobertura.xml'
+          targetdir: 'artifacts/coverage/core'
+          reporttypes: 'Html;MarkdownSummary;JsonSummary'
+          assemblyfilters: '+*.Domain;+*.Application;+ECommerce.Audit'
 
-      - name: Publish Summary
-        run: cat ./coveragereport/Summary.md >> $GITHUB_STEP_SUMMARY
+      - name: Publish Summary to GitHub Step Summary
+        run: cat artifacts/coverage/core/Summary.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Extract Coverage Percentage
+      - name: Enforce Production Coverage Threshold (Min 80%)
         run: |
-          COVERAGE=$(grep -oP '\*\*Line coverage:\*\*\s*\|\s*\K[0-9.]+' ./coveragereport/Summary.md | head -1)
-          if [ -z "$COVERAGE" ]; then COVERAGE="0"; fi
+          COVERAGE=$(jq -r '.summary.linecoverage // 0' artifacts/coverage/core/Summary.json)
           echo "COVERAGE_PERCENTAGE=$COVERAGE" >> $GITHUB_ENV
+          python3 -c "import sys; sys.exit(0 if float('$COVERAGE') >= 80.0 else 1)" || {
+            echo "::error::Domain/Application line coverage is ${COVERAGE}%; minimum threshold is 80%."
+            exit 1
+          }
+
+      - name: Upload test and coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-and-coverage
+          path: |
+            artifacts/test-results/**/*.trx
+            artifacts/test-results/unit/*/coverage.cobertura.xml
+            artifacts/coverage/core
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Create Coverage Badge
         uses: Schneegans/dynamic-badges-action@v1.7.0
@@ -61,6 +98,6 @@ jobs:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: ${{ secrets.GIST_ID }}
           filename: coverage.json
-          label: Test Coverage
+          label: Core Test Coverage
           message: ${{ env.COVERAGE_PERCENTAGE }}%
           color: green

@@ -28,6 +28,10 @@ public class FulfillmentConsumersTests
         contextMock.Setup(x => x.Tasks).ReturnsDbSet(tasksList);
         contextMock.Setup(x => x.Tasks.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(t => tasksList.Add(t));
 
+        var shipmentsList = new List<Shipment>();
+        contextMock.Setup(x => x.Shipments).ReturnsDbSet(shipmentsList);
+        contextMock.Setup(x => x.Shipments.Add(It.IsAny<Shipment>())).Callback<Shipment>(s => shipmentsList.Add(s));
+
         var readRepoMock = new Mock<IFulfillmentReadRepository>();
 
         var consumer = new PaymentCompletedConsumer(contextMock.Object, publishMock.Object, loggerMock.Object, readRepoMock.Object);

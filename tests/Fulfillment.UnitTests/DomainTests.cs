@@ -1,6 +1,7 @@
 using System;
 using Fulfillment.Domain.Common;
 using Fulfillment.Domain.Entities;
+using Fulfillment.Domain.Events;
 using Shouldly;
 using Xunit;
 
@@ -59,6 +60,16 @@ public class DomainTests
         task.CreatedBy.ShouldBe("user-1");
         task.LastModifiedAt.ShouldBe(now);
         task.LastModifiedBy.ShouldBe("user-2");
+    }
+
+    [Fact]
+    public void OrderShippedDomainEvent_ShouldRetainFulfillmentTask()
+    {
+        var task = new FulfillmentTask { OrderId = Guid.NewGuid(), TrackingNumber = "TRACK-99" };
+
+        var domainEvent = new OrderShippedDomainEvent(task);
+
+        domainEvent.Task.ShouldBe(task);
     }
 
 }

@@ -1,0 +1,44 @@
+<Project>
+  <!-- A nested Directory.Build.props must explicitly import the repository defaults. -->
+  <Import Project="..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <RunSettingsFilePath>$(MSBuildThisFileDirectory)..\.runsettings</RunSettingsFilePath>
+
+    <TestSuite Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.UnitTests'))">Unit</TestSuite>
+    <TestSuite Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.IntegrationTests'))">Integration</TestSuite>
+    <TestSuite Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.ContractTests'))">Contract</TestSuite>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+    <AssemblyAttribute Include="Xunit.TraitAttribute" Condition="'$(TestSuite)' != ''">
+      <_Parameter1>Category</_Parameter1>
+      <_Parameter2>$(TestSuite)</_Parameter2>
+    </AssemblyAttribute>
+    <None Include="$(MSBuildThisFileDirectory)xunit.runner.json"
+          Link="xunit.runner.json"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <Target Name="ValidateTestSuiteConvention" BeforeTargets="CoreCompile" Condition="'$(TestSuite)' == ''">
+    <Error Text="Test project '$(MSBuildProjectName)' must end with .UnitTests, .IntegrationTests, or .ContractTests." />
+  </Target>
+</Project>

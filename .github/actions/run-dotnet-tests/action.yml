@@ -1,0 +1,28 @@
+name: Run .NET test suite
+description: Runs one test project with deterministic repository-wide settings.
+
+inputs:
+  project:
+    description: Test project path relative to the repository root.
+    required: true
+  result-name:
+    description: Stable TRX file prefix and result directory name.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Restore test project
+      shell: bash
+      run: dotnet restore "${{ inputs.project }}"
+
+    - name: Run test project
+      shell: bash
+      run: |
+        dotnet test "${{ inputs.project }}" \
+          --configuration Release \
+          --no-restore \
+          --disable-build-servers \
+          -m:1 \
+          --logger "trx;LogFileName=${{ inputs.result-name }}.trx" \
+          --results-directory "artifacts/test-results/${{ inputs.result-name }}"
