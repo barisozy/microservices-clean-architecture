@@ -44,7 +44,7 @@ public class LoggingBehavior<TRequest> : IRequestPreProcessor<TRequest>
     public Task Process(TRequest request, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        _logger.LogInformation("Fulfillment Request: {Name} {@Request}", requestName, request);
+        _logger.LogInformation("Handling Fulfillment request {RequestName}", requestName);
         return Task.CompletedTask;
     }
 }
@@ -68,7 +68,7 @@ public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior
         catch (Exception ex)
         {
             var requestName = typeof(TRequest).Name;
-            _logger.LogError(ex, "Fulfillment Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
+            _logger.LogError(ex, "Unhandled exception for Fulfillment request {RequestName}", requestName);
             throw;
         }
     }

@@ -1,0 +1,49 @@
+using System.Diagnostics.Metrics;
+using ECommerce.Contracts.Events.v1;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Order.Application.Common.Interfaces;
+
+namespace Order.Application.Consumers;
+
+public class PaymentFailedConsumer(
+    IOrderDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ILogger<PaymentFailedConsumer> logger) : IConsumer<PaymentFailed>
+{
+    private static readonly Meter Meter = new("Order.Api");
+    private static readonly Counter<long> CompensationCount =
+        Meter.CreateCounter<long>("saga.compensation.count");
+
+    public async Task Consume(ConsumeContext<PaymentFailed> context)
+    {
+        var message = context.Message;
+        logger.LogWarning("Processing PaymentFailed event for OrderId {OrderId}, Reason: {Reason}",
+            message.OrderId, message.Reason);
+
+        var order = await dbContext.Orders
+            .FirstOrDefaultAsync(o => o.Id == message.OrderId, context.CancellationToken);
+
+        if (order == null)
+        {
+            logger.LogWarning("Order {OrderId} not found for PaymentFailed compensation", message.OrderId);
+            return;
+        }
+
+        if (order.Status == Order.Domain.Entities.OrderStatus.Cancelled)
+        {
+            return;
+        }
+
+        order.Cancel($"Payment failed: {message.Reason}");
+        await publishEndpoint.Publish(new OrderCancelled(
+            message.OrderId,
+            message.Reason,
+            DateTimeOffset.UtcNow), context.CancellationToken);
+        await dbContext.SaveChangesAsync(context.CancellationToken);
+        CompensationCount.Add(1);
+
+        logger.LogInformation("Order {OrderId} cancelled and OrderCancelled event published", message.OrderId);
+    }
+}

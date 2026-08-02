@@ -85,22 +85,22 @@ services:
 
   # ─── Microservices ──────────────────────────────────────────────────────────
 
-  ordering-api:
-    image: ecommerce-ordering-api:latest
+  Order-api:
+    image: ecommerce-Order-api:latest
     build:
       context: .
-      dockerfile: src/Services/Ordering/Ordering.Api/Dockerfile
+      dockerfile: src/Services/Order/Order.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__OrderingDb: "Host=postgres;Database=ordering_db;Username=postgres;Password=postgres"
+      ConnectionStrings__OrderDb: "Host=postgres;Database=Order_db;Username=postgres;Password=postgres"
       ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
       ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
       Jwt__ValidateIssuer: "false"
       Services__InventoryApi: "http://inventory-api:8080"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: ordering-api
+      OTEL_SERVICE_NAME: Order-api
     networks:
       - ecommerce-net
     healthcheck:
@@ -134,21 +134,21 @@ services:
       retries: 3
       start_period: 30s
 
-  payments-api:
-    image: ecommerce-payments-api:latest
+  Payment-api:
+    image: ecommerce-Payment-api:latest
     build:
       context: .
-      dockerfile: src/Services/Payments/Payments.Api/Dockerfile
+      dockerfile: src/Services/Payment/Payment.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__PaymentsDb: "Host=postgres;Database=payments_db;Username=postgres;Password=postgres"
+      ConnectionStrings__PaymentDb: "Host=postgres;Database=Payment_db;Username=postgres;Password=postgres"
       ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
       ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
       Jwt__ValidateIssuer: "false"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: payments-api
+      OTEL_SERVICE_NAME: Payment-api
     networks:
       - ecommerce-net
     healthcheck:
@@ -182,18 +182,18 @@ services:
       retries: 3
       start_period: 30s
 
-  auditing-api:
-    image: ecommerce-auditing-api:latest
+  Audit-api:
+    image: ecommerce-Audit-api:latest
     build:
       context: .
-      dockerfile: src/Services/Auditing/Auditing.Api/Dockerfile
+      dockerfile: src/Services/Audit/Audit.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__AuditingDb: "Host=postgres;Database=auditing_db;Username=postgres;Password=postgres"
+      ConnectionStrings__AuditDb: "Host=postgres;Database=Audit_db;Username=postgres;Password=postgres"
       ConnectionStrings__rabbitmq: "amqp://guest:guest@rabbitmq:5672"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: auditing-api
+      OTEL_SERVICE_NAME: Audit-api
     networks:
       - ecommerce-net
     healthcheck:
@@ -214,9 +214,9 @@ services:
       ConnectionStrings__valkey: "valkey:6379"
       Jwt__Authority: "http://keycloak:8080/realms/ecommerce"
       Jwt__ValidateIssuer: "false"
-      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
+      ReverseProxy__Clusters__Order-cluster__Destinations__destination1__Address: "http://Order-api:8080"
       ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: "http://inventory-api:8080"
-      ReverseProxy__Clusters__payments-cluster__Destinations__destination1__Address: "http://payments-api:8080"
+      ReverseProxy__Clusters__Payment-cluster__Destinations__destination1__Address: "http://Payment-api:8080"
       ReverseProxy__Clusters__fulfillment-cluster__Destinations__destination1__Address: "http://fulfillment-api:8080"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
       OTEL_SERVICE_NAME: gateway
@@ -224,7 +224,6 @@ services:
       - "8080:8080"
     networks:
       - ecommerce-net
-
   # ─── Observability ────────────────────────────────────────────────
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.110.0
@@ -237,7 +236,6 @@ services:
       - "8889:8889" # Prometheus metrics endpoint
     networks:
       - ecommerce-net
-
   prometheus:
     image: prom/prometheus:v2.54.1
     command:
@@ -251,4 +249,3 @@ services:
       - "9090:9090"
     networks:
       - ecommerce-net
-

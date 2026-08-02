@@ -44,7 +44,7 @@ public class LoggingBehavior<TRequest> : IRequestPreProcessor<TRequest>
     public Task Process(TRequest request, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        _logger.LogInformation("Inventory Request: {Name} {@Request}", requestName, request);
+        _logger.LogInformation("Handling Inventory request {RequestName}", requestName);
         return Task.CompletedTask;
     }
 }
@@ -68,7 +68,7 @@ public class UnhandledExceptionBehavior<TRequest, TResponse> : IPipelineBehavior
         catch (Exception ex)
         {
             var requestName = typeof(TRequest).Name;
-            _logger.LogError(ex, "Inventory Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
+            _logger.LogError(ex, "Unhandled exception for Inventory request {RequestName}", requestName);
             throw;
         }
     }

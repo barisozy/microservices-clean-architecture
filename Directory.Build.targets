@@ -1,0 +1,41 @@
+<Project>
+  <!--
+    Architectural constraints are executable: an onion-boundary violation must
+    fail locally and in CI instead of relying on review discipline.
+  -->
+  <PropertyGroup>
+    <_ServicesRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)src/Services'))</_ServicesRoot>
+    <_CurrentServiceRoot Condition="$([System.String]::Copy('$(MSBuildProjectDirectory)').StartsWith('$(_ServicesRoot)'))">$([System.IO.Directory]::GetParent('$(MSBuildProjectDirectory)').FullName)</_CurrentServiceRoot>
+  </PropertyGroup>
+
+  <Target Name="ValidateOnionArchitecture" BeforeTargets="PrepareForBuild">
+    <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Domain'))">
+      <_ForbiddenDomainPackage Include="@(PackageReference)"
+        Condition="'%(Identity)' != 'MediatR'" />
+      <_ForbiddenDomainProjectReference Include="@(ProjectReference)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Application'))">
+      <_ForbiddenApplicationPackage Include="@(PackageReference)"
+        Condition="'%(Identity)' == 'Npgsql.EntityFrameworkCore.PostgreSQL'
+          Or '%(Identity)' == 'StackExchange.Redis'
+          Or '%(Identity)' == 'MassTransit.RabbitMQ'
+          Or '%(Identity)' == 'Grpc.AspNetCore'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(_CurrentServiceRoot)' != ''">
+      <_CrossServiceProjectReference Include="@(ProjectReference)"
+        Condition="$([System.String]::Copy('%(FullPath)').StartsWith('$(_ServicesRoot)'))
+          And !$([System.String]::Copy('%(FullPath)').StartsWith('$(_CurrentServiceRoot)'))" />
+    </ItemGroup>
+
+    <Error Condition="'@(_ForbiddenDomainPackage)' != ''"
+      Text="Onion violation in $(MSBuildProjectName): Domain may only reference MediatR for the INotification marker. Forbidden packages: @(_ForbiddenDomainPackage, ', ')." />
+    <Error Condition="'@(_ForbiddenDomainProjectReference)' != ''"
+      Text="Onion violation in $(MSBuildProjectName): Domain projects cannot reference compiled projects. References: @(_ForbiddenDomainProjectReference, ', ')." />
+    <Error Condition="'@(_ForbiddenApplicationPackage)' != ''"
+      Text="Onion violation in $(MSBuildProjectName): Application references infrastructure packages: @(_ForbiddenApplicationPackage, ', ')." />
+    <Error Condition="'@(_CrossServiceProjectReference)' != ''"
+      Text="Microservice isolation violation in $(MSBuildProjectName): cross-service ProjectReference detected: @(_CrossServiceProjectReference, ', ')." />
+  </Target>
+</Project>

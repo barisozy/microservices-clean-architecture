@@ -6,6 +6,27 @@
     <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <DefaultItemExcludes>$(DefaultItemExcludes);**/coveragereport/**;**/coverage/**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/coveragereport/**;**/coverage/**;**/TestResults/**;**/test-results/**;**/coverage*.xml;**/coverage*.json;**/coverage*.info;**/covarage*.xml</DefaultItemExcludes>
   </PropertyGroup>
+
+  <!-- Generated contracts and orchestration bootstrap code are not product coverage targets. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'ECommerce.Contracts' or '$(MSBuildProjectName)' == 'ECommerce.AppHost'">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Infrastructure'))">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Api'))">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>

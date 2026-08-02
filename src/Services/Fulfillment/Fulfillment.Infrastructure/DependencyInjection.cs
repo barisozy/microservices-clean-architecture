@@ -18,17 +18,18 @@ public class FulfillmentDbContext : DbContext, IFulfillmentDbContext
     }
 
     public DbSet<FulfillmentTask> Tasks => Set<FulfillmentTask>();
+    public DbSet<Shipment> Shipments => Set<Shipment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("fulfillment");
+        modelBuilder.Entity<Shipment>(b => b.HasKey(s => s.OrderId));
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();
     }
 }
-
 public class CurrentUser : IUser
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -51,7 +52,7 @@ public static class DependencyInjection
 
         services.AddDbContext<FulfillmentDbContext>((sp, options) =>
         {
-            // options.AddInterceptors(sp.GetServices<Microsoft.EntityFrameworkCore.Diagnostics.ISaveChangesInterceptor>());
+            options.AddInterceptors(sp.GetServices<Microsoft.EntityFrameworkCore.Diagnostics.ISaveChangesInterceptor>());
             options.UseNpgsql(configuration.GetConnectionString("FulfillmentDb"), npgsql =>
             {
                 npgsql.SetPostgresVersion(18, 0);
@@ -73,23 +74,20 @@ public static class DependencyInjection
 
             x.AddEntityFrameworkOutbox<FulfillmentDbContext>(o =>
             {
-                o.UsePostgres();
+                o.UsePostgres(enableSchemaCaching: false);
                 o.UseBusOutbox();
+                o.QueryDelay = TimeSpan.FromSeconds(1);
                 o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
             });
+            x.AddConfigureEndpointsCallback((context, _, endpoint) =>
+                endpoint.UseEntityFrameworkOutbox<FulfillmentDbContext>(context));
 
             x.UsingRabbitMq((context, cfg) =>
             {
                 var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                 cfg.Host(new Uri(rabbitConnectionString));
-                
-                // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
-                // 1. Retry policy (Retry x3)
+                cfg.AutoStart = true;
                 cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
-                
-                // 2 & 3. Dead letter queue (DLQ) & Poison message handling
-                // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue.
-                
                 cfg.ConfigureEndpoints(context);
             });
         });

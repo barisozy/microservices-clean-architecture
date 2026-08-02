@@ -1,47 +1,54 @@
-# Docker Build Context Ignore List
-# Optimizes docker build time and prevents unwanted files from being sent to Docker daemon
-
-# Build outputs
-**/bin/
-**/obj/
-**/out/
-**/artifacts/
-**/nupkg/
+# Build, publish, NuGet and test outputs
+**/[Bb]in/
+**/[Oo]bj/
+**/[Aa]rtifacts/
+**/[Oo]ut/
+**/[Pp]ublish/
+**/[Pp]ackages/
+**/TestResults/
+**/test-results/
+**/coverage/
 **/coveragereport/
+**/*.nupkg
+**/*.snupkg
+**/*.trx
+**/*.coverage
+**/*.coveragexml
 
-# IDE & Editor files
-**/.vs/
-**/.vscode/
-**/.idea/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+# Source-control, IDE and local runtime state
+.agents/
+.git/
+.vs/
+.idea/
+.vscode/
+.aspire/
+.devcontainer/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+**/*.rsuser
+**/*.log
+**/*.pid
 
-# Version Control
-**/.git/
-**/.gitignore
-**/.gitattributes
-**/.dockerignore
+# Secrets must never enter an image build context
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets*.json
 
-# Aspire & Local Dev Tools
-**/.aspire/
-**/.devcontainer/
-
-# Secrets & Local Environments
-**/.env
-**/.env.local
-**/.env.*.local
-!**/.env.example
-
-# Documentation, Plans, & Media
-**/README.md
-**/LICENSE
-**/plan/
+# Repository material not required to build a service image
+.github/
+docs/
+eng/
+infra/
+plan/
+templates/
+tests/
+README.md
+LICENSE
 **/*.md
-**/*.png
-**/*.jpg
-
-# Tests & Workflows
-**/.github/
-**/tests/
+**/.DS_Store
+**/Thumbs.db
