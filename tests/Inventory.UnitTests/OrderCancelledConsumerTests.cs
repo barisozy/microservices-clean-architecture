@@ -1,13 +1,9 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using ECommerce.Contracts.Events.v1;
 using Inventory.Application.Consumers;
+using Inventory.Application.Inventory.Commands;
 using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Xunit;
 
 namespace Inventory.UnitTests;
@@ -15,24 +11,25 @@ namespace Inventory.UnitTests;
 public class OrderCancelledConsumerTests
 {
     [Fact]
-    public async Task Consume_Should_Send_ReleaseStockCommand()
+    public async Task Consume_ShouldSendReleaseOrderStockCommand()
     {
-        var mediatorMock = new Mock<IMediator>();
-        var dbContextMock = new Mock<Inventory.Application.Common.Interfaces.IInventoryDbContext>();
-        
+        var sender = new Mock<ISender>();
+        var consumer = new OrderCancelledConsumer(sender.Object);
         var orderId = Guid.NewGuid();
-        var reservation = new Inventory.Domain.Entities.InventoryReservation { Id = Guid.NewGuid(), OrderId = orderId };
-        var reservations = new System.Collections.Generic.List<Inventory.Domain.Entities.InventoryReservation> { reservation };
-        dbContextMock.Setup(x => x.Reservations).ReturnsDbSet(reservations);
-        
-        var consumer = new OrderCancelledConsumer(mediatorMock.Object, dbContextMock.Object);
+        var context = new Mock<ConsumeContext<OrderCancelled>>();
 
-        var consumeContextMock = new Mock<ConsumeContext<OrderCancelled>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new OrderCancelled(orderId, "Reason", DateTimeOffset.UtcNow));
-        consumeContextMock.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
+        context.Setup(x => x.Message).Returns(new OrderCancelled(
+            orderId,
+            "Payment failed",
+            DateTimeOffset.UtcNow));
+        context.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
 
-        await consumer.Consume(consumeContextMock.Object);
+        await consumer.Consume(context.Object);
 
-        mediatorMock.Verify(x => x.Send(It.IsAny<Inventory.Application.Inventory.Commands.ReleaseStockCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        sender.Verify(
+            x => x.Send(
+                It.Is<ReleaseOrderStockCommand>(command => command.OrderId == orderId),
+                CancellationToken.None),
+            Times.Once);
     }
 }

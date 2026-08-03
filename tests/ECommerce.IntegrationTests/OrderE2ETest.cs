@@ -169,13 +169,97 @@ public sealed class OrderE2ETest : IAsyncLifetime
         });
     }
 
-    private async Task<Guid> CreateOrderAsync(string sku, string? idempotencyKey = null)
+    [Fact]
+    public async Task PaymentFailure_WithMultipleItems_ReleasesAllReservations_AndRestoresStock()
+    {
+        var skus = new[]
+        {
+            "FAIL_PAYMENT-SKU-1",
+            "FAIL_PAYMENT-SKU-2",
+            "FAIL_PAYMENT-SKU-3",
+            "FAIL_PAYMENT-SKU-4"
+        };
+
+        var orderId = await CreateOrderAsync(skus);
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            var order = await db.Orders.SingleOrDefaultAsync(
+                x => x.Id == orderId,
+                TestContext.Current.CancellationToken);
+            return order?.Status == OrderStatus.Cancelled;
+        });
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _inventoryFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            var reservations = await db.Reservations
+                .Where(x => x.OrderId == orderId)
+                .ToListAsync(TestContext.Current.CancellationToken);
+
+            return reservations.Count == skus.Length &&
+                   reservations.All(x => x.IsReleased);
+        });
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _inventoryFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            var stocks = await db.Stocks
+                .Where(x => skus.Contains(x.Sku))
+                .ToListAsync(TestContext.Current.CancellationToken);
+
+            return stocks.Count == skus.Length &&
+                   stocks.All(x => x.AvailableQuantity == 100);
+        });
+
+        var duplicate = new PaymentFailed(
+            orderId,
+            Guid.CreateVersion7().ToString("D"),
+            "duplicate compensation",
+            DateTimeOffset.UtcNow);
+        var duplicateMessageId = Guid.CreateVersion7();
+        var bus = _orderFactory.Services.GetRequiredService<IBus>();
+        await bus.Publish(
+            duplicate,
+            context => context.MessageId = duplicateMessageId,
+            TestContext.Current.CancellationToken);
+
+        await EventuallyAsync(async () =>
+        {
+            using var scope = _inventoryFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            return await db.Set<InboxState>()
+                .AnyAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken);
+        });
+
+        using var finalScope = _inventoryFactory.Services.CreateScope();
+        var finalDb = finalScope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+        var finalReservations = await finalDb.Reservations
+            .Where(x => x.OrderId == orderId)
+            .ToListAsync(TestContext.Current.CancellationToken);
+        var finalStocks = await finalDb.Stocks
+            .Where(x => skus.Contains(x.Sku))
+            .ToListAsync(TestContext.Current.CancellationToken);
+
+        finalReservations.Count.ShouldBe(skus.Length);
+        finalReservations.ShouldAllBe(x => x.IsReleased);
+        finalStocks.Count.ShouldBe(skus.Length);
+        finalStocks.ShouldAllBe(x => x.AvailableQuantity == 100);
+    }
+
+    private async Task<Guid> CreateOrderAsync(
+        IReadOnlyCollection<string> skus,
+        string? idempotencyKey = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/orders");
         request.Headers.Add("Idempotency-Key", idempotencyKey ?? Guid.CreateVersion7().ToString("D"));
         request.Content = JsonContent.Create(new
         {
-            items = new[] { new { sku, quantity = 1, unitPrice = 100m } }
+            items = skus.Select(sku => new { sku, quantity = 1, unitPrice = 100m }).ToArray()
         });
 
         using var response = await _orderClient.SendAsync(request, TestContext.Current.CancellationToken);
@@ -188,9 +272,24 @@ public sealed class OrderE2ETest : IAsyncLifetime
         return orderId;
     }
 
+    private async Task<Guid> CreateOrderAsync(string sku, string? idempotencyKey = null)
+    {
+        return await CreateOrderAsync(new[] { sku }, idempotencyKey);
+    }
+
     private async Task SeedCatalogAndInventoryAsync()
     {
-        var skus = new[] { "PROD-SUCCESS", "PROD-IDEMPOTENT", "FAIL_PAYMENT-SKU", "GRPC-AUTH-CHECK" };
+        var skus = new[]
+        {
+            "PROD-SUCCESS",
+            "PROD-IDEMPOTENT",
+            "FAIL_PAYMENT-SKU",
+            "GRPC-AUTH-CHECK",
+            "FAIL_PAYMENT-SKU-1",
+            "FAIL_PAYMENT-SKU-2",
+            "FAIL_PAYMENT-SKU-3",
+            "FAIL_PAYMENT-SKU-4"
+        };
 
         using (var scope = _catalogFactory.Services.CreateScope())
         {
