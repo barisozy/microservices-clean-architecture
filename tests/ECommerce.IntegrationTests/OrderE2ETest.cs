@@ -222,7 +222,11 @@ public sealed class OrderE2ETest : IAsyncLifetime
             "duplicate compensation",
             DateTimeOffset.UtcNow);
         var duplicateMessageId = Guid.CreateVersion7();
-        var bus = _inventoryFactory.Services.GetRequiredService<IBus>();
+        var bus = _orderFactory.Services.GetRequiredService<IBus>();
+        await bus.Publish(
+            duplicate,
+            context => context.MessageId = duplicateMessageId,
+            TestContext.Current.CancellationToken);
         await bus.Publish(
             duplicate,
             context => context.MessageId = duplicateMessageId,
@@ -230,10 +234,10 @@ public sealed class OrderE2ETest : IAsyncLifetime
 
         await EventuallyAsync(async () =>
         {
-            using var scope = _inventoryFactory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
             return await db.Set<InboxState>()
-                .AnyAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken);
+                .CountAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken) == 1;
         });
 
         using var finalScope = _inventoryFactory.Services.CreateScope();
