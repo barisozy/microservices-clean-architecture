@@ -28,5 +28,7 @@ public sealed class ReleaseOrderStockCommandHandler(
                 new ReleaseStockCommand(reservationId),
                 cancellationToken);
         }
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
