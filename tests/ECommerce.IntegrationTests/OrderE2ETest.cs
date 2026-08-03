@@ -116,7 +116,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
             var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
             var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == orderId, TestContext.Current.CancellationToken);
             return order?.Status == OrderStatus.Shipped;
-        });
+        }, TimeSpan.FromSeconds(60));
 
         using var fulfillmentScope = _fulfillmentFactory.Services.CreateScope();
         var fulfillmentDb = fulfillmentScope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();

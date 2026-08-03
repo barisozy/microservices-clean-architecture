@@ -131,7 +131,11 @@ public static class DependencyInjection
 
                 // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
                 // 1. Retry policy (Retry x3 as requested)
-                cfg.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(500)));
+                // PaymentCompleted and OrderShipped are delivered to independent
+                // endpoints. OrderShipped may therefore arrive before the Paid
+                // transaction commits. Keep the aggregate invariant strict and
+                // allow the broker retry window to absorb that valid reordering.
+                cfg.UseMessageRetry(r => r.Exponential(10, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(500)));
                 
                 // 2 & 3. Dead letter queue (DLQ) & Poison message handling
                 // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue (e.g., PaymentFailed_error).
