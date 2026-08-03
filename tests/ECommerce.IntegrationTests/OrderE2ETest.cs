@@ -12,6 +12,7 @@ using Grpc.Net.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 using Order.Infrastructure.Data;
 using Payment.Infrastructure.Data;
 using Shouldly;
@@ -111,9 +112,10 @@ public sealed class OrderE2ETest : IAsyncLifetime
 
         await EventuallyAsync(async () =>
         {
-            using var scope = _fulfillmentFactory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
-            return await db.Shipments.AnyAsync(shipment => shipment.OrderId == orderId, TestContext.Current.CancellationToken);
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == orderId, TestContext.Current.CancellationToken);
+            return order?.Status == OrderStatus.Shipped;
         });
 
         using var fulfillmentScope = _fulfillmentFactory.Services.CreateScope();

@@ -17,6 +17,8 @@ public static class DependencyInjection
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IDomainEventHandler<OrderCreatedDomainEvent>, OrderReadModelUpdater>();
         services.AddScoped<IDomainEventHandler<OrderCancelledDomainEvent>, OrderReadModelUpdater>();
+        services.AddScoped<IDomainEventHandler<OrderPaidDomainEvent>, OrderReadModelUpdater>();
+        services.AddScoped<IDomainEventHandler<OrderShippedDomainEvent>, OrderReadModelUpdater>();
 
         services.AddMediatR(cfg =>
         {

@@ -3,11 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Application.Common.Interfaces;
 
-public interface IUser
-{
-    string? Id { get; }
-}
-
 public interface IInventoryDbContext
 {
     DbSet<InventoryReservation> Reservations { get; }

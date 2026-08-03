@@ -108,6 +108,8 @@ public static class DependencyInjection
         {
             x.AddConsumer<Order.Application.Consumers.PaymentFailedConsumer>();
             x.AddConsumer<Order.Application.Consumers.StockReleasedConsumer>();
+            x.AddConsumer<Order.Application.Consumers.PaymentCompletedConsumer>();
+            x.AddConsumer<Order.Application.Consumers.OrderShippedConsumer>();
 
             x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
             {

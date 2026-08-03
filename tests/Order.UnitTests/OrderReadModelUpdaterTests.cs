@@ -49,4 +49,35 @@ public class OrderReadModelUpdaterTests
             It.Is<OrderStatusDto>(d => d.Id == order.Id && d.BuyerId == "buyer-123" && d.Status == "Cancelled"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_OrderPaidDomainEvent_ShouldUpdateReadRepositoryWithPaidStatus()
+    {
+        var readRepoMock = new Mock<IOrderReadRepository>();
+        var updater = new OrderReadModelUpdater(readRepoMock.Object);
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", []);
+        order.MarkAsPaid();
+
+        await updater.Handle(new OrderPaidDomainEvent(order), CancellationToken.None);
+
+        readRepoMock.Verify(x => x.SetOrderAsync(
+            It.Is<OrderStatusDto>(d => d.Id == order.Id && d.BuyerId == "buyer-123" && d.Status == "Paid"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_OrderShippedDomainEvent_ShouldUpdateReadRepositoryWithShippedStatus()
+    {
+        var readRepoMock = new Mock<IOrderReadRepository>();
+        var updater = new OrderReadModelUpdater(readRepoMock.Object);
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", []);
+        order.MarkAsPaid();
+        order.MarkAsShipped();
+
+        await updater.Handle(new OrderShippedDomainEvent(order), CancellationToken.None);
+
+        readRepoMock.Verify(x => x.SetOrderAsync(
+            It.Is<OrderStatusDto>(d => d.Id == order.Id && d.BuyerId == "buyer-123" && d.Status == "Shipped"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
 }
