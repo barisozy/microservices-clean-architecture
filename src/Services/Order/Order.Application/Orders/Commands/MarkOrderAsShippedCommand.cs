@@ -12,7 +12,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
     public async Task Handle(MarkOrderAsShippedCommand request, CancellationToken cancellationToken)
     {
         Order.Domain.Entities.Order? order = null;
-        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(15);
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(3);
 
         // PaymentCompleted and OrderShipped are independent integration events.
         // The shipped event can legitimately arrive while the payment consumer
@@ -50,6 +50,15 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
         if (order is null)
         {
             throw new InvalidOperationException($"Order {request.OrderId} was not found.");
+        }
+
+        // OrderShipped is emitted only by Fulfillment after PaymentCompleted.
+        // If the completion consumer is still in-flight (or its delivery was
+        // reordered), this event is sufficient evidence to reconcile the
+        // aggregate before applying the final transition.
+        if (order.Status == OrderStatus.Pending)
+        {
+            order.MarkAsPaid();
         }
 
         order.MarkAsShipped();

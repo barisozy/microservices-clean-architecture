@@ -61,7 +61,10 @@ public class Order : BaseAuditableEntity
 
     public void MarkAsPaid()
     {
-        if (Status == OrderStatus.Paid) return; // Idempotent
+        // PaymentCompleted may be observed after the fulfillment service has
+        // already emitted OrderShipped. The lifecycle is monotonic, so a late
+        // duplicate completion is also idempotent once the order is shipped.
+        if (Status is OrderStatus.Paid or OrderStatus.Shipped or OrderStatus.Delivered) return;
 
         if (Status != OrderStatus.Pending)
         {
