@@ -1,15 +1,6 @@
 namespace IAM.Domain.Entities;
 
-public enum IamProfileStatus
-{
-    PendingIdentity,
-    PendingActivation,
-    Active,
-    Suspended,
-    Deactivated
-}
-
-public class IamProfile
+public sealed class IamProfile
 {
     public Guid KeycloakSubject { get; set; }
     public string DisplayName { get; set; } = string.Empty;

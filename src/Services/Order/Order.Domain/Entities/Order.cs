@@ -1,24 +1,9 @@
 using Order.Domain.Common;
 using Order.Domain.Events;
 using Order.Domain.Exceptions;
+using Order.Domain.Enums;
 
 namespace Order.Domain.Entities;
-
-public enum OrderStatus
-{
-    Pending = 1,
-    Paid = 2,
-    Cancelled = 3,
-    Completed = 4
-}
-
-public class OrderItem : BaseEntity
-{
-    public Guid OrderId { get; set; }
-    public string Sku { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-}
 
 public class Order : BaseAuditableEntity
 {
@@ -74,9 +59,43 @@ public class Order : BaseAuditableEntity
         TotalAmount = totalAmount;
     }
 
+    public void MarkAsPaid()
+    {
+        // PaymentCompleted may be observed after the fulfillment service has
+        // already emitted OrderShipped. The lifecycle is monotonic, so a late
+        // duplicate completion is also idempotent once the order is shipped.
+        if (Status is OrderStatus.Paid or OrderStatus.Shipped or OrderStatus.Delivered) return;
+
+        if (Status != OrderStatus.Pending)
+        {
+            throw new OrderDomainException($"Order cannot transition from {Status} to Paid.");
+        }
+
+        Status = OrderStatus.Paid;
+        AddDomainEvent(new OrderPaidDomainEvent(this));
+    }
+
+    public void MarkAsShipped()
+    {
+        if (Status == OrderStatus.Shipped) return; // Idempotent
+
+        if (Status != OrderStatus.Paid)
+        {
+            throw new OrderDomainException($"Order cannot transition from {Status} to Shipped.");
+        }
+
+        Status = OrderStatus.Shipped;
+        AddDomainEvent(new OrderShippedDomainEvent(this));
+    }
+
     public void Cancel(string reason)
     {
         if (Status == OrderStatus.Cancelled) return; // Idempotent
+
+        if (Status is not OrderStatus.Pending and not OrderStatus.Paid)
+        {
+            throw new OrderDomainException($"Order cannot transition from {Status} to Cancelled.");
+        }
 
         Status = OrderStatus.Cancelled;
         CancellationReason = reason;

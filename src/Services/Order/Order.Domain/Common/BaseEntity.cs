@@ -15,11 +15,3 @@ public abstract class BaseEntity
     public void RemoveDomainEvent(BaseEvent domainEvent) => _domainEvents.Remove(domainEvent);
     public void ClearDomainEvents() => _domainEvents.Clear();
 }
-
-public abstract class BaseAuditableEntity : BaseEntity
-{
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    public string? CreatedBy { get; set; }
-    public DateTimeOffset LastModifiedAt { get; set; } = DateTimeOffset.UtcNow;
-    public string? LastModifiedBy { get; set; }
-}

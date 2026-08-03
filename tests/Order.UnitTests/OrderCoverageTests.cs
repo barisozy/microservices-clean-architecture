@@ -9,6 +9,7 @@ using Order.Application.Consumers;
 using Order.Application.Orders.EventHandlers;
 using Order.Application.Orders.Queries;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 using Order.Domain.Events;
 using Shouldly;
 using Xunit;

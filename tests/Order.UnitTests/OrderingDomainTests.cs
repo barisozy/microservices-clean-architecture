@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Order.Domain.Common;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 using Order.Domain.Events;
 using Order.Domain.Exceptions;
 using Shouldly;
@@ -130,5 +131,86 @@ public class OrderDomainTests
         order.Status.ShouldBe(OrderStatus.Cancelled);
         order.CancellationReason.ShouldBe("Reason 1");
         order.DomainEvents.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void MarkAsPaid_WhenPending_ShouldSetStatusPaidAndRaiseDomainEvent()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.ClearDomainEvents();
+
+        order.MarkAsPaid();
+
+        order.Status.ShouldBe(OrderStatus.Paid);
+        order.DomainEvents.Count.ShouldBe(1);
+        order.DomainEvents.First().ShouldBeOfType<OrderPaidDomainEvent>();
+    }
+
+    [Fact]
+    public void MarkAsPaid_WhenAlreadyPaid_ShouldBeIdempotent()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.MarkAsPaid();
+        order.ClearDomainEvents();
+
+        order.MarkAsPaid();
+
+        order.Status.ShouldBe(OrderStatus.Paid);
+        order.DomainEvents.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void MarkAsPaid_WhenCancelled_ShouldThrowOrderDomainException()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.Cancel("payment failed");
+
+        Should.Throw<OrderDomainException>(() => order.MarkAsPaid());
+    }
+
+    [Fact]
+    public void MarkAsShipped_WhenPaid_ShouldSetStatusShippedAndRaiseDomainEvent()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.MarkAsPaid();
+        order.ClearDomainEvents();
+
+        order.MarkAsShipped();
+
+        order.Status.ShouldBe(OrderStatus.Shipped);
+        order.DomainEvents.Count.ShouldBe(1);
+        order.DomainEvents.First().ShouldBeOfType<OrderShippedDomainEvent>();
+    }
+
+    [Fact]
+    public void MarkAsShipped_WhenAlreadyShipped_ShouldBeIdempotent()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.MarkAsPaid();
+        order.MarkAsShipped();
+        order.ClearDomainEvents();
+
+        order.MarkAsShipped();
+
+        order.Status.ShouldBe(OrderStatus.Shipped);
+        order.DomainEvents.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void MarkAsShipped_WhenPending_ShouldThrowOrderDomainException()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+
+        Should.Throw<OrderDomainException>(() => order.MarkAsShipped());
+    }
+
+    [Fact]
+    public void Cancel_WhenShipped_ShouldThrowOrderDomainException()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", new List<OrderItem>());
+        order.MarkAsPaid();
+        order.MarkAsShipped();
+
+        Should.Throw<OrderDomainException>(() => order.Cancel("Cancel request"));
     }
 }

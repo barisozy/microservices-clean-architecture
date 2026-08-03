@@ -12,6 +12,7 @@ using Grpc.Net.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Order.Domain.Entities;
+using Order.Domain.Enums;
 using Order.Infrastructure.Data;
 using Payment.Infrastructure.Data;
 using Shouldly;
@@ -111,10 +112,11 @@ public sealed class OrderE2ETest : IAsyncLifetime
 
         await EventuallyAsync(async () =>
         {
-            using var scope = _fulfillmentFactory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
-            return await db.Shipments.AnyAsync(shipment => shipment.OrderId == orderId, TestContext.Current.CancellationToken);
-        });
+            using var scope = _orderFactory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+            var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == orderId, TestContext.Current.CancellationToken);
+            return order?.Status == OrderStatus.Shipped;
+        }, TimeSpan.FromSeconds(60), () => GetOrderLifecycleDiagnosticsAsync(orderId));
 
         using var fulfillmentScope = _fulfillmentFactory.Services.CreateScope();
         var fulfillmentDb = fulfillmentScope.ServiceProvider.GetRequiredService<FulfillmentDbContext>();
@@ -353,6 +355,18 @@ public sealed class OrderE2ETest : IAsyncLifetime
         return $"Outbox messages: {System.Text.Json.JsonSerializer.Serialize(messages)}; " +
                $"outbox states: {System.Text.Json.JsonSerializer.Serialize(states)}; " +
                $"hosted services: {System.Text.Json.JsonSerializer.Serialize(hostedServices)}; RabbitMQ: {rabbit}";
+    }
+
+    private async Task<string> GetOrderLifecycleDiagnosticsAsync(Guid orderId)
+    {
+        using var scope = _orderFactory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+        var order = await db.Orders
+            .Where(candidate => candidate.Id == orderId)
+            .Select(candidate => new { candidate.Id, candidate.Status })
+            .SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+        var rabbit = await _infra.GetRabbitMqDiagnosticsAsync(TestContext.Current.CancellationToken);
+        return $"Order: {System.Text.Json.JsonSerializer.Serialize(order)}; RabbitMQ: {rabbit}";
     }
 
     private static async Task EventuallyAsync(

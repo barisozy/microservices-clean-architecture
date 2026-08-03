@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Order.Application.Common.Interfaces;
+using Order.Domain.Enums;
 
 namespace Order.Application.Consumers;
 
@@ -31,7 +32,7 @@ public class PaymentFailedConsumer(
             return;
         }
 
-        if (order.Status == Order.Domain.Entities.OrderStatus.Cancelled)
+        if (order.Status == OrderStatus.Cancelled)
         {
             return;
         }
