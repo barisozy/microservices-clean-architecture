@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Order.Api.Contracts;
 using Order.Api.Infrastructure;
 using Order.Application.Orders.Commands.CreateOrder;
 using Order.Application.Orders.Queries;
@@ -82,5 +83,3 @@ public class Orders : IEndpointGroup
 /// <summary>
 /// Request DTO — Items is optional: empty = checkout-from-basket mode.
 /// </summary>
-public record CreateOrderRequest(List<OrderItemRequest>? Items, string? CouponCode = null);
-public record OrderItemRequest(string Sku, int Quantity, decimal UnitPrice);

@@ -4,9 +4,7 @@ using Order.Application.Common.Interfaces;
 
 namespace Order.Application.Orders.Queries;
 
-public record OrderStatusDto(Guid Id, string Status, string BuyerId);
-
-public record GetOrderQuery(Guid OrderId, string BuyerId) : IRequest<OrderStatusDto?>;
+public sealed record GetOrderQuery(Guid OrderId, string BuyerId) : IRequest<OrderStatusDto?>;
 
 public class GetOrderQueryHandler(IOrderReadRepository readRepository) : IRequestHandler<GetOrderQuery, OrderStatusDto?>
 {

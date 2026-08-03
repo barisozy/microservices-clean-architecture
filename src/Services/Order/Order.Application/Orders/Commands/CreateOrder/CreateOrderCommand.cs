@@ -11,9 +11,7 @@ using Order.Domain.Exceptions;
 
 namespace Order.Application.Orders.Commands.CreateOrder;
 
-public record OrderItemDto(string Sku, int Quantity, decimal UnitPrice);
-
-public record CreateOrderCommand(
+public sealed record CreateOrderCommand(
     Guid CustomerId,
     Guid KeycloakSubject,
     string IdempotencyKey,
