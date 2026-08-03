@@ -222,7 +222,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
             "duplicate compensation",
             DateTimeOffset.UtcNow);
         var duplicateMessageId = Guid.CreateVersion7();
-        var bus = _orderFactory.Services.GetRequiredService<IBus>();
+        var bus = _inventoryFactory.Services.GetRequiredService<IBus>();
         await bus.Publish(
             duplicate,
             context => context.MessageId = duplicateMessageId,
