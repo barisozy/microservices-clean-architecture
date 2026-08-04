@@ -4,8 +4,8 @@
   "internalDiagnosticMessages": false,
   "longRunningTestSeconds": 60,
   "methodDisplay": "method",
-  "parallelizeAssembly": true,
-  "parallelizeTestCollections": true,
+  "parallelizeAssembly": false,
+  "parallelizeTestCollections": false,
   "preEnumerateTheories": true,
   "stopOnFail": false
 }

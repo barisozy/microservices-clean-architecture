@@ -15,7 +15,7 @@ public class DomainTests
     public void BaseEntity_Should_Manage_Events()
     {
         var entity = new TestEntity();
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10);
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10, DateTimeOffset.UtcNow.AddMinutes(2));
         var domainEvent = new StockReservedDomainEvent(reservation);
 
         entity.AddDomainEvent(domainEvent);
@@ -61,21 +61,21 @@ public class DomainTests
     public void InventoryReservation_PropertiesAndMethods_ShouldWorkCorrectly()
     {
         var orderId = Guid.NewGuid();
-        var reservation = InventoryReservation.Create(orderId, "SKU-200", 3);
+        var reservation = InventoryReservation.Create(orderId, "SKU-200", 3, DateTimeOffset.UtcNow.AddMinutes(2));
 
         reservation.OrderId.ShouldBe(orderId);
         reservation.Sku.ShouldBe("SKU-200");
         reservation.Quantity.ShouldBe(3);
         reservation.IsReleased.ShouldBeFalse();
 
-        reservation.Release();
+        reservation.Release(DateTimeOffset.UtcNow);
         reservation.IsReleased.ShouldBeTrue();
     }
 
     [Fact]
     public void StockReservedDomainEvent_Should_Store_Values()
     {
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10);
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10, DateTimeOffset.UtcNow.AddMinutes(2));
         var evt = new StockReservedDomainEvent(reservation);
         evt.Reservation.ShouldBe(reservation);
     }
@@ -83,7 +83,7 @@ public class DomainTests
     [Fact]
     public void StockReleasedDomainEvent_Should_Store_Values()
     {
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10);
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "sku", 10, DateTimeOffset.UtcNow.AddMinutes(2));
         var evt = new StockReleasedDomainEvent(reservation);
         evt.Reservation.ShouldBe(reservation);
     }

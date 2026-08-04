@@ -6,6 +6,7 @@ namespace Order.Application.Orders.EventHandlers;
 
 internal sealed class DomainEventDispatcher(
     IEnumerable<IDomainEventHandler<OrderCreatedDomainEvent>> createdHandlers,
+    IEnumerable<IDomainEventHandler<OrderInventoryConfirmedDomainEvent>> inventoryConfirmedHandlers,
     IEnumerable<IDomainEventHandler<OrderCancelledDomainEvent>> cancelledHandlers,
     IEnumerable<IDomainEventHandler<OrderPaidDomainEvent>> paidHandlers,
     IEnumerable<IDomainEventHandler<OrderShippedDomainEvent>> shippedHandlers)
@@ -18,6 +19,10 @@ internal sealed class DomainEventDispatcher(
             case OrderCreatedDomainEvent created:
                 foreach (var handler in createdHandlers)
                     await handler.Handle(created, cancellationToken);
+                break;
+            case OrderInventoryConfirmedDomainEvent inventoryConfirmed:
+                foreach (var handler in inventoryConfirmedHandlers)
+                    await handler.Handle(inventoryConfirmed, cancellationToken);
                 break;
             case OrderCancelledDomainEvent cancelled:
                 foreach (var handler in cancelledHandlers)

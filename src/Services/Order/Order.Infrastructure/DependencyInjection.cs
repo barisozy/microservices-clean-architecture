@@ -12,6 +12,7 @@ using Order.Application.Consumers;
 using Order.Infrastructure.Data;
 using Order.Infrastructure.Data.Interceptors;
 using Order.Infrastructure.Services;
+using Order.Application.Checkout;
 using StackExchange.Redis;
 
 namespace Order.Infrastructure;
@@ -49,32 +50,9 @@ public static class DependencyInjection
         services.AddScoped<IBasketService, ValkeyBasketService>();
         services.AddScoped<IOrderCache, ValkeyOrderCache>();
         services.AddScoped<IOrderReadRepository, Order.Infrastructure.Data.Repositories.OrderReadRepository>();
+        services.AddSingleton(TimeProvider.System);
 
         // gRPC client → Inventory.Api (with JWT + trace interceptors from ServiceDefaults)
-        services.AddGrpcClient<InventoryService.InventoryServiceClient>(options =>
-        {
-            var address = configuration["services:inventory-api:http:0"]
-                ?? configuration["services:inventory-api:https:0"]
-                ?? configuration["Services:InventoryApi"]
-                ?? "http://inventory-api";
-            options.Address = new Uri(address);
-        })
-        .AddServiceDiscovery()
-        .AddInterceptor<GrpcJwtHeaderInterceptor>()
-        .AddInterceptor<GrpcTraceContextInterceptor>()
-        .AddStandardResilienceHandler(options => 
-        {
-            options.Retry.MaxRetryAttempts = 3;
-            options.Retry.BackoffType = Polly.DelayBackoffType.Exponential;
-            options.Retry.Delay = TimeSpan.FromMilliseconds(200);
-            options.Retry.UseJitter = true;
-            options.CircuitBreaker.FailureRatio = 0.5;
-            options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(10);
-            options.CircuitBreaker.BreakDuration = TimeSpan.FromSeconds(30);
-            options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(5);
-            options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(15);
-        });
-
         // gRPC client → Catalog.Api
         services.AddGrpcClient<CatalogService.CatalogServiceClient>(options =>
         {
@@ -106,10 +84,19 @@ public static class DependencyInjection
         // MassTransit + Transactional Outbox/Inbox
         services.AddMassTransit(x =>
         {
+            x.AddSagaStateMachine<CheckoutStateMachine, CheckoutState>()
+                .EntityFrameworkRepository(r =>
+                {
+                    r.ConcurrencyMode = ConcurrencyMode.Optimistic;
+                    r.ExistingDbContext<OrderDbContext>();
+                    r.UsePostgres();
+                });
             x.AddConsumer<Order.Application.Consumers.PaymentFailedConsumer>();
             x.AddConsumer<Order.Application.Consumers.StockReleasedConsumer>();
             x.AddConsumer<Order.Application.Consumers.PaymentCompletedConsumer>();
             x.AddConsumer<Order.Application.Consumers.OrderShippedConsumer>();
+            x.AddConsumer<Order.Application.Consumers.OrderCancelledConsumer>();
+            x.AddConsumer<Order.Application.Consumers.OrderInventoryConfirmedConsumer>();
 
             x.AddEntityFrameworkOutbox<OrderDbContext>(o =>
             {
@@ -128,14 +115,16 @@ public static class DependencyInjection
                 var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                 cfg.Host(new Uri(rabbitConnectionString));
                 cfg.AutoStart = true;
-
                 // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
                 // 1. Retry policy (Retry x3 as requested)
                 // PaymentCompleted and OrderShipped are delivered to independent
                 // endpoints. OrderShipped may therefore arrive before the Paid
                 // transaction commits. Keep the aggregate invariant strict and
                 // allow the broker retry window to absorb that valid reordering.
-                cfg.UseMessageRetry(r => r.Exponential(10, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(500)));
+                if (string.Equals(configuration["DOTNET_ENVIRONMENT"], "IntegrationTesting", StringComparison.OrdinalIgnoreCase))
+                    cfg.UseMessageRetry(r => r.Immediate(2));
+                else
+                    cfg.UseMessageRetry(r => r.Exponential(10, TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(500)));
                 
                 // 2 & 3. Dead letter queue (DLQ) & Poison message handling
                 // MassTransit automatically moves messages that fail all retries to a fault/DLQ queue (e.g., PaymentFailed_error).

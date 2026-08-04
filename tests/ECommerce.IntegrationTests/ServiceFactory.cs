@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Infrastructure.Data;
 using StackExchange.Redis;
@@ -66,6 +67,7 @@ public sealed class ServiceFactory<TProgram> : WebApplicationFactory<TProgram>
         // Integration hosts therefore follow the production migration path so every
         // service creates its own schema and MassTransit inbox/outbox tables.
         builder.UseEnvironment("IntegrationTesting");
+        builder.ConfigureLogging(logging => logging.AddConsole().SetMinimumLevel(LogLevel.Debug));
         builder.ConfigureAppConfiguration(configuration => configuration.AddInMemoryCollection(config));
         builder.ConfigureServices(services =>
         {

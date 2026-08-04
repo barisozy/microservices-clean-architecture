@@ -17,16 +17,16 @@ public class ReleaseOrderStockCommandTests
         var orderId = Guid.NewGuid();
 
         var reservation1 =
-            InventoryReservation.Create(orderId, "SKU-1", 1);
+            InventoryReservation.Create(orderId, "SKU-1", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var reservation2 =
-            InventoryReservation.Create(orderId, "SKU-2", 2);
+            InventoryReservation.Create(orderId, "SKU-2", 2, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var reservation3 =
-            InventoryReservation.Create(orderId, "SKU-3", 3);
+            InventoryReservation.Create(orderId, "SKU-3", 3, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var reservation4 =
-            InventoryReservation.Create(orderId, "SKU-4", 4);
+            InventoryReservation.Create(orderId, "SKU-4", 4, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var reservations = new List<InventoryReservation>
         {
@@ -78,13 +78,13 @@ public class ReleaseOrderStockCommandTests
         var anotherOrderId = Guid.NewGuid();
 
         var target1 =
-            InventoryReservation.Create(orderId, "SKU-1", 1);
+            InventoryReservation.Create(orderId, "SKU-1", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var target2 =
-            InventoryReservation.Create(orderId, "SKU-2", 1);
+            InventoryReservation.Create(orderId, "SKU-2", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var unrelated =
-            InventoryReservation.Create(anotherOrderId, "SKU-3", 1);
+            InventoryReservation.Create(anotherOrderId, "SKU-3", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var reservations = new List<InventoryReservation>
     {
@@ -136,12 +136,12 @@ public class ReleaseOrderStockCommandTests
         var orderId = Guid.NewGuid();
 
         var active =
-            InventoryReservation.Create(orderId, "SKU-ACTIVE", 1);
+            InventoryReservation.Create(orderId, "SKU-ACTIVE", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         var released =
-            InventoryReservation.Create(orderId, "SKU-RELEASED", 1);
+            InventoryReservation.Create(orderId, "SKU-RELEASED", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
-        released.Release();
+        released.Release(DateTimeOffset.UtcNow);
 
         var reservations = new List<InventoryReservation>
     {

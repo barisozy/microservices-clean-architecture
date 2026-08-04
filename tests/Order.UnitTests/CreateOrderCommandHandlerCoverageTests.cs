@@ -30,8 +30,6 @@ public class CreateOrderCommandHandlerCoverageTests
         var result = await fixture.Handler.Handle(fixture.Command(), CancellationToken.None);
 
         result.ShouldBe(expected);
-        fixture.Inventory.Verify(x => x.ReserveStockAsync(
-            It.IsAny<ReserveStockRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
         fixture.Context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -48,8 +46,9 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 10)], couponCode: "SAVE"), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish(
-            It.Is<OrderCreated>(e => e.TotalAmount == 40m && e.Items.Single().UnitPrice == 25m),
+        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
+            It.Is<CheckoutStarted>(e => e.TotalAmount == 40m && e.Items.Single().UnitPrice == 25m),
+            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -65,22 +64,23 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 12)]), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish(
-            It.Is<OrderCreated>(e => e.TotalAmount == 30m && e.Items.Single().UnitPrice == 15m),
+        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
+            It.Is<CheckoutStarted>(e => e.TotalAmount == 30m && e.Items.Single().UnitPrice == 15m),
+            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task Handle_ThrowsAndDoesNotPersist_WhenInventoryRejectsReservation()
+    public async Task Handle_PersistsCheckoutIntent_WithoutCallingInventory()
     {
-        var fixture = new HandlerFixture(inventorySucceeded: false);
+        var fixture = new HandlerFixture();
 
-        var exception = await Should.ThrowAsync<OrderDomainException>(
-            () => fixture.Handler.Handle(fixture.Command(), CancellationToken.None));
-
-        exception.Message.ShouldContain("Stock reservation failed");
-        fixture.Publisher.Verify(x => x.Publish(It.IsAny<OrderCreated>(), It.IsAny<CancellationToken>()), Times.Never);
-        fixture.Context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        (await fixture.Handler.Handle(fixture.Command(), CancellationToken.None)).ShouldNotBe(Guid.Empty);
+        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
+            It.IsAny<CheckoutStarted>(),
+            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        fixture.Context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -128,8 +128,9 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 1, 50)], couponCode: "BROKEN"), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish(
-            It.Is<OrderCreated>(e => e.TotalAmount == 50m),
+        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
+            It.Is<CheckoutStarted>(e => e.TotalAmount == 50m),
+            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -143,12 +144,11 @@ public class CreateOrderCommandHandlerCoverageTests
         public Mock<IOrderCache> OrderCache { get; } = new();
         public Mock<IAsyncDisposable> BasketLock { get; } = new();
         public Mock<IBasketService> BasketService { get; } = new();
-        public Mock<InventoryService.InventoryServiceClient> Inventory { get; } = new();
         public Mock<CatalogService.CatalogServiceClient> Catalog { get; } = new();
         public Mock<PromotionService.PromotionServiceClient> Promotion { get; } = new();
         public CreateOrderCommandHandler Handler { get; }
 
-        public HandlerFixture(bool inventorySucceeded = true)
+        public HandlerFixture()
         {
             Context.Setup(x => x.Orders).Returns(new Mock<DbSet<Order.Domain.Entities.Order>>().Object);
             Context.Setup(x => x.FindByIdempotencyKeyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -158,15 +158,12 @@ public class CreateOrderCommandHandlerCoverageTests
 
             SetupLockAcquired(true);
 
-            Inventory.Setup(x => x.ReserveStockAsync(
-                    It.IsAny<ReserveStockRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-                .Returns(Call(new ReserveStockResponse { IsSuccess = inventorySucceeded, Message = "out of stock" }));
             Catalog.Setup(x => x.GetPriceSnapshotAsync(
                     It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
                 .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = 50 }));
 
             Handler = new CreateOrderCommandHandler(
-                Context.Object, Publisher.Object, OrderCache.Object, BasketService.Object, Inventory.Object,
+                Context.Object, Publisher.Object, OrderCache.Object, BasketService.Object,
                 Catalog.Object, Promotion.Object, Mock.Of<ILogger<CreateOrderCommandHandler>>());
         }
 

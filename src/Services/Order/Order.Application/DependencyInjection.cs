@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IDomainEventHandler<OrderCreatedDomainEvent>, OrderReadModelUpdater>();
+        services.AddScoped<IDomainEventHandler<OrderInventoryConfirmedDomainEvent>, OrderReadModelUpdater>();
         services.AddScoped<IDomainEventHandler<OrderCancelledDomainEvent>, OrderReadModelUpdater>();
         services.AddScoped<IDomainEventHandler<OrderPaidDomainEvent>, OrderReadModelUpdater>();
         services.AddScoped<IDomainEventHandler<OrderShippedDomainEvent>, OrderReadModelUpdater>();

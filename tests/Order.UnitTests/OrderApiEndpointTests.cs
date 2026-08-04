@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Order.Application.Basket.Commands;
+using Order.Api.Endpoints;
 using Order.Application.Common.Interfaces;
 using Order.Application.Orders.Commands.CreateOrder;
 using Order.Application.Orders.Queries;
@@ -64,7 +65,7 @@ public sealed class OrderApiEndpointTests : IClassFixture<OrderApiFactory>
     }
 
     [Fact]
-    public async Task CreateOrder_WithIdempotencyKey_ShouldReturnCreatedAndDispatchRequest()
+    public async Task CreateOrder_WithIdempotencyKey_ShouldReturnAcceptedAndDispatchRequest()
     {
         var client = _factory.CreateClient();
         var expectedId = Guid.NewGuid();
@@ -77,8 +78,10 @@ public sealed class OrderApiEndpointTests : IClassFixture<OrderApiFactory>
             items = new[] { new { sku = "SKU-3", quantity = 1, unitPrice = 12.50m } }
         }, TestContext.Current.CancellationToken);
 
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        (await response.Content.ReadFromJsonAsync<Guid>(TestContext.Current.CancellationToken)).ShouldBe(expectedId);
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+        var submission = await response.Content.ReadFromJsonAsync<OrderSubmissionResponse>(TestContext.Current.CancellationToken);
+        submission!.OrderId.ShouldBe(expectedId);
+        submission.Status.ShouldBe("PendingInventory");
         response.Headers.Location!.ToString().ShouldBe($"/api/v1/orders/{expectedId}");
         _factory.Sender.Verify(x => x.Send(It.Is<CreateOrderCommand>(q =>
             q.CustomerId == OrderApiFactory.SubjectId && q.KeycloakSubject == OrderApiFactory.SubjectId &&
@@ -125,7 +128,7 @@ public sealed class OrderApiEndpointTests : IClassFixture<OrderApiFactory>
         customClient.DefaultRequestHeaders.Add("Idempotency-Key", Guid.CreateVersion7().ToString("D"));
         var response = await customClient.PostAsJsonAsync("/api/v1/orders/", new { items = Array.Empty<object>() }, TestContext.Current.CancellationToken);
 
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
     }
 
     [Fact]
@@ -144,7 +147,7 @@ public sealed class OrderApiEndpointTests : IClassFixture<OrderApiFactory>
         customClient.DefaultRequestHeaders.Add("Idempotency-Key", Guid.CreateVersion7().ToString("D"));
         var response = await customClient.PostAsJsonAsync("/api/v1/orders/", new { items = Array.Empty<object>() }, TestContext.Current.CancellationToken);
 
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
     }
 }
 

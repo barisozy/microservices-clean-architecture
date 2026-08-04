@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Domain.Entities;
+using Order.Application.Checkout;
 
 namespace Order.Infrastructure.Data;
 
@@ -11,7 +12,8 @@ public class OrderDbContext : DbContext, IOrderDbContext
     {
     }
 
-    public DbSet<global::Order.Domain.Entities.Order> Orders => Set<global::Order.Domain.Entities.Order>();
+        public DbSet<global::Order.Domain.Entities.Order> Orders => Set<global::Order.Domain.Entities.Order>();
+        public DbSet<CheckoutState> CheckoutStates => Set<CheckoutState>();
 
     public Task<global::Order.Domain.Entities.Order?> FindByIdempotencyKeyAsync(
         string idempotencyKey,

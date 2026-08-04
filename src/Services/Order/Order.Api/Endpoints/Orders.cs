@@ -30,7 +30,7 @@ public class Orders : IEndpointGroup
         group.MapGet("/{orderId:guid}", GetOrder);
     }
 
-    private static async Task<Results<Created<Guid>, Ok<Guid>>> CreateOrder(
+    private static async Task<Accepted<OrderSubmissionResponse>> CreateOrder(
         HttpContext httpContext,
         ISender sender,
         CreateOrderRequest request)
@@ -50,7 +50,7 @@ public class Orders : IEndpointGroup
         );
 
         var id = await sender.Send(command);
-        return TypedResults.Created($"/api/v1/orders/{id}", id);
+        return TypedResults.Accepted($"/api/v1/orders/{id}", new OrderSubmissionResponse(id, "PendingInventory"));
     }
 
     private static async Task<Results<Ok<OrderStatusDto>, NotFound>> GetOrder(
@@ -79,6 +79,8 @@ public class Orders : IEndpointGroup
         return Guid.TryParse(sub, out var id) ? id : Guid.Empty;
     }
 }
+
+public sealed record OrderSubmissionResponse(Guid OrderId, string Status);
 
 /// <summary>
 /// Request DTO — Items is optional: empty = checkout-from-basket mode.
