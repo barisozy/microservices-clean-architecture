@@ -47,6 +47,7 @@ infra/
 plan/
 templates/
 tests/
+AGENTS.md
 README.md
 LICENSE
 **/*.md

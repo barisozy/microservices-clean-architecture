@@ -26,6 +26,7 @@ coveragereport/
 **/coverage*.info
 
 # IDEs and local tooling
+AGENTS.md
 .agents/
 .vs/
 .idea/
