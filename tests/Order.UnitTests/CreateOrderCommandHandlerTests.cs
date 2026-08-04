@@ -22,9 +22,8 @@ public class CreateOrderCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldPublishCheckoutStartedEvent()
     {
-        var dbContextMock = new Mock<IOrderDbContext>();
-        var dbSetMock = new Mock<DbSet<global::Order.Domain.Entities.Order>>();
-        dbContextMock.Setup(x => x.Orders).Returns(dbSetMock.Object);
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        
 
         var publishEndpointMock = new Mock<IPublishEndpoint>();
 
@@ -68,3 +67,5 @@ public class CreateOrderCommandHandlerTests
         dbContextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
+
+

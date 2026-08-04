@@ -139,7 +139,7 @@ public class CreateOrderCommandHandlerCoverageTests
 
     private sealed class HandlerFixture
     {
-        public Mock<IOrderDbContext> Context { get; } = new();
+        public Mock<IOrderWriteRepository> Context { get; } = new();
         public Mock<IPublishEndpoint> Publisher { get; } = new();
         public Mock<IOrderCache> OrderCache { get; } = new();
         public Mock<IAsyncDisposable> BasketLock { get; } = new();
@@ -150,7 +150,7 @@ public class CreateOrderCommandHandlerCoverageTests
 
         public HandlerFixture()
         {
-            Context.Setup(x => x.Orders).Returns(new Mock<DbSet<Order.Domain.Entities.Order>>().Object);
+            
             Context.Setup(x => x.FindByIdempotencyKeyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Order.Domain.Entities.Order?)null);
             OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -177,3 +177,6 @@ public class CreateOrderCommandHandlerCoverageTests
             new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid().ToString(), items ?? [new("SKU-1", 1, 10)], couponCode);
     }
 }
+
+
+

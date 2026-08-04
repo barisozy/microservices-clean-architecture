@@ -22,8 +22,8 @@ public class PaymentFailedConsumerTests
         // Arrange
         var orderId = Guid.NewGuid();
         var order = new global::Order.Domain.Entities.Order { Id = orderId, BuyerId = "buyer-1" };
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order> { order });
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(order);
 
         var publishMock = new Mock<IPublishEndpoint>();
         var loggerMock = new Mock<ILogger<PaymentFailedConsumer>>();
@@ -48,8 +48,8 @@ public class PaymentFailedConsumerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order>());
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Entities.Order?)null);
 
         var publishMock = new Mock<IPublishEndpoint>();
         var loggerMock = new Mock<ILogger<PaymentFailedConsumer>>();
@@ -68,3 +68,5 @@ public class PaymentFailedConsumerTests
         publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
+
+

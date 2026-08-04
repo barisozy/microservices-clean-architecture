@@ -20,11 +20,11 @@ public class CancelOrderCommandHandlerTests
     [Fact]
     public async Task Handle_Should_Cancel_Order_And_Publish()
     {
-        var contextMock = new Mock<IOrderDbContext>();
+        var contextMock = new Mock<IOrderWriteRepository>();
         var publishMock = new Mock<IPublishEndpoint>();
 
         var order = new global::Order.Domain.Entities.Order { Id = Guid.NewGuid(), BuyerId = "b1" };
-        contextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order> { order });
+        contextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(order);
 
         var handler = new CancelOrderCommandHandler(contextMock.Object, publishMock.Object);
         var result = await handler.Handle(new CancelOrderCommand(order.Id, "Reason"), CancellationToken.None);
@@ -38,10 +38,10 @@ public class CancelOrderCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnFalse_WhenOrderNotFound()
     {
-        var contextMock = new Mock<IOrderDbContext>();
+        var contextMock = new Mock<IOrderWriteRepository>();
         var publishMock = new Mock<IPublishEndpoint>();
 
-        contextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order>());
+        contextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Entities.Order?)null);
 
         var handler = new CancelOrderCommandHandler(contextMock.Object, publishMock.Object);
         var result = await handler.Handle(new CancelOrderCommand(Guid.NewGuid(), "Reason"), CancellationToken.None);
@@ -51,3 +51,5 @@ public class CancelOrderCommandHandlerTests
         publishMock.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
+
+

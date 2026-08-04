@@ -22,8 +22,9 @@ public class OrderCommandHandlerTests
         var order = global::Order.Domain.Entities.Order.Create("buyer-1", "key-1", new List<OrderItem>());
         order.GetType().GetProperty(nameof(Order.Domain.Entities.Order.Id))!.SetValue(order, orderId);
 
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order> { order });
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(order);
+        dbContextMock.Setup(x => x.GetStatusAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Enums.OrderStatus?)order.Status);
 
         var handler = new MarkOrderAsPaidCommandHandler(dbContextMock.Object);
 
@@ -36,8 +37,8 @@ public class OrderCommandHandlerTests
     [Fact]
     public async Task MarkOrderAsPaid_WhenOrderNotFound_ShouldThrowInvalidOperationException()
     {
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order>());
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Entities.Order?)null);
 
         var handler = new MarkOrderAsPaidCommandHandler(dbContextMock.Object);
 
@@ -53,8 +54,9 @@ public class OrderCommandHandlerTests
         order.GetType().GetProperty(nameof(Order.Domain.Entities.Order.Id))!.SetValue(order, orderId);
         order.MarkAsPaid();
 
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order> { order });
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(order);
+        dbContextMock.Setup(x => x.GetStatusAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Enums.OrderStatus?)order.Status);
 
         var handler = new MarkOrderAsShippedCommandHandler(dbContextMock.Object);
 
@@ -67,8 +69,8 @@ public class OrderCommandHandlerTests
     [Fact]
     public async Task MarkOrderAsShipped_WhenOrderNotFound_ShouldThrowInvalidOperationException()
     {
-        var dbContextMock = new Mock<IOrderDbContext>();
-        dbContextMock.Setup(x => x.Orders).ReturnsDbSet(new List<global::Order.Domain.Entities.Order>());
+        var dbContextMock = new Mock<IOrderWriteRepository>();
+        dbContextMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Entities.Order?)null);
 
         var handler = new MarkOrderAsShippedCommandHandler(dbContextMock.Object);
 
@@ -76,3 +78,6 @@ public class OrderCommandHandlerTests
             handler.Handle(new MarkOrderAsShippedCommand(Guid.NewGuid()), CancellationToken.None));
     }
 }
+
+
+
