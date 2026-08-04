@@ -16,7 +16,7 @@ public class Order : BaseAuditableEntity
     /// A repeated key returns the original 201 body instead of creating a second order.
     /// </summary>
     public string IdempotencyKey { get; private set; } = string.Empty;
-    public OrderStatus Status { get; private set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; private set; } = OrderStatus.PendingInventory;
     public string? CancellationReason { get; private set; }
     public List<OrderItem> OrderItems { get; set; } = new();
 
@@ -29,7 +29,7 @@ public class Order : BaseAuditableEntity
         {
             BuyerId = buyerId,
             IdempotencyKey = idempotencyKey,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.PendingInventory,
             OrderItems = items
         };
 
@@ -59,6 +59,18 @@ public class Order : BaseAuditableEntity
         TotalAmount = totalAmount;
     }
 
+    public void ConfirmInventory()
+    {
+        if (Status is OrderStatus.AwaitingPayment or OrderStatus.Paid or OrderStatus.Shipped or OrderStatus.Delivered)
+            return;
+
+        if (Status != OrderStatus.PendingInventory)
+            throw new OrderDomainException($"Order cannot transition from {Status} to AwaitingPayment.");
+
+        Status = OrderStatus.AwaitingPayment;
+        AddDomainEvent(new OrderInventoryConfirmedDomainEvent(this));
+    }
+
     public void MarkAsPaid()
     {
         // PaymentCompleted may be observed after the fulfillment service has
@@ -66,7 +78,7 @@ public class Order : BaseAuditableEntity
         // duplicate completion is also idempotent once the order is shipped.
         if (Status is OrderStatus.Paid or OrderStatus.Shipped or OrderStatus.Delivered) return;
 
-        if (Status != OrderStatus.Pending)
+        if (Status is not OrderStatus.Pending and not OrderStatus.PendingInventory and not OrderStatus.AwaitingPayment)
         {
             throw new OrderDomainException($"Order cannot transition from {Status} to Paid.");
         }
@@ -92,7 +104,7 @@ public class Order : BaseAuditableEntity
     {
         if (Status == OrderStatus.Cancelled) return; // Idempotent
 
-        if (Status is not OrderStatus.Pending and not OrderStatus.Paid)
+        if (Status is not OrderStatus.Pending and not OrderStatus.PendingInventory and not OrderStatus.AwaitingPayment and not OrderStatus.Paid)
         {
             throw new OrderDomainException($"Order cannot transition from {Status} to Cancelled.");
         }

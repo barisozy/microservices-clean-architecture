@@ -80,7 +80,7 @@ public class OrderDomainTests
     }
 
     [Fact]
-    public void Order_Create_Should_Set_Status_To_Pending_And_Raise_Domain_Event()
+    public void Order_Create_Should_Set_Status_To_PendingInventory_And_Raise_Domain_Event()
     {
         var buyerId = "buyer-123";
         var items = new List<OrderItem>
@@ -92,7 +92,7 @@ public class OrderDomainTests
 
         order.BuyerId.ShouldBe(buyerId);
         order.IdempotencyKey.ShouldBe("key-123");
-        order.Status.ShouldBe(OrderStatus.Pending);
+        order.Status.ShouldBe(OrderStatus.PendingInventory);
         order.OrderItems.Count.ShouldBe(1);
         order.DomainEvents.Count.ShouldBe(1);
         order.DomainEvents.First().ShouldBeOfType<OrderCreatedDomainEvent>();
@@ -110,6 +110,20 @@ public class OrderDomainTests
         order.CancellationReason.ShouldBe("Payment Failed");
         order.DomainEvents.Count.ShouldBe(1);
         order.DomainEvents.First().ShouldBeOfType<OrderCancelledDomainEvent>();
+    }
+
+    [Fact]
+    public void ConfirmInventory_ShouldTransitionToAwaitingPaymentAndBeIdempotent()
+    {
+        var order = global::Order.Domain.Entities.Order.Create("buyer-123", "key-123", []);
+        order.ClearDomainEvents();
+
+        order.ConfirmInventory();
+        order.ConfirmInventory();
+
+        order.Status.ShouldBe(OrderStatus.AwaitingPayment);
+        order.DomainEvents.Count.ShouldBe(1);
+        order.DomainEvents.First().ShouldBeOfType<OrderInventoryConfirmedDomainEvent>();
     }
 
     [Fact]

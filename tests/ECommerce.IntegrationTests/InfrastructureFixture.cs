@@ -9,7 +9,7 @@ using Xunit;
 
 namespace ECommerce.IntegrationTests;
 
-[CollectionDefinition("IntegrationTests")]
+[CollectionDefinition("IntegrationTests", DisableParallelization = true)]
 public class IntegrationTestCollection : ICollectionFixture<InfrastructureFixture>;
 
 /// <summary>

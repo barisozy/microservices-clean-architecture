@@ -77,7 +77,10 @@ var inventoryApi = builder.AddProject<Projects.Inventory_Api>("inventory-api")
     .WithReference(rabbitmq)
     .WithReference(valkey)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("InventoryReservation__LeaseDuration", "00:02:00")
+    .WithEnvironment("InventoryReservation__ReaperInterval", "00:00:15")
+    .WithEnvironment("InventoryReservation__ReaperBatchSize", "100");
 
 if (!isTestMode)
     inventoryApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
@@ -176,7 +179,6 @@ if (!isTestMode)
 
 // gRPC service discovery references
 OrderApi
-    .WithReference(inventoryApi)
     .WithReference(catalogApi)
     .WithReference(promotionApi);
 

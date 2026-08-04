@@ -38,7 +38,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
                 .Select(x => (OrderStatus?)x.Status)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            if (currentStatus is not OrderStatus.Pending)
+            if (currentStatus is not OrderStatus.Pending and not OrderStatus.PendingInventory and not OrderStatus.AwaitingPayment)
                 break;
 
             await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
@@ -56,7 +56,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
         // If the completion consumer is still in-flight (or its delivery was
         // reordered), this event is sufficient evidence to reconcile the
         // aggregate before applying the final transition.
-        if (order.Status == OrderStatus.Pending)
+        if (order.Status is OrderStatus.Pending or OrderStatus.PendingInventory or OrderStatus.AwaitingPayment)
         {
             order.MarkAsPaid();
         }

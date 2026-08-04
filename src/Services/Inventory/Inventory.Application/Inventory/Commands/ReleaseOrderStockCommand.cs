@@ -1,6 +1,7 @@
 using Inventory.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Inventory.Domain.Entities;
 
 namespace Inventory.Application.Inventory.Commands;
 
@@ -18,7 +19,8 @@ public sealed class ReleaseOrderStockCommandHandler(
         var reservationIds = await context.Reservations
             .Where(r =>
                 r.OrderId == request.OrderId &&
-                !r.IsReleased)
+                r.Status != InventoryReservationStatus.Released &&
+                r.Status != InventoryReservationStatus.Expired)
             .Select(r => r.Id)
             .ToListAsync(cancellationToken);
 

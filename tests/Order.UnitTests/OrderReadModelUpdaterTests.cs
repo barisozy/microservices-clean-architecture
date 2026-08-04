@@ -27,7 +27,7 @@ public class OrderReadModelUpdaterTests
 
         // Assert
         readRepoMock.Verify(x => x.SetOrderAsync(
-            It.Is<OrderStatusDto>(d => d.Id == order.Id && d.BuyerId == "buyer-123" && d.Status == "Pending"),
+            It.Is<OrderStatusDto>(d => d.Id == order.Id && d.BuyerId == "buyer-123" && d.Status == "PendingInventory"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

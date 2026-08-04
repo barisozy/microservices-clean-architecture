@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Order.Domain.Entities;
 using Order.Domain.Enums;
+using Order.Api.Endpoints;
 using Order.Infrastructure.Data;
 using Payment.Infrastructure.Data;
 using Shouldly;
@@ -27,7 +28,9 @@ namespace ECommerce.IntegrationTests;
 [Collection("IntegrationTests")]
 public sealed class OrderE2ETest : IAsyncLifetime
 {
+    private static readonly SemaphoreSlim TestLock = new(1, 1);
     private readonly InfrastructureFixture _infra;
+    private bool _testLockHeld;
     private ServiceFactory<Inventory.Api.IInventoryApiMarker> _inventoryFactory = null!;
     private ServiceFactory<Payment.Api.IPaymentApiMarker> _paymentFactory = null!;
     private ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker> _fulfillmentFactory = null!;
@@ -40,37 +43,82 @@ public sealed class OrderE2ETest : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        _accessToken = await _infra.GetCustomerAccessTokenAsync(TestContext.Current.CancellationToken);
-        _inventoryFactory = new ServiceFactory<Inventory.Api.IInventoryApiMarker>(_infra);
-        _paymentFactory = new ServiceFactory<Payment.Api.IPaymentApiMarker>(_infra);
-        _fulfillmentFactory = new ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker>(_infra);
-        _catalogFactory = new ServiceFactory<Catalog.Api.ICatalogApiMarker>(_infra);
+        await TestLock.WaitAsync(CancellationToken.None);
+        _testLockHeld = true;
 
-        _inventoryFactory.CreateClient().Dispose();
-        _paymentFactory.CreateClient().Dispose();
-        _fulfillmentFactory.CreateClient().Dispose();
-        _catalogFactory.CreateClient().Dispose();
+        try
+        {
+            _accessToken = await _infra.GetCustomerAccessTokenAsync(TestContext.Current.CancellationToken);
+            _inventoryFactory = new ServiceFactory<Inventory.Api.IInventoryApiMarker>(_infra);
+            _paymentFactory = new ServiceFactory<Payment.Api.IPaymentApiMarker>(_infra);
+            _fulfillmentFactory = new ServiceFactory<Fulfillment.Api.IFulfillmentApiMarker>(_infra);
+            _catalogFactory = new ServiceFactory<Catalog.Api.ICatalogApiMarker>(_infra);
 
-        await SeedCatalogAndInventoryAsync();
+            _inventoryFactory.CreateClient().Dispose();
+            _paymentFactory.CreateClient().Dispose();
+            _fulfillmentFactory.CreateClient().Dispose();
+            _catalogFactory.CreateClient().Dispose();
 
-        _orderFactory = new ServiceFactory<Order.Api.IOrderApiMarker>(
-            _infra,
-            orderDependencies: new OrderServiceDependencies(_inventoryFactory, _catalogFactory, _accessToken));
-        _orderClient = _orderFactory.CreateClient();
-        _orderClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+            await Task.WhenAll(
+                StartBusAsync(_inventoryFactory),
+                StartBusAsync(_paymentFactory),
+                StartBusAsync(_fulfillmentFactory),
+                StartBusAsync(_catalogFactory));
+
+            await SeedCatalogAndInventoryAsync();
+
+            _orderFactory = new ServiceFactory<Order.Api.IOrderApiMarker>(
+                _infra,
+                orderDependencies: new OrderServiceDependencies(_inventoryFactory, _catalogFactory, _accessToken));
+            _orderClient = _orderFactory.CreateClient();
+            _orderClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+            await StartBusAsync(_orderFactory);
+        }
+        catch
+        {
+            _testLockHeld = false;
+            TestLock.Release();
+            throw;
+        }
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        _orderClient.Dispose();
-        _orderFactory.Dispose();
-        _fulfillmentFactory.Dispose();
-        _catalogFactory.Dispose();
-        _paymentFactory.Dispose();
-        _inventoryFactory.Dispose();
-        return ValueTask.CompletedTask;
+        try
+        {
+            _orderClient.Dispose();
+            await StopBusAsync(_orderFactory);
+            await StopBusAsync(_fulfillmentFactory);
+            await StopBusAsync(_catalogFactory);
+            await StopBusAsync(_paymentFactory);
+            await StopBusAsync(_inventoryFactory);
+            await _orderFactory.DisposeAsync();
+            await _fulfillmentFactory.DisposeAsync();
+            await _catalogFactory.DisposeAsync();
+            await _paymentFactory.DisposeAsync();
+            await _inventoryFactory.DisposeAsync();
+        }
+        finally
+        {
+            if (_testLockHeld)
+            {
+                _testLockHeld = false;
+                TestLock.Release();
+            }
+        }
     }
+
+    private static async Task StopBusAsync<TProgram>(ServiceFactory<TProgram> factory)
+        where TProgram : class
+    {
+        if (factory.Services.GetService<IBusControl>() is { } bus)
+            await bus.StopAsync();
+    }
+
+    private static Task StartBusAsync<TProgram>(ServiceFactory<TProgram> factory)
+        where TProgram : class =>
+        factory.Services.GetRequiredService<IBusControl>().StartAsync();
 
     [Fact]
     public async Task InventoryGrpcService_AcceptsTheKeycloakJwt()
@@ -94,14 +142,6 @@ public sealed class OrderE2ETest : IAsyncLifetime
     public async Task CreateOrder_WithKeycloakJwt_PublishesOutboxMessage_AndShipsOrder()
     {
         var orderId = await CreateOrderAsync("PROD-SUCCESS");
-
-        await EventuallyAsync(async () =>
-        {
-            using var scope = _orderFactory.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
-            return await db.Set<OutboxMessage>()
-                .AnyAsync(message => message.MessageType.Contains(nameof(OrderCreated)), TestContext.Current.CancellationToken);
-        });
 
         await EventuallyAsync(async () =>
         {
@@ -167,7 +207,10 @@ public sealed class OrderE2ETest : IAsyncLifetime
             using var scope = _orderFactory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
             return await db.Set<InboxState>()
-                .CountAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken) == 1;
+                .Where(x => x.MessageId == duplicateMessageId)
+                .Select(x => x.MessageId)
+                .Distinct()
+                .CountAsync(TestContext.Current.CancellationToken) == 1;
         });
     }
 
@@ -239,7 +282,10 @@ public sealed class OrderE2ETest : IAsyncLifetime
             using var scope = _orderFactory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
             return await db.Set<InboxState>()
-                .CountAsync(x => x.MessageId == duplicateMessageId, TestContext.Current.CancellationToken) == 1;
+                .Where(x => x.MessageId == duplicateMessageId)
+                .Select(x => x.MessageId)
+                .Distinct()
+                .CountAsync(TestContext.Current.CancellationToken) == 1;
         });
 
         using var finalScope = _inventoryFactory.Services.CreateScope();
@@ -272,10 +318,12 @@ public sealed class OrderE2ETest : IAsyncLifetime
         var diagnostic = response.Headers.TryGetValues("X-Integration-Authentication-Failure", out var values)
             ? string.Join("; ", values)
             : await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Created, diagnostic);
-        var orderId = await response.Content.ReadFromJsonAsync<Guid>(TestContext.Current.CancellationToken);
-        orderId.ShouldNotBe(Guid.Empty);
-        return orderId;
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Accepted, diagnostic);
+        var submission = await response.Content.ReadFromJsonAsync<OrderSubmissionResponse>(TestContext.Current.CancellationToken);
+        submission.ShouldNotBeNull();
+        submission!.OrderId.ShouldNotBe(Guid.Empty);
+        submission.Status.ShouldBe("PendingInventory");
+        return submission.OrderId;
     }
 
     private async Task<Guid> CreateOrderAsync(string sku, string? idempotencyKey = null)

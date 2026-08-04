@@ -55,7 +55,7 @@ public class InventoryTests
     public void InventoryReservation_Create_Should_Initialize_Correctly()
     {
         var orderId = Guid.NewGuid();
-        var reservation = InventoryReservation.Create(orderId, "SKU-1", 5);
+        var reservation = InventoryReservation.Create(orderId, "SKU-1", 5, DateTimeOffset.UtcNow.AddMinutes(2));
 
         reservation.OrderId.ShouldBe(orderId);
         reservation.Sku.ShouldBe("SKU-1");
@@ -66,8 +66,8 @@ public class InventoryTests
     [Fact]
     public void InventoryReservation_Release_Should_Set_IsReleased_To_True()
     {
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 5);
-        reservation.Release();
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 5, DateTimeOffset.UtcNow.AddMinutes(2));
+        reservation.Release(DateTimeOffset.UtcNow);
         reservation.IsReleased.ShouldBeTrue();
     }
 }

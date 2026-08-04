@@ -44,7 +44,7 @@ public class InventoryCommandsTests
         var dbContextMock = new Mock<IInventoryDbContext>();
         var publishEndpointMock = new Mock<IPublishEndpoint>();
 
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU1", 10);
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU1", 10, DateTimeOffset.UtcNow.AddMinutes(2));
         var reservations = new List<InventoryReservation> { reservation };
         dbContextMock.Setup(x => x.Reservations).ReturnsDbSet(reservations);
 
@@ -164,8 +164,8 @@ public class InventoryCommandsTests
     public async Task ReleaseStock_ShouldBeIdempotent_WhenReservationWasAlreadyReleased()
     {
         var dbContextMock = new Mock<IInventoryDbContext>();
-        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 2);
-        reservation.Release();
+        var reservation = InventoryReservation.Create(Guid.NewGuid(), "SKU-1", 2, DateTimeOffset.UtcNow.AddMinutes(2));
+        reservation.Release(DateTimeOffset.UtcNow);
         dbContextMock.Setup(x => x.Reservations).ReturnsDbSet([reservation]);
         var publishEndpointMock = new Mock<IPublishEndpoint>();
         var readRepoMock = new Mock<IStockReadRepository>();

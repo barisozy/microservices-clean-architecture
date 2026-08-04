@@ -39,6 +39,11 @@ namespace Inventory.Infrastructure.Data
             builder.HasKey(r => r.Id);
             builder.Property(r => r.Sku).IsRequired().HasMaxLength(100);
             builder.HasIndex(r => new { r.OrderId, r.Sku }).IsUnique();
+            builder.HasIndex(r => r.ExpiresAt)
+                .HasDatabaseName("IX_InventoryReservations_Pending_ExpiresAt")
+                .HasFilter("\"Status\" = 0");
+            builder.Property(r => r.Status).IsRequired();
+            builder.Property(r => r.Version).HasColumnName("xmin").IsRowVersion();
         }
     }
 
@@ -87,6 +92,7 @@ namespace Inventory.Infrastructure.Data
 namespace Inventory.Infrastructure
 {
     using Inventory.Infrastructure.Data;
+    using Inventory.Infrastructure.BackgroundServices;
     using System.Security.Claims;
 
     public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
@@ -123,11 +129,25 @@ namespace Inventory.Infrastructure
                 ?? "localhost:6379";
             services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(_ => StackExchange.Redis.ConnectionMultiplexer.Connect(valkeyConnectionString));
             services.AddScoped<Inventory.Application.Common.Interfaces.IStockReadRepository, Inventory.Infrastructure.Data.Repositories.StockReadRepository>();
+            services.AddSingleton(TimeProvider.System);
+            services.AddOptions<InventoryReservationOptions>()
+                .Bind(configuration.GetSection("InventoryReservation"))
+                .Validate(
+                    options => options.LeaseDuration > TimeSpan.Zero &&
+                               options.ReaperInterval > TimeSpan.Zero &&
+                               options.ReaperBatchSize > 0,
+                    "Inventory reservation lease options must be positive.")
+                .ValidateOnStart();
+            services.AddScoped<IInventoryReservationLeasePolicy, InventoryReservationLeasePolicy>();
+            services.AddHostedService<InventoryReservationReaper>();
 
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<OrderCancelledConsumer>();
                 x.AddConsumer<PaymentFailedConsumer>();
+                x.AddConsumer<ReserveInventoryConsumer>();
+                x.AddConsumer<CommitInventoryReservationConsumer>();
+                x.AddConsumer<ReleaseInventoryReservationConsumer>();
 
                 x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
                 {

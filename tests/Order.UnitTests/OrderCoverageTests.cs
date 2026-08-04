@@ -42,7 +42,7 @@ public class OrderCoverageTests
         await updater.Handle(new OrderCancelledDomainEvent(order, "payment failed"), CancellationToken.None);
 
         repository.Verify(x => x.SetOrderAsync(
-            It.Is<OrderStatusDto>(dto => dto.Id == order.Id && dto.Status == "Pending" && dto.BuyerId == "buyer"),
+            It.Is<OrderStatusDto>(dto => dto.Id == order.Id && dto.Status == "PendingInventory" && dto.BuyerId == "buyer"),
             It.IsAny<CancellationToken>()), Times.Once);
         repository.Verify(x => x.SetOrderAsync(
             It.Is<OrderStatusDto>(dto => dto.Id == order.Id && dto.Status == "Cancelled"),

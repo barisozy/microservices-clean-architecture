@@ -23,7 +23,6 @@ public class CreateOrderCommandHandler(
     IPublishEndpoint publishEndpoint,
     IOrderCache orderCache,
     IBasketService basketService,
-    InventoryService.InventoryServiceClient inventoryClient,
     CatalogService.CatalogServiceClient catalogClient,
     PromotionService.PromotionServiceClient promotionClient,
     ILogger<CreateOrderCommandHandler> logger) : IRequestHandler<CreateOrderCommand, Guid>
@@ -33,8 +32,6 @@ public class CreateOrderCommandHandler(
         Meter.CreateHistogram<double>("order.checkout.duration", "ms");
     private static readonly Histogram<double> CatalogDuration =
         Meter.CreateHistogram<double>("catalog.price_snapshot.duration", "ms");
-    private static readonly Histogram<double> InventoryDuration =
-        Meter.CreateHistogram<double>("inventory.reserve_stock.duration", "ms");
     private static readonly Histogram<double> PromotionDuration =
         Meter.CreateHistogram<double>("promotion.coupon_apply.duration", "ms");
 
@@ -169,46 +166,12 @@ public class CreateOrderCommandHandler(
             });
         }
 
-        // Sprint 1: Sync gRPC call to Inventory.Api — reserve stock BEFORE creating the order
+        // Persist the business intent before beginning the distributed checkout workflow.
         var order = global::Order.Domain.Entities.Order.Create(
             request.CustomerId,
             request.KeycloakSubject,
             request.IdempotencyKey,
             finalItems);
-
-        var reservationIds = new List<string>();
-        foreach (var item in finalItems)
-        {
-            ReserveStockResponse reserveResponse;
-            using (new DurationScope(InventoryDuration))
-            {
-                reserveResponse = await inventoryClient.ReserveStockAsync(
-                    new ReserveStockRequest
-                    {
-                        OrderId = order.Id.ToString("D"),
-                        Sku = item.Sku,
-                        Quantity = item.Quantity
-                    },
-                    cancellationToken: cancellationToken);
-            }
-
-            if (!reserveResponse.IsSuccess)
-            {
-                foreach (var reservationId in reservationIds)
-                {
-                    await inventoryClient.ReleaseStockAsync(
-                        new ReleaseStockRequest { ReservationId = reservationId },
-                        cancellationToken: cancellationToken);
-                }
-
-                throw new OrderDomainException($"Stock reservation failed: {reserveResponse.Message}");
-            }
-
-            if (!string.IsNullOrWhiteSpace(reserveResponse.ReservationId))
-            {
-                reservationIds.Add(reserveResponse.ReservationId);
-            }
-        }
 
         // Sprint 7: Promotion.Api ApplyCoupon gRPC call
         var totalAmount = finalItems.Sum(i => i.Quantity * i.UnitPrice);
@@ -246,8 +209,11 @@ public class CreateOrderCommandHandler(
 
         var eventItems = finalItems.Select(i => new OrderItemContractDto(i.Sku, i.Quantity, i.UnitPrice)).ToList();
 
-        // Publish via MassTransit Outbox — after stock is reserved
-        await publishEndpoint.Publish(new OrderCreated(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow), cancellationToken);
+        // Bus outbox persists this message in the same OrderDbContext transaction.
+        await publishEndpoint.Publish(
+            new CheckoutStarted(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow),
+            publishContext => publishContext.CorrelationId = order.Id,
+            cancellationToken);
 
         await context.SaveChangesAsync(cancellationToken);
 

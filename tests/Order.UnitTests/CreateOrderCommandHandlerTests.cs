@@ -20,7 +20,7 @@ namespace Order.UnitTests;
 public class CreateOrderCommandHandlerTests
 {
     [Fact]
-    public async Task Handle_ShouldPublishOrderCreatedEvent()
+    public async Task Handle_ShouldPublishCheckoutStartedEvent()
     {
         var dbContextMock = new Mock<IOrderDbContext>();
         var dbSetMock = new Mock<DbSet<global::Order.Domain.Entities.Order>>();
@@ -33,20 +33,9 @@ public class CreateOrderCommandHandlerTests
             .ReturnsAsync((Guid?)null);
 
         var basketServiceMock = new Mock<IBasketService>();
-        var inventoryClientMock = new Mock<InventoryService.InventoryServiceClient>();
         var catalogClientMock = new Mock<CatalogService.CatalogServiceClient>();
         var promotionClientMock = new Mock<PromotionService.PromotionServiceClient>();
         var loggerMock = new Mock<ILogger<CreateOrderCommandHandler>>();
-
-        var reserveCall = new AsyncUnaryCall<ReserveStockResponse>(
-            Task.FromResult(new ReserveStockResponse { IsSuccess = true, ReservationId = Guid.NewGuid().ToString(), Message = "Success" }),
-            Task.FromResult(new Metadata()),
-            () => Status.DefaultSuccess,
-            () => new Metadata(),
-            () => { });
-
-        inventoryClientMock.Setup(x => x.ReserveStockAsync(It.IsAny<ReserveStockRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-            .Returns(reserveCall);
 
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
             Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = 100 }),
@@ -62,7 +51,6 @@ public class CreateOrderCommandHandlerTests
             publishEndpointMock.Object,
             orderCacheMock.Object,
             basketServiceMock.Object,
-            inventoryClientMock.Object,
             catalogClientMock.Object,
             promotionClientMock.Object,
             loggerMock.Object);
@@ -73,7 +61,10 @@ public class CreateOrderCommandHandlerTests
 
         Assert.NotEqual(Guid.Empty, result);
 
-        publishEndpointMock.Verify(x => x.Publish(It.IsAny<OrderCreated>(), It.IsAny<CancellationToken>()), Times.Once);
+        publishEndpointMock.Verify(x => x.Publish<CheckoutStarted>(
+            It.IsAny<CheckoutStarted>(),
+            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+            It.IsAny<CancellationToken>()), Times.Once);
         dbContextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
