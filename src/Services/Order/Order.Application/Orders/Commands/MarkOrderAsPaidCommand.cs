@@ -1,16 +1,15 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 
 namespace Order.Application.Orders.Commands;
 
 public record MarkOrderAsPaidCommand(Guid OrderId) : IRequest;
 
-public class MarkOrderAsPaidCommandHandler(IOrderDbContext context) : IRequestHandler<MarkOrderAsPaidCommand>
+public class MarkOrderAsPaidCommandHandler(IOrderWriteRepository context) : IRequestHandler<MarkOrderAsPaidCommand>
 {
     public async Task Handle(MarkOrderAsPaidCommand request, CancellationToken cancellationToken)
     {
-        var order = await context.Orders.FirstOrDefaultAsync(x => x.Id == request.OrderId, cancellationToken);
+        var order = await context.FindByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             throw new InvalidOperationException($"Order {request.OrderId} was not found.");

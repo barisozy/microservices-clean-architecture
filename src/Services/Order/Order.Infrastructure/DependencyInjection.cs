@@ -40,7 +40,7 @@ public static class DependencyInjection
             });
         });
 
-        services.AddScoped<IOrderDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+        
 
         // Valkey basket service (BSD-3-Clause)
         var valkeyConnectionString = configuration.GetConnectionString("valkey")
@@ -48,6 +48,7 @@ public static class DependencyInjection
             ?? "localhost:6379";
         services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(valkeyConnectionString));
         services.AddScoped<IBasketService, ValkeyBasketService>();
+        services.AddScoped<IOrderWriteRepository, Order.Infrastructure.Data.Repositories.OrderWriteRepository>();
         services.AddScoped<IOrderCache, ValkeyOrderCache>();
         services.AddScoped<IOrderReadRepository, Order.Infrastructure.Data.Repositories.OrderReadRepository>();
         services.AddSingleton(TimeProvider.System);
@@ -136,3 +137,4 @@ public static class DependencyInjection
         return services;
     }
 }
+

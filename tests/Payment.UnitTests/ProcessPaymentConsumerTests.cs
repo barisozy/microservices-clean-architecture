@@ -13,17 +13,17 @@ using Xunit;
 
 namespace Payment.UnitTests;
 
-public class OrderCreatedConsumerTests
+public class ProcessPaymentConsumerTests
 {
     [Fact]
     public async Task Consume_Should_Log_And_Process()
     {
         var senderMock = new Mock<ISender>();
-        var loggerMock = new Mock<ILogger<OrderCreatedConsumer>>();
-        var consumer = new OrderCreatedConsumer(senderMock.Object, loggerMock.Object);
+        var loggerMock = new Mock<ILogger<ProcessPaymentConsumer>>();
+        var consumer = new ProcessPaymentConsumer(senderMock.Object, loggerMock.Object);
 
-        var consumeContextMock = new Mock<ConsumeContext<OrderCreated>>();
-        consumeContextMock.Setup(x => x.Message).Returns(new OrderCreated(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemContractDto>(), 100, DateTimeOffset.UtcNow));
+        var consumeContextMock = new Mock<ConsumeContext<ProcessPayment>>();
+        consumeContextMock.Setup(x => x.Message).Returns(new ProcessPayment(Guid.NewGuid(), Guid.NewGuid(), "key1", 100, []));
 
         await consumer.Consume(consumeContextMock.Object);
         // Should not throw

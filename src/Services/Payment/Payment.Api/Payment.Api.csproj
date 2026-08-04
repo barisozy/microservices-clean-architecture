@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Payment.Application\Payment.Application.csproj" />
-    <ProjectReference Include="..\Payment.Infrastructure\Payment.Infrastructure.csproj" />
+  <ProjectReference Include="..\Payment.Infrastructure\Payment.Infrastructure.csproj" />
+  <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.ServiceDefaults\ECommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

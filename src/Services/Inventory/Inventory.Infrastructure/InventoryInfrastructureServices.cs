@@ -15,10 +15,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Inventory.Infrastructure.Data
 {
-    public class InventoryDbContext(DbContextOptions<InventoryDbContext> options) : DbContext(options), IInventoryDbContext
+    public class InventoryDbContext(DbContextOptions<InventoryDbContext> options) : DbContext(options), IInventoryWriteRepository
     {
         public DbSet<InventoryReservation> Reservations => Set<InventoryReservation>();
         public DbSet<Stock> Stocks => Set<Stock>();
+        public Task<InventoryReservation?> FindReservationAsync(Guid reservationId, CancellationToken cancellationToken = default) => Reservations.Include(r => r.Items).FirstOrDefaultAsync(r => r.Id == reservationId, cancellationToken);
+        public Task<InventoryReservation?> FindReservationByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default) => Reservations.Include(r => r.Items).FirstOrDefaultAsync(r => r.OrderId == orderId, cancellationToken);
+        public Task<Stock?> FindStockAsync(string sku, CancellationToken cancellationToken = default) => Stocks.FirstOrDefaultAsync(s => s.Sku == sku, cancellationToken);
+        public void Add(InventoryReservation reservation) => Reservations.Add(reservation);
+        public void Add(Stock stock) => Stocks.Add(stock);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,13 +42,33 @@ namespace Inventory.Infrastructure.Data
         {
             builder.ToTable("InventoryReservations", "inventory");
             builder.HasKey(r => r.Id);
-            builder.Property(r => r.Sku).IsRequired().HasMaxLength(100);
-            builder.HasIndex(r => new { r.OrderId, r.Sku }).IsUnique();
+            builder.HasIndex(r => r.OrderId).IsUnique();
+            builder.HasIndex(r => r.RequestFingerprint).IsUnique();
             builder.HasIndex(r => r.ExpiresAt)
                 .HasDatabaseName("IX_InventoryReservations_Pending_ExpiresAt")
                 .HasFilter("\"Status\" = 0");
             builder.Property(r => r.Status).IsRequired();
             builder.Property(r => r.Version).HasColumnName("xmin").IsRowVersion();
+
+            builder.Metadata.FindNavigation(nameof(InventoryReservation.Items))?
+                .SetPropertyAccessMode(PropertyAccessMode.Field);
+            
+            builder.HasMany(r => r.Items)
+                .WithOne()
+                .HasForeignKey(i => i.InventoryReservationId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public class ReservationItemConfiguration : IEntityTypeConfiguration<InventoryReservationItem>
+    {
+        public void Configure(EntityTypeBuilder<InventoryReservationItem> builder)
+        {
+            builder.ToTable("InventoryReservationItems", "inventory");
+            builder.HasKey(i => i.Id);
+            builder.Property(i => i.Sku).IsRequired().HasMaxLength(100);
+            builder.HasIndex(i => new { i.InventoryReservationId, i.Sku }).IsUnique();
         }
     }
 
@@ -122,7 +147,7 @@ namespace Inventory.Infrastructure
                 });
             });
 
-            services.AddScoped<IInventoryDbContext>(provider => provider.GetRequiredService<InventoryDbContext>());
+            services.AddScoped<IInventoryWriteRepository>(provider => provider.GetRequiredService<InventoryDbContext>());
 
             var valkeyConnectionString = configuration.GetConnectionString("valkey")
                 ?? configuration.GetConnectionString("cache")

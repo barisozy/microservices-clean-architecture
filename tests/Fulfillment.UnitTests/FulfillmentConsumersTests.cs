@@ -20,17 +20,16 @@ public class FulfillmentConsumersTests
     [Fact]
     public async Task PaymentCompletedConsumer_Should_Create_Task_And_Publish()
     {
-        var contextMock = new Mock<IFulfillmentDbContext>();
+        var contextMock = new Mock<IFulfillmentWriteRepository>();
         var publishMock = new Mock<IPublishEndpoint>();
         var loggerMock = new Mock<ILogger<PaymentCompletedConsumer>>();
 
         var tasksList = new List<FulfillmentTask>();
-        contextMock.Setup(x => x.Tasks).ReturnsDbSet(tasksList);
-        contextMock.Setup(x => x.Tasks.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(t => tasksList.Add(t));
+        contextMock.Setup(x => x.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(t => tasksList.Add(t));
 
         var shipmentsList = new List<Shipment>();
-        contextMock.Setup(x => x.Shipments).ReturnsDbSet(shipmentsList);
-        contextMock.Setup(x => x.Shipments.Add(It.IsAny<Shipment>())).Callback<Shipment>(s => shipmentsList.Add(s));
+        contextMock.Setup(x => x.Add(It.IsAny<Shipment>())).Callback<Shipment>(s => shipmentsList.Add(s));
+        contextMock.Setup(x => x.FindShipmentAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Guid orderId, CancellationToken token) => shipmentsList.Find(x => x.OrderId == orderId));
 
         var readRepoMock = new Mock<IFulfillmentReadRepository>();
 

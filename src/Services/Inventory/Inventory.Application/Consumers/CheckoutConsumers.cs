@@ -4,12 +4,12 @@ using Inventory.Domain.Entities;
 using Inventory.Application.Inventory.Commands;
 using MassTransit;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Inventory.Application.Consumers;
 
 public sealed class ReserveInventoryConsumer(
-    IInventoryDbContext db,
+    IInventoryWriteRepository db,
     IPublishEndpoint publishEndpoint,
     IInventoryReservationLeasePolicy leasePolicy) : IConsumer<ReserveInventory>
 {
@@ -30,34 +30,39 @@ public sealed class ReserveInventoryConsumer(
             return;
         }
 
+        var itemsDict = request.Items.ToDictionary(i => i.Sku, i => i.Quantity);
+        var fingerprint = InventoryReservation.GenerateFingerprint(request.OrderId, itemsDict);
         var now = leasePolicy.UtcNow;
-        var existing = await db.Reservations
-            .Where(x => x.OrderId == request.OrderId)
-            .ToListAsync(context.CancellationToken);
-        if (existing.Count > 0)
+        
+        var existing = await db.FindReservationByOrderIdAsync(request.OrderId, context.CancellationToken);
+        if (existing is not null)
         {
-            if (existing.Any(x => x.Status is InventoryReservationStatus.Released or InventoryReservationStatus.Expired))
+            if (existing.RequestFingerprint != fingerprint)
+            {
+                await Reject(context, "RESERVATION_FINGERPRINT_MISMATCH");
+                return;
+            }
+
+            if (existing.Status is InventoryReservationStatus.Released or InventoryReservationStatus.Expired)
             {
                 await Reject(context, "RESERVATION_NOT_ACTIVE");
                 return;
             }
 
-            if (existing.Any(x => x.Status == InventoryReservationStatus.Pending && x.ExpiresAt <= now))
+            if (existing.Status == InventoryReservationStatus.Pending && existing.ExpiresAt <= now)
             {
                 await Reject(context, "RESERVATION_EXPIRED");
                 return;
             }
 
-            var expiry = existing.Min(x => x.ExpiresAt);
-            await publishEndpoint.Publish(new InventoryReserved(request.OrderId, existing[0].Id, expiry), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
             await db.SaveChangesAsync(context.CancellationToken);
+            await publishEndpoint.Publish(new InventoryReserved(request.OrderId, existing.Id, existing.ExpiresAt), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
             return;
         }
 
-        var stocks = new List<(Stock Stock, ECommerce.Contracts.Events.v1.OrderItemContractDto Item)>();
         foreach (var item in request.Items)
         {
-            var stock = await db.Stocks.FirstOrDefaultAsync(x => x.Sku == item.Sku, context.CancellationToken);
+            var stock = await db.FindStockAsync(item.Sku, context.CancellationToken);
             if (stock is null)
             {
                 await Reject(context, "UNKNOWN_SKU");
@@ -68,85 +73,77 @@ public sealed class ReserveInventoryConsumer(
                 await Reject(context, "INSUFFICIENT_STOCK");
                 return;
             }
-            stocks.Add((stock, item));
+            stock.Reserve(item.Quantity);
         }
 
         var expiresAt = leasePolicy.GetExpiry(now);
-        var reservations = stocks.Select(x =>
-        {
-            x.Stock.Reserve(x.Item.Quantity);
-            return InventoryReservation.Create(request.OrderId, x.Item.Sku, x.Item.Quantity, expiresAt);
-        }).ToList();
-        foreach (var reservation in reservations)
-            db.Reservations.Add(reservation);
+        var reservation = InventoryReservation.Create(request.OrderId, itemsDict, expiresAt);
+        db.Add(reservation);
 
-        await publishEndpoint.Publish(new InventoryReserved(request.OrderId, reservations[0].Id, expiresAt), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
         await db.SaveChangesAsync(context.CancellationToken);
+        await publishEndpoint.Publish(new InventoryReserved(request.OrderId, reservation.Id, expiresAt), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
     }
 
     private async Task Reject(ConsumeContext<ReserveInventory> context, string reason)
     {
-        await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
         await db.SaveChangesAsync(context.CancellationToken);
+        await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
     }
 }
 
 public sealed class CommitInventoryReservationConsumer(
-    IInventoryDbContext db,
+    IInventoryWriteRepository db,
     IPublishEndpoint publishEndpoint,
     IInventoryReservationLeasePolicy leasePolicy) : IConsumer<CommitInventoryReservation>
 {
     public async Task Consume(ConsumeContext<CommitInventoryReservation> context)
     {
-        var reservations = await db.Reservations.Where(x => x.OrderId == context.Message.OrderId).ToListAsync(context.CancellationToken);
-        if (reservations.Count == 0)
+        var reservation = await db.FindReservationByOrderIdAsync(context.Message.OrderId, context.CancellationToken);
+        if (reservation is null)
         {
             await Reject(context, "RESERVATION_NOT_FOUND");
             return;
         }
 
         var now = leasePolicy.UtcNow;
-        if (reservations.All(x => x.Status == InventoryReservationStatus.Committed))
+        if (reservation.Status == InventoryReservationStatus.Committed)
         {
-            await PublishCommitted(context, reservations[0].Id);
+            await PublishCommitted(context, reservation.Id);
             return;
         }
 
-        if (reservations.Any(x => x.Status == InventoryReservationStatus.Expired ||
-                                  (x.Status == InventoryReservationStatus.Pending && x.ExpiresAt <= now)))
+        if (reservation.Status == InventoryReservationStatus.Expired ||
+            (reservation.Status == InventoryReservationStatus.Pending && reservation.ExpiresAt <= now))
         {
             await Reject(context, "RESERVATION_EXPIRED");
             return;
         }
 
-        if (reservations.Any(x => x.Status != InventoryReservationStatus.Pending))
+        if (reservation.Status != InventoryReservationStatus.Pending)
         {
             await Reject(context, "INVALID_RESERVATION_STATE");
             return;
         }
 
-        foreach (var reservation in reservations)
+        if (!reservation.Commit(now))
         {
-            if (!reservation.Commit(now))
-            {
-                await Reject(context, "RESERVATION_EXPIRED");
-                return;
-            }
+            await Reject(context, "RESERVATION_EXPIRED");
+            return;
         }
 
-        await PublishCommitted(context, reservations[0].Id);
+        await PublishCommitted(context, reservation.Id);
     }
 
     private async Task PublishCommitted(ConsumeContext<CommitInventoryReservation> context, Guid reservationId)
     {
-        await publishEndpoint.Publish(new InventoryReservationCommitted(context.Message.OrderId, reservationId), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
         await db.SaveChangesAsync(context.CancellationToken);
+        await publishEndpoint.Publish(new InventoryReservationCommitted(context.Message.OrderId, reservationId), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
     }
 
     private async Task Reject(ConsumeContext<CommitInventoryReservation> context, string reason)
     {
-        await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
         await db.SaveChangesAsync(context.CancellationToken);
+        await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
     }
 }
 

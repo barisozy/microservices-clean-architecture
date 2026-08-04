@@ -14,6 +14,6 @@ public sealed class CheckoutStateConfiguration : IEntityTypeConfiguration<Checko
         builder.Property(x => x.IdempotencyKey).HasMaxLength(100).IsRequired();
         builder.Property(x => x.TotalAmount).HasPrecision(18, 2);
         builder.Property(x => x.Version).HasColumnName("xmin").IsRowVersion();
-        builder.Property(x => x.ItemsJson).HasColumnType("jsonb");
+        builder.Property(x => x.ItemsJson).HasColumnType("text");
     }
 }

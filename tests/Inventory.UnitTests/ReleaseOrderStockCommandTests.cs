@@ -1,9 +1,8 @@
-﻿using Inventory.Application.Common.Interfaces;
+using Inventory.Application.Common.Interfaces;
 using Inventory.Application.Inventory.Commands;
 using Inventory.Domain.Entities;
 using MediatR;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Xunit;
 
 namespace Inventory.UnitTests;
@@ -11,7 +10,7 @@ namespace Inventory.UnitTests;
 public class ReleaseOrderStockCommandTests
 {
     [Fact]
-    public async Task Handle_ShouldReleaseAllActiveReservations_ForOrder()
+    public async Task Handle_ShouldReleaseActiveReservation_ForOrder()
     {
         // Arrange
         var orderId = Guid.NewGuid();
@@ -19,27 +18,10 @@ public class ReleaseOrderStockCommandTests
         var reservation1 =
             InventoryReservation.Create(orderId, "SKU-1", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
-        var reservation2 =
-            InventoryReservation.Create(orderId, "SKU-2", 2, DateTimeOffset.UtcNow.AddMinutes(2));
-
-        var reservation3 =
-            InventoryReservation.Create(orderId, "SKU-3", 3, DateTimeOffset.UtcNow.AddMinutes(2));
-
-        var reservation4 =
-            InventoryReservation.Create(orderId, "SKU-4", 4, DateTimeOffset.UtcNow.AddMinutes(2));
-
-        var reservations = new List<InventoryReservation>
-        {
-            reservation1,
-            reservation2,
-            reservation3,
-            reservation4
-        };
-
-        var dbContext = new Mock<IInventoryDbContext>();
+        var dbContext = new Mock<IInventoryWriteRepository>();
         dbContext
-            .Setup(x => x.Reservations)
-            .ReturnsDbSet(reservations);
+            .Setup(x => x.FindReservationByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation1);
 
         var sender = new Mock<ISender>();
 
@@ -57,22 +39,19 @@ public class ReleaseOrderStockCommandTests
             x => x.Send(
                 It.IsAny<ReleaseStockCommand>(),
                 It.IsAny<CancellationToken>()),
-            Times.Exactly(4));
+            Times.Once);
 
-        foreach (var reservation in reservations)
-        {
-            sender.Verify(
-                x => x.Send(
-                    It.Is<ReleaseStockCommand>(
-                        command =>
-                            command.ReservationId == reservation.Id),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        sender.Verify(
+            x => x.Send(
+                It.Is<ReleaseStockCommand>(
+                    command =>
+                        command.ReservationId == reservation1.Id),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Handle_ShouldOnlyReleaseReservations_BelongingToRequestedOrder()
+    public async Task Handle_ShouldOnlyReleaseReservation_BelongingToRequestedOrder()
     {
         var orderId = Guid.NewGuid();
         var anotherOrderId = Guid.NewGuid();
@@ -80,23 +59,13 @@ public class ReleaseOrderStockCommandTests
         var target1 =
             InventoryReservation.Create(orderId, "SKU-1", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
-        var target2 =
-            InventoryReservation.Create(orderId, "SKU-2", 1, DateTimeOffset.UtcNow.AddMinutes(2));
-
-        var unrelated =
-            InventoryReservation.Create(anotherOrderId, "SKU-3", 1, DateTimeOffset.UtcNow.AddMinutes(2));
-
-        var reservations = new List<InventoryReservation>
-    {
-        target1,
-        target2,
-        unrelated
-    };
-
-        var dbContext = new Mock<IInventoryDbContext>();
+        var dbContext = new Mock<IInventoryWriteRepository>();
         dbContext
-            .Setup(x => x.Reservations)
-            .ReturnsDbSet(reservations);
+            .Setup(x => x.FindReservationByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(target1);
+        dbContext
+            .Setup(x => x.FindReservationByOrderIdAsync(anotherOrderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((InventoryReservation?)null);
 
         var sender = new Mock<ISender>();
 
@@ -114,20 +83,6 @@ public class ReleaseOrderStockCommandTests
                     c => c.ReservationId == target1.Id),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-
-        sender.Verify(
-            x => x.Send(
-                It.Is<ReleaseStockCommand>(
-                    c => c.ReservationId == target2.Id),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        sender.Verify(
-            x => x.Send(
-                It.Is<ReleaseStockCommand>(
-                    c => c.ReservationId == unrelated.Id),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Fact]
@@ -135,24 +90,15 @@ public class ReleaseOrderStockCommandTests
     {
         var orderId = Guid.NewGuid();
 
-        var active =
-            InventoryReservation.Create(orderId, "SKU-ACTIVE", 1, DateTimeOffset.UtcNow.AddMinutes(2));
-
         var released =
             InventoryReservation.Create(orderId, "SKU-RELEASED", 1, DateTimeOffset.UtcNow.AddMinutes(2));
 
         released.Release(DateTimeOffset.UtcNow);
 
-        var reservations = new List<InventoryReservation>
-    {
-        active,
-        released
-    };
-
-        var dbContext = new Mock<IInventoryDbContext>();
+        var dbContext = new Mock<IInventoryWriteRepository>();
         dbContext
-            .Setup(x => x.Reservations)
-            .ReturnsDbSet(reservations);
+            .Setup(x => x.FindReservationByOrderIdAsync(orderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(released);
 
         var sender = new Mock<ISender>();
 
@@ -166,15 +112,7 @@ public class ReleaseOrderStockCommandTests
 
         sender.Verify(
             x => x.Send(
-                It.Is<ReleaseStockCommand>(
-                    c => c.ReservationId == active.Id),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        sender.Verify(
-            x => x.Send(
-                It.Is<ReleaseStockCommand>(
-                    c => c.ReservationId == released.Id),
+                It.IsAny<ReleaseStockCommand>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }

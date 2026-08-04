@@ -3,13 +3,12 @@ using ECommerce.Contracts.Events.v1;
 using Fulfillment.Application.Common.Interfaces;
 using Fulfillment.Domain.Entities;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Fulfillment.Application.Consumers;
 
 public class PaymentCompletedConsumer(
-    IFulfillmentDbContext context,
+    IFulfillmentWriteRepository context,
     IPublishEndpoint publishEndpoint,
     ILogger<PaymentCompletedConsumer> logger,
     IFulfillmentReadRepository readRepository) : IConsumer<PaymentCompleted>
@@ -32,12 +31,12 @@ public class PaymentCompletedConsumer(
             TrackingNumber = $"TRACK-{Guid.NewGuid().ToString()[..8].ToUpper()}"
         };
 
-        context.Tasks.Add(task);
+        context.Add(task);
 
-        var existingShipment = await context.Shipments.FirstOrDefaultAsync(s => s.OrderId == message.OrderId, contextEvent.CancellationToken);
+        var existingShipment = await context.FindShipmentAsync(message.OrderId, contextEvent.CancellationToken);
         if (existingShipment == null)
         {
-            context.Shipments.Add(new Shipment
+            context.Add(new Shipment
             {
                 OrderId = message.OrderId,
                 TrackingNumber = task.TrackingNumber,
@@ -46,11 +45,14 @@ public class PaymentCompletedConsumer(
             });
         }
 
+        await context.SaveChangesAsync(contextEvent.CancellationToken);
         await publishEndpoint.Publish(
             new OrderShipped(message.OrderId, task.TrackingNumber, DateTimeOffset.UtcNow),
             contextEvent.CancellationToken);
-        await context.SaveChangesAsync(contextEvent.CancellationToken);
 
+        await readRepository.SetShipmentAsync(
+            new ShipmentReadModel(message.OrderId, task.TrackingNumber, task.Status, DateTime.UtcNow),
+            contextEvent.CancellationToken);
         await readRepository.SetFulfillmentStatusAsync(message.OrderId, task.Status, contextEvent.CancellationToken);
 
         logger.LogInformation("Order {OrderId} mock shipped. Tracking Number: {TrackingNumber}", message.OrderId, task.TrackingNumber);

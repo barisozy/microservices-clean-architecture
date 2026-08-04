@@ -53,16 +53,12 @@ namespace Inventory.Infrastructure.Data.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset?>("ReleasedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Sku")
+                    b.Property<string>("RequestFingerprint")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -79,10 +75,38 @@ namespace Inventory.Infrastructure.Data.Migrations
                         .HasDatabaseName("IX_InventoryReservations_Pending_ExpiresAt")
                         .HasFilter("\"Status\" = 0");
 
-                    b.HasIndex("OrderId", "Sku")
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("RequestFingerprint")
                         .IsUnique();
 
                     b.ToTable("InventoryReservations", "inventory");
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.InventoryReservationItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryReservationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryReservationId", "Sku")
+                        .IsUnique();
+
+                    b.ToTable("InventoryReservationItems", "inventory");
                 });
 
             modelBuilder.Entity("Inventory.Domain.Entities.Stock", b =>
@@ -301,6 +325,15 @@ namespace Inventory.Infrastructure.Data.Migrations
                     b.ToTable("OutboxState", "inventory");
                 });
 
+            modelBuilder.Entity("Inventory.Domain.Entities.InventoryReservationItem", b =>
+                {
+                    b.HasOne("Inventory.Domain.Entities.InventoryReservation", null)
+                        .WithMany("Items")
+                        .HasForeignKey("InventoryReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
                 {
                     b.HasOne("MassTransit.EntityFrameworkCoreIntegration.OutboxState", null)
@@ -311,6 +344,11 @@ namespace Inventory.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
+                });
+
+            modelBuilder.Entity("Inventory.Domain.Entities.InventoryReservation", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

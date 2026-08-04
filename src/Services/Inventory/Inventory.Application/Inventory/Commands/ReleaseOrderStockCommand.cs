@@ -1,6 +1,5 @@
 using Inventory.Application.Common.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Inventory.Domain.Entities;
 
 namespace Inventory.Application.Inventory.Commands;
@@ -8,7 +7,7 @@ namespace Inventory.Application.Inventory.Commands;
 public record ReleaseOrderStockCommand(Guid OrderId) : IRequest;
 
 public sealed class ReleaseOrderStockCommandHandler(
-    IInventoryDbContext context,
+    IInventoryWriteRepository context,
     ISender sender)
     : IRequestHandler<ReleaseOrderStockCommand>
 {
@@ -16,19 +15,10 @@ public sealed class ReleaseOrderStockCommandHandler(
         ReleaseOrderStockCommand request,
         CancellationToken cancellationToken)
     {
-        var reservationIds = await context.Reservations
-            .Where(r =>
-                r.OrderId == request.OrderId &&
-                r.Status != InventoryReservationStatus.Released &&
-                r.Status != InventoryReservationStatus.Expired)
-            .Select(r => r.Id)
-            .ToListAsync(cancellationToken);
-
-        foreach (var reservationId in reservationIds)
+        var reservation = await context.FindReservationByOrderIdAsync(request.OrderId, cancellationToken);
+        if (reservation is not null && !reservation.IsTerminal)
         {
-            await sender.Send(
-                new ReleaseStockCommand(reservationId),
-                cancellationToken);
+            await sender.Send(new ReleaseStockCommand(reservation.Id), cancellationToken);
         }
 
         await context.SaveChangesAsync(cancellationToken);

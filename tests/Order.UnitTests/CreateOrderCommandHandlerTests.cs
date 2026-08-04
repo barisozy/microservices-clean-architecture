@@ -61,9 +61,9 @@ public class CreateOrderCommandHandlerTests
 
         Assert.NotEqual(Guid.Empty, result);
 
-        publishEndpointMock.Verify(x => x.Publish<CheckoutStarted>(
-            It.IsAny<CheckoutStarted>(),
-            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+        publishEndpointMock.Verify(x => x.Publish<OrderCheckoutStarted>(
+            It.IsAny<OrderCheckoutStarted>(),
+            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
         dbContextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
