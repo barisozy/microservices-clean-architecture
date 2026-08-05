@@ -57,7 +57,8 @@ public sealed class ServiceFactory<TProgram> : WebApplicationFactory<TProgram>
             ["Jwt:RequireHttpsMetadata"] = "false",
             ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "",
             ["OTEL_SDK_DISABLED"] = "true",
-            ["ASPIRE_ALLOW_UNSECURED_TRANSPORT"] = "true"
+            ["ASPIRE_ALLOW_UNSECURED_TRANSPORT"] = "true",
+            ["DOTNET_ENVIRONMENT"] = "IntegrationTesting"
         };
 
         foreach (var (key, value) in _extraConfig)

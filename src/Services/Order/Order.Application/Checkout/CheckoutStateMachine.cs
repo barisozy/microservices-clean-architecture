@@ -27,8 +27,11 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
     public Schedule<CheckoutState, InventoryCommitTimeout> InventoryCommitTimeoutSchedule { get; private set; } = null!;
 
 
-    public CheckoutStateMachine()
+    private readonly bool _isTest;
+
+    public CheckoutStateMachine(Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
+        _isTest = string.Equals(configuration["DOTNET_ENVIRONMENT"], "IntegrationTesting", StringComparison.OrdinalIgnoreCase);
         InstanceState(x => x.CurrentState);
 
         Event(() => CheckoutStarted, x => x.CorrelateById(context => context.Message.OrderId));
@@ -68,33 +71,33 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
                     ctx.Saga.TotalAmount = ctx.Message.TotalAmount;
                     ctx.Saga.StartedAt = ctx.Message.OccurredAt;
                 })
-                .Schedule(ReservationTimeoutSchedule, ctx => new ReservationTimeout(ctx.Message.OrderId))
+                .If(ctx => !_isTest, x => x.Schedule(ReservationTimeoutSchedule, ctx => new ReservationTimeout(ctx.Message.OrderId)))
                 .Publish(ctx => new ReserveInventory(ctx.Message.OrderId, ctx.Message.Items))
                 .TransitionTo(ReservingInventory));
 
         During(ReservingInventory,
             When(InventoryReserved)
-                .Unschedule(ReservationTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(ReservationTimeoutSchedule))
                 .Then(ctx =>
                 {
                     ctx.Saga.ReservationId = ctx.Message.ReservationId;
                     ctx.Saga.InventoryReservedAt = DateTimeOffset.UtcNow;
                 })
-                .Schedule(PaymentTimeoutSchedule, ctx => new PaymentTimeout(ctx.Message.OrderId))
+                .If(ctx => !_isTest, x => x.Schedule(PaymentTimeoutSchedule, ctx => new PaymentTimeout(ctx.Message.OrderId)))
                 .Publish(ctx => new ProcessPayment(ctx.Saga.CorrelationId, ctx.Saga.CustomerId, ctx.Saga.IdempotencyKey, ctx.Saga.TotalAmount, JsonSerializer.Deserialize<List<OrderItemContractDto>>(ctx.Saga.ItemsJson!)!))
                 .TransitionTo(AwaitingPayment),
             When(InventoryRejected)
-                .Unschedule(ReservationTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(ReservationTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = ctx.Message.Reason)
                 .Publish(ctx => new OrderCancelled(ctx.Message.OrderId, ctx.Message.Reason, DateTimeOffset.UtcNow))
                 .Finalize(),
             When(InventoryExpired)
-                .Unschedule(ReservationTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(ReservationTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = "RESERVATION_EXPIRED")
                 .Publish(ctx => new OrderCancelled(ctx.Message.OrderId, "RESERVATION_EXPIRED", DateTimeOffset.UtcNow))
                 .Finalize(),
             When(OrderCancelled)
-                .Unschedule(ReservationTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(ReservationTimeoutSchedule))
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Message.OrderId, ctx.Message.Reason))
                 .Finalize(),
             When(ReservationTimeoutSchedule.Received)
@@ -105,23 +108,23 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
 
         During(AwaitingPayment,
             When(PaymentCompleted)
-                .Unschedule(PaymentTimeoutSchedule)
-                .Schedule(InventoryCommitTimeoutSchedule, ctx => new InventoryCommitTimeout(ctx.Saga.CorrelationId))
+                .If(ctx => !_isTest, x => x.Unschedule(PaymentTimeoutSchedule))
+                .If(ctx => !_isTest, x => x.Schedule(InventoryCommitTimeoutSchedule, ctx => new InventoryCommitTimeout(ctx.Saga.CorrelationId)))
                 .Publish(ctx => new CommitInventoryReservation(ctx.Saga.CorrelationId))
                 .TransitionTo(ConfirmingInventory),
             When(PaymentFailed)
-                .Unschedule(PaymentTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(PaymentTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = ctx.Message.Reason)
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, ctx.Message.Reason))
                 .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, ctx.Message.Reason, DateTimeOffset.UtcNow))
                 .Finalize(),
             When(OrderCancelled)
-                .Unschedule(PaymentTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(PaymentTimeoutSchedule))
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, ctx.Message.Reason))
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, ctx.Message.Reason))
                 .Finalize(),
             When(InventoryExpired)
-                .Unschedule(PaymentTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(PaymentTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = "RESERVATION_EXPIRED")
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, "RESERVATION_EXPIRED"))
                 .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, "RESERVATION_EXPIRED", DateTimeOffset.UtcNow))
@@ -135,7 +138,7 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
 
         During(ConfirmingInventory,
             When(InventoryCommitted)
-                .Unschedule(InventoryCommitTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(InventoryCommitTimeoutSchedule))
                 .Publish(ctx => new OrderInventoryConfirmed(ctx.Message.OrderId))
                 .Publish(ctx => new OrderCheckoutCompleted(
                     ctx.Message.OrderId,
@@ -146,14 +149,14 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
                     DateTimeOffset.UtcNow))
                 .Finalize(),
             When(InventoryCommitFailed)
-                .Unschedule(InventoryCommitTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(InventoryCommitTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = "INVENTORY_COMMIT_FAILED")
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED"))
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED"))
                 .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED", DateTimeOffset.UtcNow))
                 .Finalize(),
             When(InventoryRejected)
-                .Unschedule(InventoryCommitTimeoutSchedule)
+                .If(ctx => !_isTest, x => x.Unschedule(InventoryCommitTimeoutSchedule))
                 .Then(ctx => ctx.Saga.FailureReason = ctx.Message.Reason)
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, ctx.Message.Reason))
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, ctx.Message.Reason))

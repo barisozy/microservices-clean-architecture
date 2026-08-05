@@ -381,7 +381,6 @@ public sealed class OrderE2ETest : IAsyncLifetime
         using var scope = _orderFactory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
         var messages = await db.Set<OutboxMessage>()
-            .Where(message => message.MessageType.Contains(nameof(OrderCheckoutCompleted)))
             .Select(message => new
             {
                 message.SequenceNumber,
@@ -425,7 +424,13 @@ public sealed class OrderE2ETest : IAsyncLifetime
             .ToListAsync(TestContext.Current.CancellationToken);
             
         var rabbit = await _infra.GetRabbitMqDiagnosticsAsync(TestContext.Current.CancellationToken);
-        return $"Order: {System.Text.Json.JsonSerializer.Serialize(order)}; OrderInbox: {System.Text.Json.JsonSerializer.Serialize(orderInbox)}; PaymentInbox: {System.Text.Json.JsonSerializer.Serialize(paymentInbox)};";
+
+        var checkoutState = await db.Set<Order.Application.Checkout.CheckoutState>()
+            .Where(x => x.CorrelationId == orderId)
+            .Select(x => new { x.CurrentState, x.FailureReason })
+            .SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+
+        return $"Order: {System.Text.Json.JsonSerializer.Serialize(order)}; CheckoutState: {System.Text.Json.JsonSerializer.Serialize(checkoutState)}; OrderInbox: {System.Text.Json.JsonSerializer.Serialize(orderInbox)}; PaymentInbox: {System.Text.Json.JsonSerializer.Serialize(paymentInbox)};";
     }
 
     private static async Task EventuallyAsync(
