@@ -55,8 +55,8 @@ public sealed class ReserveInventoryConsumer(
                 return;
             }
 
-            await db.SaveChangesAsync(context.CancellationToken);
             await publishEndpoint.Publish(new InventoryReserved(request.OrderId, existing.Id, existing.ExpiresAt), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
+            await db.SaveChangesAsync(context.CancellationToken);
             return;
         }
 
@@ -80,14 +80,14 @@ public sealed class ReserveInventoryConsumer(
         var reservation = InventoryReservation.Create(request.OrderId, itemsDict, expiresAt);
         db.Add(reservation);
 
-        await db.SaveChangesAsync(context.CancellationToken);
         await publishEndpoint.Publish(new InventoryReserved(request.OrderId, reservation.Id, expiresAt), publishContext => publishContext.CorrelationId = request.OrderId, context.CancellationToken);
+        await db.SaveChangesAsync(context.CancellationToken);
     }
 
     private async Task Reject(ConsumeContext<ReserveInventory> context, string reason)
     {
-        await db.SaveChangesAsync(context.CancellationToken);
         await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
+        await db.SaveChangesAsync(context.CancellationToken);
     }
 }
 
@@ -136,14 +136,14 @@ public sealed class CommitInventoryReservationConsumer(
 
     private async Task PublishCommitted(ConsumeContext<CommitInventoryReservation> context, Guid reservationId)
     {
-        await db.SaveChangesAsync(context.CancellationToken);
         await publishEndpoint.Publish(new InventoryReservationCommitted(context.Message.OrderId, reservationId), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
+        await db.SaveChangesAsync(context.CancellationToken);
     }
 
     private async Task Reject(ConsumeContext<CommitInventoryReservation> context, string reason)
     {
-        await db.SaveChangesAsync(context.CancellationToken);
         await publishEndpoint.Publish(new InventoryReservationRejected(context.Message.OrderId, reason), publishContext => publishContext.CorrelationId = context.Message.OrderId, context.CancellationToken);
+        await db.SaveChangesAsync(context.CancellationToken);
     }
 }
 
