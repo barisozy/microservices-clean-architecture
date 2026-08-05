@@ -1,10 +1,10 @@
 namespace ECommerce.Contracts.Events.v1;
 
-public record OrderCreated(
+public record OrderCheckoutCompleted(
     Guid OrderId,
     Guid CustomerId,
     string IdempotencyKey,
     List<OrderItemContractDto> Items,
     decimal TotalAmount,
-    DateTimeOffset CreatedAt
+    DateTimeOffset OccurredAt
 );

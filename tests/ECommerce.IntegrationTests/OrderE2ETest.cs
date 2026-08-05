@@ -381,7 +381,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
         using var scope = _orderFactory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
         var messages = await db.Set<OutboxMessage>()
-            .Where(message => message.MessageType.Contains(nameof(OrderCreated)))
+            .Where(message => message.MessageType.Contains(nameof(OrderCheckoutCompleted)))
             .Select(message => new
             {
                 message.SequenceNumber,
