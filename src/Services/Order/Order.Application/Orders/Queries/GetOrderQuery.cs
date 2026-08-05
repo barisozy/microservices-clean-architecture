@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 
 namespace Order.Application.Orders.Queries;

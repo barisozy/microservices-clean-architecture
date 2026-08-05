@@ -32,11 +32,10 @@ public class FulfillmentCoverageTests
         var orderId = Guid.NewGuid();
         var tasks = new List<FulfillmentTask>();
         var shipments = new List<Shipment> { new() { OrderId = orderId, TrackingNumber = "EXISTING" } };
-        var db = new Mock<IFulfillmentDbContext>();
-        db.Setup(x => x.Tasks).ReturnsDbSet(tasks);
-        db.Setup(x => x.Tasks.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(tasks.Add);
-        db.Setup(x => x.Shipments).ReturnsDbSet(shipments);
-        db.Setup(x => x.Shipments.Add(It.IsAny<Shipment>())).Callback<Shipment>(shipments.Add);
+        var db = new Mock<IFulfillmentWriteRepository>();
+        db.Setup(x => x.Add(It.IsAny<FulfillmentTask>())).Callback<FulfillmentTask>(tasks.Add);
+        db.Setup(x => x.Add(It.IsAny<Shipment>())).Callback<Shipment>(shipments.Add);
+        db.Setup(x => x.FindShipmentAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Guid oId, CancellationToken token) => shipments.Find(x => x.OrderId == oId));
         var readRepository = new Mock<IFulfillmentReadRepository>();
         var publisher = new Mock<IPublishEndpoint>();
         var consumer = new PaymentCompletedConsumer(db.Object, publisher.Object, Mock.Of<ILogger<PaymentCompletedConsumer>>(), readRepository.Object);

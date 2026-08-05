@@ -1,11 +1,11 @@
 using Fulfillment.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fulfillment.Application.Common.Interfaces;
 
-public interface IFulfillmentDbContext
+public interface IFulfillmentWriteRepository
 {
-    DbSet<FulfillmentTask> Tasks { get; }
-    DbSet<Shipment> Shipments { get; }
+    Task<Shipment?> FindShipmentAsync(Guid orderId, CancellationToken cancellationToken = default);
+    void Add(FulfillmentTask task);
+    void Add(Shipment shipment);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

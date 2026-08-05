@@ -10,12 +10,13 @@ namespace Payment.Application.Consumers;
 /// Sprint 1 plan: Payment.Api consumes OrderCreated directly (after stock is reserved sync via gRPC by Order.Api).
 /// Async path: Order.Api Outbox → OrderCreated → Payment.Api (mock charge) → PaymentCompleted → Fulfillment.Api
 /// </summary>
-public class OrderCreatedConsumer(ISender sender, ILogger<OrderCreatedConsumer> logger) : IConsumer<OrderCreated>
+public class ProcessPaymentConsumer(ISender sender, ILogger<ProcessPaymentConsumer> logger) : IConsumer<ProcessPayment>
 {
-    public async Task Consume(ConsumeContext<OrderCreated> context)
+    public async Task Consume(ConsumeContext<ProcessPayment> context)
     {
         var msg = context.Message;
         logger.LogInformation("Payment processing for OrderId: {OrderId}", msg.OrderId);
-        await sender.Send(new ProcessPaymentCommand(msg.OrderId, msg.IdempotencyKey, msg.TotalAmount, msg.Items, msg.CreatedAt), context.CancellationToken);
+        // We simulate payment completion right away for now
+        await sender.Send(new ProcessPaymentCommand(msg.OrderId, msg.IdempotencyKey, msg.TotalAmount, msg.Items, DateTimeOffset.UtcNow), context.CancellationToken);
     }
 }

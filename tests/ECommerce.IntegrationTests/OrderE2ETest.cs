@@ -245,7 +245,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
                 .Where(x => x.OrderId == orderId)
                 .ToListAsync(TestContext.Current.CancellationToken);
 
-            return reservations.Count == skus.Length &&
+            return reservations.Count == 1 &&
                    reservations.All(x => x.IsReleased);
         });
 
@@ -297,7 +297,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
             .Where(x => skus.Contains(x.Sku))
             .ToListAsync(TestContext.Current.CancellationToken);
 
-        finalReservations.Count.ShouldBe(skus.Length);
+        finalReservations.Count.ShouldBe(1);
         finalReservations.ShouldAllBe(x => x.IsReleased);
         finalStocks.Count.ShouldBe(skus.Length);
         finalStocks.ShouldAllBe(x => x.AvailableQuantity == 100);

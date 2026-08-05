@@ -1,7 +1,6 @@
 using System.Diagnostics.Metrics;
 using ECommerce.Contracts.Events.v1;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Order.Application.Common.Interfaces;
 using Order.Domain.Enums;
@@ -9,7 +8,7 @@ using Order.Domain.Enums;
 namespace Order.Application.Consumers;
 
 public class PaymentFailedConsumer(
-    IOrderDbContext dbContext,
+    IOrderWriteRepository dbContext,
     IPublishEndpoint publishEndpoint,
     ILogger<PaymentFailedConsumer> logger) : IConsumer<PaymentFailed>
 {
@@ -23,8 +22,7 @@ public class PaymentFailedConsumer(
         logger.LogWarning("Processing PaymentFailed event for OrderId {OrderId}, Reason: {Reason}",
             message.OrderId, message.Reason);
 
-        var order = await dbContext.Orders
-            .FirstOrDefaultAsync(o => o.Id == message.OrderId, context.CancellationToken);
+        var order = await dbContext.FindByIdAsync(message.OrderId, context.CancellationToken);
 
         if (order == null)
         {
@@ -38,11 +36,11 @@ public class PaymentFailedConsumer(
         }
 
         order.Cancel($"Payment failed: {message.Reason}");
+        await dbContext.SaveChangesAsync(context.CancellationToken);
         await publishEndpoint.Publish(new OrderCancelled(
             message.OrderId,
             message.Reason,
             DateTimeOffset.UtcNow), context.CancellationToken);
-        await dbContext.SaveChangesAsync(context.CancellationToken);
         CompensationCount.Add(1);
 
         logger.LogInformation("Order {OrderId} cancelled and OrderCancelled event published", message.OrderId);

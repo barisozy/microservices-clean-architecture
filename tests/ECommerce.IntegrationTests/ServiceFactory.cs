@@ -153,3 +153,12 @@ public sealed class OrderServiceDependencies(
         }
     }
 }
+public class MTErrorsConsumer : MassTransit.IConsumer<MassTransit.Fault>
+{
+    public Task Consume(MassTransit.ConsumeContext<MassTransit.Fault> context)
+    {
+        var ex = context.Message.Exceptions.FirstOrDefault();
+        System.IO.File.AppendAllText("mt-exceptions.txt", $"\n[FAULT] {ex?.ExceptionType}: {ex?.Message}\n{ex?.StackTrace}\n");
+        return Task.CompletedTask;
+    }
+}

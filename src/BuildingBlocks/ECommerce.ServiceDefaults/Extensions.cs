@@ -169,6 +169,7 @@ public static class Extensions
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
                     .AddMeter(
+                        "ECommerce.Order.Checkout",
                         "MassTransit",
                         "Npgsql",
                         "Order.Api",

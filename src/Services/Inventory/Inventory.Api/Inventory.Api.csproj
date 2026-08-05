@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Inventory.Application\Inventory.Application.csproj" />
-    <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
+  <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
+  <ProjectReference Include="..\..\..\BuildingBlocks\ECommerce.ServiceDefaults\ECommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

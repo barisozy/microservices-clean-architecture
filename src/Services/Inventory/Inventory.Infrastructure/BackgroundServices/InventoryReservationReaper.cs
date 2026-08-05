@@ -36,6 +36,7 @@ public sealed class InventoryReservationReaper(
         var publisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
         var now = timeProvider.GetUtcNow();
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        
         var reservations = await db.Reservations
             .FromSqlInterpolated($"""
                 SELECT *
@@ -46,14 +47,20 @@ public sealed class InventoryReservationReaper(
                 FOR UPDATE SKIP LOCKED
                 LIMIT {_options.ReaperBatchSize}
                 """)
+            .Include(r => r.Items)
             .ToListAsync(cancellationToken);
 
         foreach (var reservation in reservations)
         {
             if (!reservation.Expire(now)) continue;
-            var stock = await db.Stocks.FirstOrDefaultAsync(x => x.Sku == reservation.Sku, cancellationToken)
-                ?? throw new InvalidOperationException($"Stock '{reservation.Sku}' is missing for reservation '{reservation.Id}'.");
-            stock.Release(reservation.Quantity);
+            
+            foreach(var item in reservation.Items)
+            {
+                var stock = await db.Stocks.FirstOrDefaultAsync(x => x.Sku == item.Sku, cancellationToken)
+                    ?? throw new InvalidOperationException($"Stock '{item.Sku}' is missing for reservation '{reservation.Id}'.");
+                stock.Release(item.Quantity);
+            }
+            
             await publisher.Publish(new InventoryReservationExpired(reservation.OrderId, now), publishContext => publishContext.CorrelationId = reservation.OrderId, cancellationToken);
             logger.LogWarning("Inventory reservation expired. OrderId={OrderId} ReservationId={ReservationId} ExpiresAt={ExpiresAt}", reservation.OrderId, reservation.Id, reservation.ExpiresAt);
         }

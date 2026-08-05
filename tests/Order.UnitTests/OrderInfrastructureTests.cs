@@ -40,7 +40,7 @@ public class OrderInfrastructureTests
 
         services.AddInfrastructureServices(configuration);
 
-        services.ShouldContain(descriptor => descriptor.ServiceType == typeof(IOrderDbContext));
+        services.ShouldContain(descriptor => descriptor.ServiceType == typeof(IOrderWriteRepository));
         services.ShouldContain(descriptor => descriptor.ServiceType == typeof(IBasketService));
         services.ShouldContain(descriptor => descriptor.ServiceType == typeof(IOrderReadRepository));
         services.ShouldContain(descriptor => descriptor.ServiceType == typeof(IConnectionMultiplexer));
@@ -191,3 +191,4 @@ public class OrderInfrastructureTests
     }
 
 }
+

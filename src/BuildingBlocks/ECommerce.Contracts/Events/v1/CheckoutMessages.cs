@@ -1,6 +1,6 @@
 namespace ECommerce.Contracts.Events.v1;
 
-public sealed record CheckoutStarted(
+public sealed record OrderCheckoutStarted(
     Guid OrderId,
     Guid CustomerId,
     string IdempotencyKey,
@@ -32,3 +32,9 @@ public sealed record InventoryReservationReleased(Guid OrderId, string Reason);
 public sealed record InventoryReservationExpired(Guid OrderId, DateTimeOffset ExpiredAt);
 
 public sealed record CheckoutTimedOut(Guid OrderId);
+
+public sealed record ReservationTimeout(Guid OrderId);
+public sealed record PaymentTimeout(Guid OrderId);
+public sealed record InventoryCommitTimeout(Guid OrderId);
+public sealed record RefundPayment(Guid OrderId, string Reason);
+public sealed record ProcessPayment(Guid OrderId, Guid CustomerId, string IdempotencyKey, decimal TotalAmount, List<OrderItemContractDto> Items);

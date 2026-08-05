@@ -46,9 +46,9 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 10)], couponCode: "SAVE"), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
-            It.Is<CheckoutStarted>(e => e.TotalAmount == 40m && e.Items.Single().UnitPrice == 25m),
-            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+        fixture.Publisher.Verify(x => x.Publish<OrderCheckoutStarted>(
+            It.Is<OrderCheckoutStarted>(e => e.TotalAmount == 40m && e.Items.Single().UnitPrice == 25m),
+            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -64,9 +64,9 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 12)]), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
-            It.Is<CheckoutStarted>(e => e.TotalAmount == 30m && e.Items.Single().UnitPrice == 15m),
-            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+        fixture.Publisher.Verify(x => x.Publish<OrderCheckoutStarted>(
+            It.Is<OrderCheckoutStarted>(e => e.TotalAmount == 30m && e.Items.Single().UnitPrice == 15m),
+            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -76,9 +76,9 @@ public class CreateOrderCommandHandlerCoverageTests
         var fixture = new HandlerFixture();
 
         (await fixture.Handler.Handle(fixture.Command(), CancellationToken.None)).ShouldNotBe(Guid.Empty);
-        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
-            It.IsAny<CheckoutStarted>(),
-            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+        fixture.Publisher.Verify(x => x.Publish<OrderCheckoutStarted>(
+            It.IsAny<OrderCheckoutStarted>(),
+            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
         fixture.Context.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -128,9 +128,9 @@ public class CreateOrderCommandHandlerCoverageTests
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 1, 50)], couponCode: "BROKEN"), CancellationToken.None);
 
-        fixture.Publisher.Verify(x => x.Publish<CheckoutStarted>(
-            It.Is<CheckoutStarted>(e => e.TotalAmount == 50m),
-            It.IsAny<IPipe<PublishContext<CheckoutStarted>>>(),
+        fixture.Publisher.Verify(x => x.Publish<OrderCheckoutStarted>(
+            It.Is<OrderCheckoutStarted>(e => e.TotalAmount == 50m),
+            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -139,7 +139,7 @@ public class CreateOrderCommandHandlerCoverageTests
 
     private sealed class HandlerFixture
     {
-        public Mock<IOrderDbContext> Context { get; } = new();
+        public Mock<IOrderWriteRepository> Context { get; } = new();
         public Mock<IPublishEndpoint> Publisher { get; } = new();
         public Mock<IOrderCache> OrderCache { get; } = new();
         public Mock<IAsyncDisposable> BasketLock { get; } = new();
@@ -150,7 +150,7 @@ public class CreateOrderCommandHandlerCoverageTests
 
         public HandlerFixture()
         {
-            Context.Setup(x => x.Orders).Returns(new Mock<DbSet<Order.Domain.Entities.Order>>().Object);
+            
             Context.Setup(x => x.FindByIdempotencyKeyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Order.Domain.Entities.Order?)null);
             OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -177,3 +177,6 @@ public class CreateOrderCommandHandlerCoverageTests
             new(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid().ToString(), items ?? [new("SKU-1", 1, 10)], couponCode);
     }
 }
+
+
+

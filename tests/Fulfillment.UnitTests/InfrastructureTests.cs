@@ -123,7 +123,7 @@ public class InfrastructureTests
 
         services.AddInfrastructureServices(configuration);
 
-        services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IFulfillmentDbContext));
+        services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IFulfillmentWriteRepository));
         services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IUser));
         services.ShouldContain(s => s.ServiceType == typeof(Fulfillment.Application.Common.Interfaces.IFulfillmentReadRepository));
         services.ShouldContain(s => s.ServiceType == typeof(IConnectionMultiplexer));

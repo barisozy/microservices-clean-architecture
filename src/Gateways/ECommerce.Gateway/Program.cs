@@ -23,9 +23,10 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// Valkey Client via Aspire (using StackExchange.Redis internally)
-builder.AddRedisClient("valkey");
-
+var valkeyConnectionString = builder.Configuration.GetConnectionString("valkey")
+    ?? builder.Configuration.GetConnectionString("cache")
+    ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(valkeyConnectionString));
 // Rate Limiting: Valkey / Sliding Window Rate Limiter (100 req/s per IP) with fallback
 builder.Services.AddRateLimiter(options =>
 {

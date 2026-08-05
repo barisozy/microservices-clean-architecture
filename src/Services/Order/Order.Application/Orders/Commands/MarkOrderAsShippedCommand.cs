@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Order.Application.Common.Interfaces;
 using Order.Domain.Enums;
 
@@ -7,7 +6,7 @@ namespace Order.Application.Orders.Commands;
 
 public record MarkOrderAsShippedCommand(Guid OrderId) : IRequest;
 
-public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IRequestHandler<MarkOrderAsShippedCommand>
+public class MarkOrderAsShippedCommandHandler(IOrderWriteRepository context) : IRequestHandler<MarkOrderAsShippedCommand>
 {
     public async Task Handle(MarkOrderAsShippedCommand request, CancellationToken cancellationToken)
     {
@@ -19,11 +18,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
         // is still committing the Paid transition. Keep the message in-flight
         // until that transition is visible instead of losing it to a transient
         // state-machine violation.
-        var initialStatus = await context.Orders
-            .AsNoTracking()
-            .Where(x => x.Id == request.OrderId)
-            .Select(x => (OrderStatus?)x.Status)
-            .SingleOrDefaultAsync(cancellationToken);
+        var initialStatus = await context.GetStatusAsync(request.OrderId, cancellationToken);
 
         if (initialStatus is null)
         {
@@ -32,11 +27,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
 
         while (DateTime.UtcNow < deadline)
         {
-            var currentStatus = await context.Orders
-                .AsNoTracking()
-                .Where(x => x.Id == request.OrderId)
-                .Select(x => (OrderStatus?)x.Status)
-                .SingleOrDefaultAsync(cancellationToken);
+            var currentStatus = await context.GetStatusAsync(request.OrderId, cancellationToken);
 
             if (currentStatus is not OrderStatus.Pending and not OrderStatus.PendingInventory and not OrderStatus.AwaitingPayment)
                 break;
@@ -46,7 +37,7 @@ public class MarkOrderAsShippedCommandHandler(IOrderDbContext context) : IReques
 
         // Reload a tracked instance after the visibility wait so the state
         // transition and domain-event dispatch are persisted normally.
-        order = await context.Orders.FirstOrDefaultAsync(x => x.Id == request.OrderId, cancellationToken);
+        order = await context.FindByIdAsync(request.OrderId, cancellationToken);
         if (order is null)
         {
             throw new InvalidOperationException($"Order {request.OrderId} was not found.");

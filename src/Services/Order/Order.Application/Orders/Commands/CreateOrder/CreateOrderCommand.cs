@@ -19,7 +19,7 @@ public sealed record CreateOrderCommand(
     string? CouponCode = null) : IRequest<Guid>;
 
 public class CreateOrderCommandHandler(
-    IOrderDbContext context,
+    IOrderWriteRepository context,
     IPublishEndpoint publishEndpoint,
     IOrderCache orderCache,
     IBasketService basketService,
@@ -205,13 +205,13 @@ public class CreateOrderCommandHandler(
 
         order.SetTotalAmount(totalAmount);
 
-        context.Orders.Add(order);
+        context.Add(order);
 
         var eventItems = finalItems.Select(i => new OrderItemContractDto(i.Sku, i.Quantity, i.UnitPrice)).ToList();
 
         // Bus outbox persists this message in the same OrderDbContext transaction.
         await publishEndpoint.Publish(
-            new CheckoutStarted(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow),
+            new OrderCheckoutStarted(order.Id, request.CustomerId, request.IdempotencyKey, eventItems, totalAmount, DateTimeOffset.UtcNow),
             publishContext => publishContext.CorrelationId = order.Id,
             cancellationToken);
 

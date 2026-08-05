@@ -53,8 +53,8 @@ public class OrderCoverageTests
     public async Task PaymentFailedConsumer_CancelsExistingOrderAndPublishesCompensation()
     {
         var order = Order.Domain.Entities.Order.Create("buyer", "key", []);
-        var db = new Mock<IOrderDbContext>();
-        db.Setup(x => x.Orders).ReturnsDbSet([order]);
+        var db = new Mock<IOrderWriteRepository>();
+        db.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(order);
         var publisher = new Mock<IPublishEndpoint>();
         var consumer = new PaymentFailedConsumer(db.Object, publisher.Object, Mock.Of<ILogger<PaymentFailedConsumer>>());
         var message = new PaymentFailed(order.Id, "key", "declined", DateTimeOffset.UtcNow);
@@ -72,8 +72,8 @@ public class OrderCoverageTests
     [Fact]
     public async Task PaymentFailedConsumer_DoesNothingWhenOrderDoesNotExist()
     {
-        var db = new Mock<IOrderDbContext>();
-        db.Setup(x => x.Orders).ReturnsDbSet(new List<Order.Domain.Entities.Order>());
+        var db = new Mock<IOrderWriteRepository>();
+        db.Setup(x => x.FindByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((global::Order.Domain.Entities.Order?)null);
         var publisher = new Mock<IPublishEndpoint>();
         var consumer = new PaymentFailedConsumer(db.Object, publisher.Object, Mock.Of<ILogger<PaymentFailedConsumer>>());
         var context = new Mock<ConsumeContext<PaymentFailed>>();
@@ -86,3 +86,6 @@ public class OrderCoverageTests
         publisher.Verify(x => x.Publish(It.IsAny<OrderCancelled>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
+
+
+

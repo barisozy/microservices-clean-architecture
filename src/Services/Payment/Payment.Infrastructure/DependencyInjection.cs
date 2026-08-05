@@ -11,13 +11,15 @@ using Payment.Domain.Entities;
 
 namespace Payment.Infrastructure.Data
 {
-    public class PaymentDbContext : DbContext, IPaymentDbContext
+    public class PaymentDbContext : DbContext, IPaymentWriteRepository
     {
         public PaymentDbContext(DbContextOptions<PaymentDbContext> options) : base(options)
         {
         }
 
         public DbSet<PaymentRecord> Payment => Set<PaymentRecord>();
+        public Task<PaymentRecord?> FindByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken = default) => Payment.FirstOrDefaultAsync(p => p.IdempotencyKey == idempotencyKey, cancellationToken);
+        public void Add(PaymentRecord payment) => Payment.Add(payment);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -68,7 +70,7 @@ namespace Payment.Infrastructure
                 });
             });
 
-            services.AddScoped<IPaymentDbContext>(provider => provider.GetRequiredService<PaymentDbContext>());
+            services.AddScoped<IPaymentWriteRepository>(provider => provider.GetRequiredService<PaymentDbContext>());
 
             var valkeyConnectionString = configuration.GetConnectionString("valkey")
                 ?? configuration.GetConnectionString("cache")
@@ -78,7 +80,8 @@ namespace Payment.Infrastructure
 
             services.AddMassTransit(x =>
             {
-                x.AddConsumer<OrderCreatedConsumer>();
+                x.AddConsumer<ProcessPaymentConsumer>();
+                x.AddConsumer<RefundPaymentConsumer>();
 
                 x.AddEntityFrameworkOutbox<PaymentDbContext>(o =>
                 {

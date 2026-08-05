@@ -1,11 +1,13 @@
 using Inventory.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Application.Common.Interfaces;
 
-public interface IInventoryDbContext
+public interface IInventoryWriteRepository
 {
-    DbSet<InventoryReservation> Reservations { get; }
-    DbSet<Stock> Stocks { get; }
+    Task<InventoryReservation?> FindReservationAsync(Guid reservationId, CancellationToken cancellationToken = default);
+    Task<InventoryReservation?> FindReservationByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default);
+    Task<Stock?> FindStockAsync(string sku, CancellationToken cancellationToken = default);
+    void Add(InventoryReservation reservation);
+    void Add(Stock stock);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

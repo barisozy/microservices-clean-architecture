@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Fulfillment.Infrastructure;
 
-public class FulfillmentDbContext : DbContext, IFulfillmentDbContext
+public class FulfillmentDbContext : DbContext, IFulfillmentWriteRepository
 {
     public FulfillmentDbContext(DbContextOptions<FulfillmentDbContext> options) : base(options)
     {
@@ -19,6 +19,9 @@ public class FulfillmentDbContext : DbContext, IFulfillmentDbContext
 
     public DbSet<FulfillmentTask> Tasks => Set<FulfillmentTask>();
     public DbSet<Shipment> Shipments => Set<Shipment>();
+    public Task<Shipment?> FindShipmentAsync(Guid orderId, CancellationToken cancellationToken = default) => Shipments.FirstOrDefaultAsync(s => s.OrderId == orderId, cancellationToken);
+    public void Add(FulfillmentTask task) => Tasks.Add(task);
+    public void Add(Shipment shipment) => Shipments.Add(shipment);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,7 +68,7 @@ public static class DependencyInjection
             });
         });
 
-        services.AddScoped<IFulfillmentDbContext>(provider => provider.GetRequiredService<FulfillmentDbContext>());
+        services.AddScoped<IFulfillmentWriteRepository>(provider => provider.GetRequiredService<FulfillmentDbContext>());
 
         var valkeyConnectionString = configuration.GetConnectionString("valkey")
             ?? configuration.GetConnectionString("cache")

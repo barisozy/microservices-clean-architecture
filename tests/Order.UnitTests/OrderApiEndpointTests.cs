@@ -188,9 +188,9 @@ public class OrderDevelopmentApiFactory : OrderApiFactory
             services.RemoveAll<DbContextOptions<OrderDbContext>>();
             services.RemoveAll<Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsConfiguration<OrderDbContext>>();
             services.RemoveAll<OrderDbContext>();
-            services.RemoveAll<IOrderDbContext>();
+            services.RemoveAll<IOrderWriteRepository>();
             services.AddDbContext<OrderDbContext>(options => options.UseInMemoryDatabase("order-dev-api-tests"));
-            services.AddScoped<IOrderDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+            services.AddScoped<IOrderWriteRepository>(provider => provider.GetRequiredService<OrderDbContext>());
 
             services.RemoveAll<ISender>();
             services.AddSingleton(Sender.Object);
@@ -245,9 +245,9 @@ public class OrderApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<DbContextOptions<OrderDbContext>>();
             services.RemoveAll<Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsConfiguration<OrderDbContext>>();
             services.RemoveAll<OrderDbContext>();
-            services.RemoveAll<IOrderDbContext>();
+            services.RemoveAll<IOrderWriteRepository>();
             services.AddDbContext<OrderDbContext>(options => options.UseInMemoryDatabase("order-api-tests"));
-            services.AddScoped<IOrderDbContext>(provider => provider.GetRequiredService<OrderDbContext>());
+            services.AddScoped<IOrderWriteRepository>(provider => provider.GetRequiredService<OrderDbContext>());
 
             services.RemoveAll<ISender>();
             services.AddSingleton(Sender.Object);

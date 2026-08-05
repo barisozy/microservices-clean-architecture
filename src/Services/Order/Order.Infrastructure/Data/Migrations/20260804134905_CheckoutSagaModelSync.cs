@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -20,7 +20,7 @@ namespace Order.Infrastructure.Data.Migrations
                     CurrentState = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
                     IdempotencyKey = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    ItemsJson = table.Column<string>(type: "jsonb", nullable: false),
+                    ItemsJson = table.Column<string>(type: "text", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     StartedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     InventoryReservedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
