@@ -85,6 +85,7 @@ public static class DependencyInjection
         // MassTransit + Transactional Outbox/Inbox
         services.AddMassTransit(x =>
         {
+            x.AddDelayedMessageScheduler();
             x.AddSagaStateMachine<CheckoutStateMachine, CheckoutState>()
                 .EntityFrameworkRepository(r =>
                 {
@@ -115,6 +116,7 @@ public static class DependencyInjection
             {
                 var rabbitConnectionString = configuration.GetConnectionString("rabbitmq") ?? "amqp://guest:guest@localhost:5672";
                 cfg.Host(new Uri(rabbitConnectionString));
+                cfg.UseDelayedMessageScheduler();
                 cfg.AutoStart = true;
                 // Event Resilience Patterns: Retry policy, Dead letter queue, Poison message handling
                 // 1. Retry policy (Retry x3 as requested)

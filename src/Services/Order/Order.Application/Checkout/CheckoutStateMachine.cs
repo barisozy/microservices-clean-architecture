@@ -11,6 +11,7 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
     public State ReservingInventory { get; private set; } = null!;
     public State ConfirmingInventory { get; private set; } = null!;
     public State AwaitingPayment { get; private set; } = null!;
+    
     public Event<OrderCheckoutStarted> CheckoutStarted { get; private set; } = null!;
     public Event<InventoryReserved> InventoryReserved { get; private set; } = null!;
     public Event<InventoryReservationRejected> InventoryRejected { get; private set; } = null!;
@@ -20,6 +21,8 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
     public Event<PaymentFailed> PaymentFailed { get; private set; } = null!;
     public Event<OrderCancelled> OrderCancelled { get; private set; } = null!;
     public Event<Fault<CommitInventoryReservation>> InventoryCommitFailed { get; private set; } = null!;
+
+
 
     public CheckoutStateMachine()
     {
@@ -34,6 +37,7 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
         Event(() => PaymentFailed, x => x.CorrelateById(context => context.Message.OrderId));
         Event(() => OrderCancelled, x => x.CorrelateById(context => context.Message.OrderId));
         Event(() => InventoryCommitFailed, x => x.CorrelateById(context => context.Message.Message.OrderId));
+
 
         Initially(
             When(CheckoutStarted)
@@ -81,12 +85,17 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
             When(OrderCancelled)
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, ctx.Message.Reason))
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, ctx.Message.Reason))
+                .Finalize(),
+            When(InventoryExpired)
+                .Then(ctx => ctx.Saga.FailureReason = "RESERVATION_EXPIRED")
+                .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, "RESERVATION_EXPIRED"))
+                .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, "RESERVATION_EXPIRED", DateTimeOffset.UtcNow))
                 .Finalize());
 
         During(ConfirmingInventory,
             When(InventoryCommitted)
                 .Publish(ctx => new OrderInventoryConfirmed(ctx.Message.OrderId))
-                .Publish(ctx => new OrderCreated(
+                .Publish(ctx => new OrderCheckoutCompleted(
                     ctx.Message.OrderId,
                     ctx.Saga.CustomerId,
                     ctx.Saga.IdempotencyKey,
@@ -99,6 +108,12 @@ public sealed class CheckoutStateMachine : MassTransitStateMachine<CheckoutState
                 .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED"))
                 .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED"))
                 .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, "INVENTORY_COMMIT_FAILED", DateTimeOffset.UtcNow))
+                .Finalize(),
+            When(InventoryRejected)
+                .Then(ctx => ctx.Saga.FailureReason = ctx.Message.Reason)
+                .Publish(ctx => new RefundPayment(ctx.Saga.CorrelationId, ctx.Message.Reason))
+                .Publish(ctx => new ReleaseInventoryReservation(ctx.Saga.CorrelationId, ctx.Message.Reason))
+                .Publish(ctx => new OrderCancelled(ctx.Saga.CorrelationId, ctx.Message.Reason, DateTimeOffset.UtcNow))
                 .Finalize());
 
         SetCompletedWhenFinalized();

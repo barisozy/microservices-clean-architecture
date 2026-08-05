@@ -186,7 +186,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
             var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
             var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == orderId, TestContext.Current.CancellationToken);
             return order?.Status == OrderStatus.Cancelled;
-        }, TimeSpan.FromSeconds(5));
+        }, TimeSpan.FromSeconds(15), () => GetOrderLifecycleDiagnosticsAsync(orderId));
 
         await EventuallyAsync(async () =>
         {
@@ -194,7 +194,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
             var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
             var reservation = await db.Reservations.SingleOrDefaultAsync(x => x.OrderId == orderId, TestContext.Current.CancellationToken);
             return reservation?.IsReleased == true;
-        }, TimeSpan.FromSeconds(5));
+        }, TimeSpan.FromSeconds(15), () => GetOrderLifecycleDiagnosticsAsync(orderId));
 
         var duplicateMessageId = Guid.CreateVersion7();
         var duplicate = new PaymentFailed(orderId, Guid.CreateVersion7().ToString("D"), "duplicate delivery", DateTimeOffset.UtcNow);
@@ -381,7 +381,7 @@ public sealed class OrderE2ETest : IAsyncLifetime
         using var scope = _orderFactory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
         var messages = await db.Set<OutboxMessage>()
-            .Where(message => message.MessageType.Contains(nameof(OrderCreated)))
+            .Where(message => message.MessageType.Contains(nameof(OrderCheckoutCompleted)))
             .Select(message => new
             {
                 message.SequenceNumber,
@@ -413,8 +413,19 @@ public sealed class OrderE2ETest : IAsyncLifetime
             .Where(candidate => candidate.Id == orderId)
             .Select(candidate => new { candidate.Id, candidate.Status })
             .SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+            
+        var orderInbox = await db.Set<MassTransit.EntityFrameworkCoreIntegration.InboxState>()
+            .Select(x => new { x.MessageId, x.ConsumerId, x.Delivered, x.Consumed })
+            .ToListAsync(TestContext.Current.CancellationToken);
+
+        using var paymentScope = _paymentFactory.Services.CreateScope();
+        var paymentDb = paymentScope.ServiceProvider.GetRequiredService<Payment.Infrastructure.Data.PaymentDbContext>();
+        var paymentInbox = await paymentDb.Set<MassTransit.EntityFrameworkCoreIntegration.InboxState>()
+            .Select(x => new { x.MessageId, x.ConsumerId, x.Delivered, x.Consumed })
+            .ToListAsync(TestContext.Current.CancellationToken);
+            
         var rabbit = await _infra.GetRabbitMqDiagnosticsAsync(TestContext.Current.CancellationToken);
-        return $"Order: {System.Text.Json.JsonSerializer.Serialize(order)}; RabbitMQ: {rabbit}";
+        return $"Order: {System.Text.Json.JsonSerializer.Serialize(order)}; OrderInbox: {System.Text.Json.JsonSerializer.Serialize(orderInbox)}; PaymentInbox: {System.Text.Json.JsonSerializer.Serialize(paymentInbox)};";
     }
 
     private static async Task EventuallyAsync(

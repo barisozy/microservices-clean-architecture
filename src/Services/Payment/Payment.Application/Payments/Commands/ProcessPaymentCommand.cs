@@ -22,8 +22,8 @@ public class ProcessPaymentCommandHandler(IPaymentWriteRepository context, IPubl
         {
             payment.Fail("Card declined or insufficient funds (Simulated).");
             context.Add(payment);
-            await context.SaveChangesAsync(cancellationToken);
             await publishEndpoint.Publish(new PaymentFailed(payment.OrderId, payment.IdempotencyKey, "Simulated payment failure.", DateTimeOffset.UtcNow), cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
             
             await paymentReadRepository.SetPaymenttatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
         }
@@ -31,8 +31,8 @@ public class ProcessPaymentCommandHandler(IPaymentWriteRepository context, IPubl
         {
             payment.Complete();
             context.Add(payment);
-            await context.SaveChangesAsync(cancellationToken);
             await publishEndpoint.Publish(new PaymentCompleted(payment.OrderId, payment.Id, payment.IdempotencyKey, DateTimeOffset.UtcNow, request.OrderCreatedAt), cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
             
             await paymentReadRepository.SetPaymenttatusAsync(payment.OrderId, payment.Status.ToString(), cancellationToken);
         }
