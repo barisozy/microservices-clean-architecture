@@ -57,7 +57,11 @@ public class OrderInfrastructureTests
         var orderType = context.Model.FindEntityType(typeof(global::Order.Domain.Entities.Order))!;
         orderType.GetSchema().ShouldBe("order");
         orderType.GetTableName().ShouldBe("Orders");
-        orderType.GetIndexes().Single(index => index.Properties.Single().Name == nameof(global::Order.Domain.Entities.Order.IdempotencyKey)).IsUnique.ShouldBeTrue();
+        var index = orderType.GetIndexes().Single(i =>
+            i.Properties.Count == 2 &&
+            i.Properties.Any(p => p.Name == nameof(global::Order.Domain.Entities.Order.CustomerId)) &&
+            i.Properties.Any(p => p.Name == nameof(global::Order.Domain.Entities.Order.IdempotencyKey)));
+        index.IsUnique.ShouldBeTrue();
 
         var itemType = context.Model.FindEntityType(typeof(OrderItem))!;
         itemType.GetTableName().ShouldBe("OrderItems");

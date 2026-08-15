@@ -42,7 +42,7 @@ public class CreateOrderCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldPublishCheckoutStartedEvent()
     {
-        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid?)null);
 
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
@@ -61,7 +61,7 @@ public class CreateOrderCommandHandlerTests
     [Fact]
     public async Task Handle_IdempotencyCacheThrows_LogsAndProceeds()
     {
-        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Cache failure"));
 
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
@@ -80,7 +80,7 @@ public class CreateOrderCommandHandlerTests
     public async Task Handle_IdempotencyLookupSucceeds_ReturnsCachedId()
     {
         var existingId = Guid.NewGuid();
-        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _orderCacheMock.Setup(x => x.GetOrderIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingId);
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemDto> { new("SKU1", 1, 100) }, null);

@@ -18,9 +18,9 @@ internal sealed class OrderWriteRepository : IOrderWriteRepository
         return _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == orderId, cancellationToken);
     }
 
-    public Task<global::Order.Domain.Entities.Order?> FindByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken = default)
+    public Task<global::Order.Domain.Entities.Order?> FindByIdempotencyKeyAsync(Guid customerId, string idempotencyKey, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Orders.FirstOrDefaultAsync(x => x.IdempotencyKey == idempotencyKey, cancellationToken);
+        return _dbContext.Orders.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.IdempotencyKey == idempotencyKey, cancellationToken);
     }
 
     public async Task<OrderStatus?> GetStatusAsync(Guid orderId, CancellationToken cancellationToken = default)

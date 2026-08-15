@@ -40,7 +40,7 @@ public class CreateOrderCommandHandler(
         using var checkoutTiming = new DurationScope(CheckoutDuration);
         try
         {
-            var cachedOrderId = await orderCache.GetOrderIdAsync(request.IdempotencyKey, cancellationToken);
+            var cachedOrderId = await orderCache.GetOrderIdAsync(request.CustomerId, request.IdempotencyKey, cancellationToken);
             if (cachedOrderId.HasValue)
             {
                 return cachedOrderId.Value;
@@ -51,7 +51,7 @@ public class CreateOrderCommandHandler(
             logger.LogWarning(exception, "Valkey idempotency lookup failed; falling back to PostgreSQL");
         }
 
-        var persistedOrder = await context.FindByIdempotencyKeyAsync(request.IdempotencyKey, cancellationToken);
+        var persistedOrder = await context.FindByIdempotencyKeyAsync(request.CustomerId, request.IdempotencyKey, cancellationToken);
         if (persistedOrder is not null)
         {
             return persistedOrder.Id;
@@ -228,7 +228,7 @@ public class CreateOrderCommandHandler(
 
         try
         {
-            await orderCache.SetOrderIdAsync(request.IdempotencyKey, order.Id, cancellationToken);
+            await orderCache.SetOrderIdAsync(request.CustomerId, request.IdempotencyKey, order.Id, cancellationToken);
         }
         catch (Exception exception)
         {

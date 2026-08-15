@@ -15,7 +15,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<global::Order.
         builder.Property(order => order.KeycloakSubject).IsRequired();
         builder.Property(order => order.TotalAmount).HasPrecision(18, 2).IsRequired();
         builder.Property(order => order.IdempotencyKey).IsRequired().HasMaxLength(100);
-        builder.HasIndex(order => order.IdempotencyKey).IsUnique();
+        builder.HasIndex(order => new { order.CustomerId, order.IdempotencyKey }).IsUnique();
         builder.HasMany(order => order.OrderItems).WithOne().HasForeignKey(item => item.OrderId).OnDelete(DeleteBehavior.Cascade);
     }
 }
