@@ -7,8 +7,8 @@ namespace Order.Application.Common.Interfaces;
 /// </summary>
 public interface IOrderCache
 {
-    Task<Guid?> GetOrderIdAsync(string idempotencyKey, CancellationToken cancellationToken = default);
-    Task SetOrderIdAsync(string idempotencyKey, Guid orderId, CancellationToken cancellationToken = default);
+    Task<Guid?> GetOrderIdAsync(Guid customerId, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task SetOrderIdAsync(Guid customerId, string idempotencyKey, Guid orderId, CancellationToken cancellationToken = default);
     Task<decimal?> GetCatalogPriceAsync(string sku, CancellationToken cancellationToken = default);
     Task SetCatalogPriceAsync(string sku, decimal price, CancellationToken cancellationToken = default);
     Task<IAsyncDisposable?> TryAcquireBasketLockAsync(

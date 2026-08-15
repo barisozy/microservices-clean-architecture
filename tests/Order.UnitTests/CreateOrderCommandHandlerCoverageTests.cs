@@ -24,7 +24,7 @@ public class CreateOrderCommandHandlerCoverageTests
     {
         var fixture = new HandlerFixture();
         var expected = Guid.NewGuid();
-        fixture.OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        fixture.OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         var result = await fixture.Handler.Handle(fixture.Command(), CancellationToken.None);
@@ -146,9 +146,9 @@ public class CreateOrderCommandHandlerCoverageTests
         public HandlerFixture()
         {
             
-            Context.Setup(x => x.FindByIdempotencyKeyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            Context.Setup(x => x.FindByIdempotencyKeyAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Order.Domain.Entities.Order?)null);
-            OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            OrderCache.Setup(x => x.GetOrderIdAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Guid?)null);
 
             SetupLockAcquired(true);

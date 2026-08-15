@@ -17,9 +17,10 @@ public class OrderDbContext : DbContext, IOrderWriteRepository
         public DbSet<CheckoutState> CheckoutStates => Set<CheckoutState>();
 
     public Task<global::Order.Domain.Entities.Order?> FindByIdempotencyKeyAsync(
+        Guid customerId,
         string idempotencyKey,
         CancellationToken cancellationToken = default) =>
-        Orders.FirstOrDefaultAsync(order => order.IdempotencyKey == idempotencyKey, cancellationToken);
+        Orders.FirstOrDefaultAsync(order => order.CustomerId == customerId && order.IdempotencyKey == idempotencyKey, cancellationToken);
 
     public Task<global::Order.Domain.Entities.Order?> FindByIdAsync(Guid orderId, CancellationToken cancellationToken = default) =>
         Orders.FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);

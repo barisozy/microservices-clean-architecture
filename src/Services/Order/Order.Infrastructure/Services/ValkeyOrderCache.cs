@@ -14,24 +14,26 @@ public sealed class ValkeyOrderCache(IConnectionMultiplexer valkey) : IOrderCach
         new(valkey.GetDatabase());
 
     public async Task<Guid?> GetOrderIdAsync(
+        Guid customerId,
         string idempotencyKey,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var value = await _database.StringGetAsync(IdempotencyKey(idempotencyKey));
+        var value = await _database.StringGetAsync(IdempotencyKey(customerId, idempotencyKey));
         return value.HasValue && Guid.TryParse(value.ToString(), out var orderId)
             ? orderId
             : null;
     }
 
     public async Task SetOrderIdAsync(
+        Guid customerId,
         string idempotencyKey,
         Guid orderId,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         await _database.StringSetAsync(
-            IdempotencyKey(idempotencyKey),
+            IdempotencyKey(customerId, idempotencyKey),
             orderId.ToString("D"),
             IdempotencyTtl);
     }
@@ -71,6 +73,6 @@ public sealed class ValkeyOrderCache(IConnectionMultiplexer valkey) : IOrderCach
             .CreateLock($"lock:basket:{keycloakSubject}")
             .TryAcquireAsync(TimeSpan.Zero, cancellationToken);
 
-    private static string IdempotencyKey(string key) => $"idempotency:order:{key}";
+    private static string IdempotencyKey(Guid customerId, string key) => $"idempotency:order:{customerId:D}:{key}";
     private static string CatalogPriceKey(string sku) => $"catalog:price:{sku}";
 }

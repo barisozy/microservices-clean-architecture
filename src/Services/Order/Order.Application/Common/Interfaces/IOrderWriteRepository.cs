@@ -7,6 +7,7 @@ public interface IOrderWriteRepository
 {
     Task<global::Order.Domain.Entities.Order?> FindByIdAsync(Guid orderId, CancellationToken cancellationToken = default);
     Task<global::Order.Domain.Entities.Order?> FindByIdempotencyKeyAsync(
+        Guid customerId,
         string idempotencyKey,
         CancellationToken cancellationToken = default);
     Task<OrderStatus?> GetStatusAsync(Guid orderId, CancellationToken cancellationToken = default);
