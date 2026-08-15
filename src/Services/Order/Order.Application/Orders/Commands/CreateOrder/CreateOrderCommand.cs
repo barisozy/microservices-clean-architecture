@@ -199,7 +199,10 @@ public class CreateOrderCommandHandler(
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to apply coupon {Code}. Proceeding with original total.", request.CouponCode);
+                logger.LogError(ex, "Failed to apply coupon {Code}. Aborting checkout to prevent overcharging.", request.CouponCode);
+                throw new OrderDomainException(
+                    $"Promotion service is unavailable or failed to apply coupon '{request.CouponCode}'. Checkout aborted.",
+                    ex);
             }
         }
 
