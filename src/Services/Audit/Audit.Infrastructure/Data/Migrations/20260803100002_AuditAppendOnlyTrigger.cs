@@ -12,10 +12,10 @@ public partial class AuditAppendOnlyTrigger : Migration
         migrationBuilder.Sql("""
             DO $$
             BEGIN
-                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_role') THEN
-                    RAISE EXCEPTION 'Required audit application role app_role does not exist';
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'audit_runtime') THEN
+                    RAISE EXCEPTION 'Required audit application role audit_runtime does not exist';
                 END IF;
-                REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM app_role;
+                REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM audit_runtime;
             END $$;
 
             CREATE OR REPLACE FUNCTION audit.prevent_audit_entry_mutation()

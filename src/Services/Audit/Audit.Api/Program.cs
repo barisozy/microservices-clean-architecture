@@ -28,7 +28,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ComplianceAuditDbContext>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-    var migrationCs = config.GetConnectionString("ComplianceAuditDb_Migration");
+    var migrationCs = config.GetConnectionString("AuditDb_Migration");
     if (!string.IsNullOrWhiteSpace(migrationCs))
     {
         db.Database.SetConnectionString(migrationCs);
@@ -42,8 +42,6 @@ using (var scope = app.Services.CreateScope())
     {
         await db.Database.MigrateAsync();
     }
-
-    await db.ApplyImmutabilityHardeningAsync(CancellationToken.None);
 }
 
 app.MapDefaultEndpoints();

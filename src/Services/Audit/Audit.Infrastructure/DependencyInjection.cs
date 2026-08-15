@@ -22,7 +22,7 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("AuditDb")
             ?? configuration.GetConnectionString("audit_db")
-            ?? "Host=localhost;Database=audit_db;Username=app_role;Password=app_role";
+            ?? "Host=localhost;Database=audit_db;Username=audit_runtime;Password=audit_runtime";
 
         // A superuser connection makes REVOKE UPDATE/DELETE meaningless. Development
         // and the in-memory test host may use their local bootstrap account, but a
@@ -34,7 +34,7 @@ public static class DependencyInjection
                 || string.IsNullOrWhiteSpace(builder.Username))
             {
                 throw new InvalidOperationException(
-                    "AuditDb must use the least-privilege app_role connection in non-development environments.");
+                    "AuditDb must use the least-privilege audit_runtime connection in non-development environments.");
             }
         }
 
