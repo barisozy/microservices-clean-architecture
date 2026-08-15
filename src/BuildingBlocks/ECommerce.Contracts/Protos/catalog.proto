@@ -4,6 +4,8 @@ option csharp_namespace = "ECommerce.Contracts.Protos";
 
 package catalog;
 
+import "money.proto";
+
 service CatalogService {
   rpc GetPriceSnapshot (GetPriceSnapshotRequest) returns (GetPriceSnapshotResponse);
 }
@@ -13,6 +15,6 @@ message GetPriceSnapshotRequest {
 }
 
 message GetPriceSnapshotResponse {
-  double unit_price = 1;
+  common.Money unit_price = 1;
   bool available = 2;
 }

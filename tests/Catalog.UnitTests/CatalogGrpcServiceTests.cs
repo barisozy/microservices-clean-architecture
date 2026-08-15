@@ -33,9 +33,9 @@ public class CatalogGrpcServiceTests
         var missing = await service.GetPriceSnapshot(new GetPriceSnapshotRequest { Sku = "missing" }, null!);
 
         found.Available.ShouldBeTrue();
-        found.UnitPrice.ShouldBe(19.95d);
+        found.UnitPrice.MinorUnits.ShouldBe(1995L);
         missing.Available.ShouldBeFalse();
-        missing.UnitPrice.ShouldBe(0d);
+        missing.UnitPrice.MinorUnits.ShouldBe(0L);
     }
 
     [Fact]
@@ -49,6 +49,6 @@ public class CatalogGrpcServiceTests
         var response = await service.GetPriceSnapshot(new GetPriceSnapshotRequest { Sku = "PRECISION" }, null!);
 
         response.Available.ShouldBeTrue();
-        response.UnitPrice.ShouldBe(12.34d);
+        response.UnitPrice.MinorUnits.ShouldBe(1234L);
     }
 }

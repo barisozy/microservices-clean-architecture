@@ -39,16 +39,16 @@ public class CatalogGrpcService : CatalogService.CatalogServiceBase
         var query = new GetProductQuery(request.Sku);
         var validation = await _validator.ValidateAsync(query, cancellationToken);
         if (!validation.IsValid)
-            return new GetPriceSnapshotResponse { UnitPrice = 0.0, Available = false };
+            return new GetPriceSnapshotResponse { UnitPrice = new Money { MinorUnits = 0, Currency = "USD" }, Available = false };
         var product = await _sender.Send(query, cancellationToken);
         if (product == null)
         {
-            return new GetPriceSnapshotResponse { UnitPrice = 0.0, Available = false };
+            return new GetPriceSnapshotResponse { UnitPrice = new Money { MinorUnits = 0, Currency = "USD" }, Available = false };
         }
 
         return new GetPriceSnapshotResponse
         {
-            UnitPrice = (double)product.Price,
+            UnitPrice = new Money { MinorUnits = (long)(product.Price * 100), Currency = "USD" },
             Available = true
         };
         }

@@ -39,10 +39,10 @@ public class CreateOrderCommandHandlerCoverageTests
         var fixture = new HandlerFixture();
         fixture.Catalog.Setup(x => x.GetPriceSnapshotAsync(
                 It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-            .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = 25 }));
+            .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 2500, Currency = "USD" } }));
         fixture.Promotion.Setup(x => x.ApplyCouponAsync(
                 It.IsAny<ApplyCouponRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-            .Returns(Call(new ApplyCouponResponse { IsValid = true, DiscountedTotal = 40 }));
+            .Returns(Call(new ApplyCouponResponse { IsValid = true, DiscountedTotal = new Money { MinorUnits = 4000, Currency = "USD" } }));
 
         await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 2, 10)], couponCode: "SAVE"), CancellationToken.None);
 
@@ -160,7 +160,7 @@ public class CreateOrderCommandHandlerCoverageTests
 
             Catalog.Setup(x => x.GetPriceSnapshotAsync(
                     It.IsAny<GetPriceSnapshotRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-                .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = 50 }));
+                .Returns(Call(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 5000, Currency = "USD" } }));
 
             Handler = new CreateOrderCommandHandler(
                 Context.Object, Publisher.Object, OrderCache.Object, BasketService.Object,

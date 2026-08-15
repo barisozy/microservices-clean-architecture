@@ -4,17 +4,19 @@ option csharp_namespace = "ECommerce.Contracts.Protos";
 
 package promotion;
 
+import "money.proto";
+
 service PromotionService {
   rpc ApplyCoupon (ApplyCouponRequest) returns (ApplyCouponResponse);
 }
 
 message ApplyCouponRequest {
   string code = 1;
-  double order_total = 2;
+  common.Money order_total = 2;
 }
 
 message ApplyCouponResponse {
-  double discounted_total = 1;
+  common.Money discounted_total = 1;
   bool is_valid = 2;
   string message = 3;
 }

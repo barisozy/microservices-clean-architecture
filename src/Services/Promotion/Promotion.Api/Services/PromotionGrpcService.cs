@@ -35,7 +35,7 @@ public class PromotionGrpcService : PromotionService.PromotionServiceBase
         var cancellationToken = context?.CancellationToken ?? CancellationToken.None;
         _logger.LogInformation("Applying coupon code '{Code}' to order total '{Total}'", request.Code, request.OrderTotal);
 
-        var query = new ApplyCouponQuery(request.Code, (decimal)request.OrderTotal);
+        var query = new ApplyCouponQuery(request.Code, request.OrderTotal.MinorUnits / 100m);
         var validation = await _validator.ValidateAsync(query, cancellationToken);
         if (!validation.IsValid)
         {
@@ -49,7 +49,7 @@ public class PromotionGrpcService : PromotionService.PromotionServiceBase
         var result = await _sender.Send(query, cancellationToken);
         return new ApplyCouponResponse
         {
-            DiscountedTotal = (double)result.DiscountedTotal,
+            DiscountedTotal = new Money { MinorUnits = (long)(result.DiscountedTotal * 100), Currency = request.OrderTotal.Currency },
             IsValid = result.IsValid,
             Message = result.Message
         };

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerce.Contracts.Protos";
+
+package common;
+
+message Money {
+  int64 minor_units = 1;
+  string currency = 2;
+}
