@@ -41,10 +41,6 @@ using (var scope = app.Services.CreateScope())
     {
         await db.Database.EnsureCreatedAsync();
     }
-    else
-    {
-        await db.Database.MigrateAsync();
-    }
 }
 
 app.MapDefaultEndpoints();
