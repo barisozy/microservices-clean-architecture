@@ -40,7 +40,7 @@ using (var scope = app.Services.CreateScope())
         db.Database.SetConnectionString(migrationCs);
     }
 
-    if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
+    if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing") || app.Environment.IsEnvironment("IntegrationTesting"))
     {
         await db.Database.EnsureCreatedAsync();
     }
