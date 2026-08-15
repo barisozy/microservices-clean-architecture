@@ -46,7 +46,7 @@ public class CreateOrderCommandHandlerTests
             .ReturnsAsync((Guid?)null);
 
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
-            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = 100 }),
+            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 10000, Currency = "USD" } }),
             Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => new Metadata(), () => { });
         _catalogClientMock.Setup(x => x.GetPriceSnapshotAsync(It.IsAny<GetPriceSnapshotRequest>(), null, null, It.IsAny<CancellationToken>()))
             .Returns(catalogCall);
@@ -65,7 +65,7 @@ public class CreateOrderCommandHandlerTests
             .ThrowsAsync(new Exception("Cache failure"));
 
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
-            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = 100 }),
+            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 10000, Currency = "USD" } }),
             Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => new Metadata(), () => { });
         _catalogClientMock.Setup(x => x.GetPriceSnapshotAsync(It.IsAny<GetPriceSnapshotRequest>(), null, null, It.IsAny<CancellationToken>()))
             .Returns(catalogCall);
@@ -141,7 +141,7 @@ public class CreateOrderCommandHandlerTests
     public async Task Handle_CouponApplicationThrows_ProceedsWithOriginalTotal()
     {
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
-            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = 100 }),
+            Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 10000, Currency = "USD" } }),
             Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => new Metadata(), () => { });
         _catalogClientMock.Setup(x => x.GetPriceSnapshotAsync(It.IsAny<GetPriceSnapshotRequest>(), null, null, It.IsAny<CancellationToken>()))
             .Returns(catalogCall);

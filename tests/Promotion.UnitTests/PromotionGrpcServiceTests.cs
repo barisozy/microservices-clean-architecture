@@ -28,9 +28,9 @@ public class PromotionGrpcServiceTests
             new ApplyCouponQueryValidator(),
             NullLogger<PromotionGrpcService>.Instance);
 
-        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "PCT10", OrderTotal = 100 }, null!)).DiscountedTotal.ShouldBe(90d);
-        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "FIX20", OrderTotal = 15 }, null!)).DiscountedTotal.ShouldBe(0d);
-        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "OLD", OrderTotal = 100 }, null!)).IsValid.ShouldBeFalse();
-        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "NONE", OrderTotal = 100 }, null!)).IsValid.ShouldBeFalse();
+        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "PCT10", OrderTotal = new Money { MinorUnits = 10000, Currency = "USD" } }, null!)).DiscountedTotal.MinorUnits.ShouldBe(9000L);
+        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "FIX20", OrderTotal = new Money { MinorUnits = 1500, Currency = "USD" } }, null!)).DiscountedTotal.MinorUnits.ShouldBe(0L);
+        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "OLD", OrderTotal = new Money { MinorUnits = 10000, Currency = "USD" } }, null!)).IsValid.ShouldBeFalse();
+        (await service.ApplyCoupon(new ApplyCouponRequest { Code = "NONE", OrderTotal = new Money { MinorUnits = 10000, Currency = "USD" } }, null!)).IsValid.ShouldBeFalse();
     }
 }

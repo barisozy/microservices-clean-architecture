@@ -112,12 +112,12 @@ public class CreateOrderCommandHandler(
                     priceSnapshot = await catalogClient.GetPriceSnapshotAsync(
                         new GetPriceSnapshotRequest { Sku = item.Sku }, cancellationToken: cancellationToken);
                 }
-                if (!priceSnapshot.Available || priceSnapshot.UnitPrice <= 0)
+                if (!priceSnapshot.Available || priceSnapshot.UnitPrice == null || priceSnapshot.UnitPrice.MinorUnits <= 0)
                 {
                     throw new OrderDomainException($"SKU '{item.Sku}' is unavailable in Catalog.");
                 }
 
-                unitPrice = (decimal)priceSnapshot.UnitPrice;
+                unitPrice = priceSnapshot.UnitPrice.MinorUnits / 100m;
                 try
                 {
                     await orderCache.SetCatalogPriceAsync(item.Sku, unitPrice.Value, cancellationToken);
@@ -186,15 +186,15 @@ public class CreateOrderCommandHandler(
                         new ApplyCouponRequest
                         {
                             Code = request.CouponCode,
-                            OrderTotal = (double)totalAmount
+                            OrderTotal = new Money { MinorUnits = (long)(totalAmount * 100), Currency = "USD" }
                         }, cancellationToken: cancellationToken);
                 }
 
-                if (couponResult.IsValid && couponResult.DiscountedTotal < (double)totalAmount)
+                if (couponResult.IsValid && couponResult.DiscountedTotal != null && couponResult.DiscountedTotal.MinorUnits < (long)(totalAmount * 100))
                 {
                     logger.LogInformation("Applied coupon {Code}. Original: {Total}, Discounted: {Discounted}",
-                        request.CouponCode, totalAmount, couponResult.DiscountedTotal);
-                    totalAmount = (decimal)couponResult.DiscountedTotal;
+                        request.CouponCode, totalAmount, couponResult.DiscountedTotal.MinorUnits / 100m);
+                    totalAmount = couponResult.DiscountedTotal.MinorUnits / 100m;
                 }
             }
             catch (Exception ex)
