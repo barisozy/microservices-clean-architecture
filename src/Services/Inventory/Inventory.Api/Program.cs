@@ -34,7 +34,7 @@ using (var scope = app.Services.CreateScope())
     {
         await db.Database.EnsureCreatedAsync();
     }
-    else
+    else if (app.Environment.IsEnvironment("IntegrationTesting"))
     {
         await db.Database.MigrateAsync();
     }
