@@ -138,7 +138,7 @@ public class CreateOrderCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_CouponApplicationThrows_ProceedsWithOriginalTotal()
+    public async Task Handle_CouponApplicationThrows_ThrowsOrderDomainException()
     {
         var catalogCall = new AsyncUnaryCall<GetPriceSnapshotResponse>(
             Task.FromResult(new GetPriceSnapshotResponse { Available = true, UnitPrice = new Money { MinorUnits = 10000, Currency = "USD" } }),
@@ -153,8 +153,7 @@ public class CreateOrderCommandHandlerTests
             .Returns(promoCall);
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), "key1", new List<OrderItemDto> { new("SKU1", 1, 100) }, "DISCOUNT10");
-        var result = await CreateHandler().Handle(command, CancellationToken.None);
-
-        result.ShouldNotBe(Guid.Empty);
+        
+        await Should.ThrowAsync<OrderDomainException>(() => CreateHandler().Handle(command, CancellationToken.None));
     }
 }

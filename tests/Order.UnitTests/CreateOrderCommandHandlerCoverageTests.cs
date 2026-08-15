@@ -119,19 +119,14 @@ public class CreateOrderCommandHandlerCoverageTests
     }
 
     [Fact]
-    public async Task Handle_ContinuesWithOriginalTotal_WhenPromotionThrows()
+    public async Task Handle_ThrowsOrderDomainException_WhenPromotionThrows()
     {
         var fixture = new HandlerFixture();
         fixture.Promotion.Setup(x => x.ApplyCouponAsync(
                 It.IsAny<ApplyCouponRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .Throws(new RpcException(new Status(StatusCode.Internal, "promotion service error")));
 
-        await fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 1, 50)], couponCode: "BROKEN"), CancellationToken.None);
-
-        fixture.Publisher.Verify(x => x.Publish<OrderCheckoutStarted>(
-            It.Is<OrderCheckoutStarted>(e => e.TotalAmount == 50m),
-            It.IsAny<IPipe<PublishContext<OrderCheckoutStarted>>>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        await Should.ThrowAsync<OrderDomainException>(() => fixture.Handler.Handle(fixture.Command(items: [new("SKU-1", 1, 50)], couponCode: "BROKEN"), CancellationToken.None));
     }
 
     private static AsyncUnaryCall<T> Call<T>(T response) where T : class => new(
