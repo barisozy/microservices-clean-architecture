@@ -33,6 +33,13 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PromotionDbContext>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var migrationCs = config.GetConnectionString("PromotionDb_Migration");
+    if (!string.IsNullOrWhiteSpace(migrationCs))
+    {
+        db.Database.SetConnectionString(migrationCs);
+    }
+
     if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
     {
         await db.Database.EnsureCreatedAsync();
