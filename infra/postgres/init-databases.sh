@@ -1,24 +1,52 @@
 #!/bin/sh
 set -eu
 
-: "${AUDIT_APP_PASSWORD:?AUDIT_APP_PASSWORD is required}"
+: "${DB_RUNTIME_PASSWORD:?DB_RUNTIME_PASSWORD is required}"
+: "${DB_MIGRATION_PASSWORD:?DB_MIGRATION_PASSWORD is required}"
 
-psql -v ON_ERROR_STOP=1 \
-  --username "$POSTGRES_USER" \
-  --dbname postgres \
-  --set=audit_password="$AUDIT_APP_PASSWORD" <<-'EOSQL'
-SELECT format('CREATE ROLE app_role LOGIN PASSWORD %L', :'audit_password')
-WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'app_role') \gexec
+create_db_and_roles() {
+  local db=$1
+  local prefix=$2
+  
+  local runtime_role="${prefix}_runtime"
+  local migration_role="${prefix}_migration"
 
-SELECT 'CREATE DATABASE "Order_db"' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'Order_db') \gexec
-SELECT 'CREATE DATABASE inventory_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'inventory_db') \gexec
-SELECT 'CREATE DATABASE "Payment_db"' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'Payment_db') \gexec
-SELECT 'CREATE DATABASE fulfillment_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'fulfillment_db') \gexec
-SELECT 'CREATE DATABASE iam_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'iam_db') \gexec
-SELECT 'CREATE DATABASE catalog_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'catalog_db') \gexec
-SELECT 'CREATE DATABASE customer_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'customer_db') \gexec
-SELECT 'CREATE DATABASE search_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'search_db') \gexec
-SELECT 'CREATE DATABASE notification_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'notification_db') \gexec
-SELECT 'CREATE DATABASE promotion_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'promotion_db') \gexec
-SELECT 'CREATE DATABASE "Audit_db" OWNER app_role' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'Audit_db') \gexec
+  psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres <<-EOSQL
+    SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', '$runtime_role', '$DB_RUNTIME_PASSWORD')
+    WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$runtime_role') \gexec
+
+    SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', '$migration_role', '$DB_MIGRATION_PASSWORD')
+    WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$migration_role') \gexec
+
+    SELECT 'CREATE DATABASE "$db" OWNER "$migration_role"' 
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$db') \gexec
+EOSQL
+
+  psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$db" <<-EOSQL
+    CREATE SCHEMA IF NOT EXISTS "$prefix" AUTHORIZATION "$migration_role";
+    GRANT USAGE ON SCHEMA "$prefix" TO "$runtime_role";
+    
+    ALTER DEFAULT PRIVILEGES FOR ROLE "$migration_role" IN SCHEMA "$prefix" 
+      GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "$runtime_role";
+    ALTER DEFAULT PRIVILEGES FOR ROLE "$migration_role" IN SCHEMA "$prefix" 
+      GRANT USAGE, SELECT ON SEQUENCES TO "$runtime_role";
+EOSQL
+}
+
+create_db_and_roles "Order_db" "order"
+create_db_and_roles "inventory_db" "inventory"
+create_db_and_roles "Payment_db" "payment"
+create_db_and_roles "fulfillment_db" "fulfillment"
+create_db_and_roles "iam_db" "iam"
+create_db_and_roles "catalog_db" "catalog"
+create_db_and_roles "customer_db" "customer"
+create_db_and_roles "search_db" "search"
+create_db_and_roles "notification_db" "notification"
+create_db_and_roles "promotion_db" "promotion"
+create_db_and_roles "Audit_db" "audit"
+
+# Special immutable role configuration for Audit as per AGENTS.md
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "Audit_db" <<-EOSQL
+    ALTER DEFAULT PRIVILEGES FOR ROLE "audit_migration" IN SCHEMA "audit" 
+      REVOKE UPDATE, DELETE ON TABLES FROM "audit_runtime";
 EOSQL

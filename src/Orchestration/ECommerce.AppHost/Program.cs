@@ -12,11 +12,13 @@ var isTestMode = string.Equals(builder.Environment.EnvironmentName, "Testing", S
     || string.Equals(builder.Environment.EnvironmentName, "IntegrationTesting", StringComparison.OrdinalIgnoreCase);
 
 // Infrastructure Containers
-var auditAppPassword = builder.AddParameter("audit-app-password", secret: true);
+var dbRuntimePassword = builder.AddParameter("db-runtime-password", secret: true);
+var dbMigrationPassword = builder.AddParameter("db-migration-password", secret: true);
 var postgres = builder.AddPostgres("postgres")
     .WithImageTag("18.4")
     .WithDataVolume()
-    .WithEnvironment("AUDIT_APP_PASSWORD", auditAppPassword)
+    .WithEnvironment("DB_RUNTIME_PASSWORD", dbRuntimePassword)
+    .WithEnvironment("DB_MIGRATION_PASSWORD", dbMigrationPassword)
     .WithBindMount(
         Path.GetFullPath(Path.Combine("..", "..", "..", "infra", "postgres", "init-databases.sh")),
         "/docker-entrypoint-initdb.d/001-databases.sh");
@@ -67,7 +69,9 @@ var OrderApi = builder.AddProject<Projects.Order_Api>("Order-api")
     .WithReference(rabbitmq)
     .WithReference(valkey)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__OrderDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Order_db;Username=order_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__OrderDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Order_db;Username=order_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     OrderApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
@@ -80,7 +84,9 @@ var inventoryApi = builder.AddProject<Projects.Inventory_Api>("inventory-api")
     .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
     .WithEnvironment("InventoryReservation__LeaseDuration", "00:02:00")
     .WithEnvironment("InventoryReservation__ReaperInterval", "00:00:15")
-    .WithEnvironment("InventoryReservation__ReaperBatchSize", "100");
+    .WithEnvironment("InventoryReservation__ReaperBatchSize", "100")
+    .WithEnvironment("ConnectionStrings__InventoryDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=inventory_db;Username=inventory_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__InventoryDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=inventory_db;Username=inventory_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     inventoryApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
@@ -90,7 +96,9 @@ var PaymentApi = builder.AddProject<Projects.Payment_Api>("Payment-api")
     .WithReference(rabbitmq)
     .WithReference(valkey)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__PaymentDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Payment_db;Username=payment_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__PaymentDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Payment_db;Username=payment_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     PaymentApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
@@ -100,7 +108,9 @@ var fulfillmentApi = builder.AddProject<Projects.Fulfillment_Api>("fulfillment-a
     .WithReference(rabbitmq)
     .WithReference(valkey)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__FulfillmentDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=fulfillment_db;Username=fulfillment_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__FulfillmentDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=fulfillment_db;Username=fulfillment_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     fulfillmentApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey);
@@ -114,7 +124,9 @@ var iamApi = builder.AddProject<Projects.IAM_Api>("iam-api")
     .WithEnvironment("Keycloak__BaseUrl", "http://keycloak:8080")
     .WithEnvironment("Keycloak__Realm", "ecommerce")
     .WithEnvironment("Keycloak__AdminClientId", "ecommerce-admin")
-    .WithEnvironment("Keycloak__AdminClientSecret", keycloakAdminClientSecret);
+    .WithEnvironment("Keycloak__AdminClientSecret", keycloakAdminClientSecret)
+    .WithEnvironment("ConnectionStrings__IamDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=iam_db;Username=iam_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__IamDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=iam_db;Username=iam_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     iamApi.WaitFor(postgres).WaitFor(rabbitmq).WaitFor(valkey).WaitFor(keycloak);
@@ -123,7 +135,9 @@ var catalogApi = builder.AddProject<Projects.Catalog_Api>("catalog-api")
     .WithReference(catalogDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__CatalogDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=catalog_db;Username=catalog_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__CatalogDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=catalog_db;Username=catalog_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     catalogApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -132,7 +146,9 @@ var customerApi = builder.AddProject<Projects.Customer_Api>("customer-api")
     .WithReference(customerDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__CustomerDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=customer_db;Username=customer_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__CustomerDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=customer_db;Username=customer_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     customerApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -141,7 +157,9 @@ var searchApi = builder.AddProject<Projects.Search_Api>("search-api")
     .WithReference(searchDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__SearchDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=search_db;Username=search_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__SearchDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=search_db;Username=search_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     searchApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -150,7 +168,9 @@ var notificationApi = builder.AddProject<Projects.Notification_Api>("notificatio
     .WithReference(notificationDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__NotificationDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=notification_db;Username=notification_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__NotificationDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=notification_db;Username=notification_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     notificationApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -159,7 +179,9 @@ var promotionApi = builder.AddProject<Projects.Promotion_Api>("promotion-api")
     .WithReference(promotionDb)
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
-    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer);
+    .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
+    .WithEnvironment("ConnectionStrings__PromotionDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=promotion_db;Username=promotion_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__PromotionDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=promotion_db;Username=promotion_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     promotionApi.WaitFor(postgres).WaitFor(rabbitmq);
@@ -169,10 +191,8 @@ var AuditApi = builder.AddProject<Projects.Audit_Api>("Audit-api")
     .WithReference(rabbitmq)
     .WithEnvironment("Jwt__Authority", keycloakAuthority)
     .WithEnvironment("Jwt__ValidateIssuer", validateIssuer)
-    .WithEnvironment(
-        "ConnectionStrings__AuditDb",
-        Aspire.Hosting.ApplicationModel.ReferenceExpression.Create(
-            $"Host=postgres;Port=5432;Database=Audit_db;Username=app_role;Password={auditAppPassword}"));
+    .WithEnvironment("ConnectionStrings__AuditDb", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Audit_db;Username=audit_runtime;Password={dbRuntimePassword}"))
+    .WithEnvironment("ConnectionStrings__AuditDb_Migration", Aspire.Hosting.ApplicationModel.ReferenceExpression.Create($"Host=postgres;Port=5432;Database=Audit_db;Username=audit_migration;Password={dbMigrationPassword}"));
 
 if (!isTestMode)
     AuditApi.WaitFor(postgres).WaitFor(rabbitmq);
