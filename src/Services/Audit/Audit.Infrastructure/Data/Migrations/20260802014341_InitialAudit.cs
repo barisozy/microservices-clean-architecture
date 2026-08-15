@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -178,8 +178,8 @@ namespace Audit.Infrastructure.Data.Migrations
                 """
                 DO $$
                 BEGIN
-                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_role') THEN
-                        REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM app_role;
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'audit_runtime') THEN
+                        REVOKE UPDATE, DELETE ON TABLE audit."AuditEntries" FROM audit_runtime;
                     END IF;
                 END $$;
                 """);
