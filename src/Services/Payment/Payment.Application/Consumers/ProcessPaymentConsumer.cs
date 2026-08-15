@@ -6,10 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Payment.Application.Consumers;
 
-/// <summary>
-/// Sprint 1 plan: Payment.Api consumes OrderCreated directly (after stock is reserved sync via gRPC by Order.Api).
-/// Async path: Order.Api Outbox → OrderCreated → Payment.Api (mock charge) → PaymentCompleted → Fulfillment.Api
-/// </summary>
 public class ProcessPaymentConsumer(ISender sender, ILogger<ProcessPaymentConsumer> logger) : IConsumer<ProcessPayment>
 {
     public async Task Consume(ConsumeContext<ProcessPayment> context)
