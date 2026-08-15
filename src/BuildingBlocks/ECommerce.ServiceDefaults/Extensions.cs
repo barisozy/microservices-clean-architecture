@@ -91,20 +91,28 @@ public static class Extensions
         var authority = builder.Configuration["Jwt:Authority"]
             ?? builder.Configuration["Keycloak:Authority"]
             ?? "http://localhost:8080/realms/ecommerce";
-        var validateIssuer = builder.Configuration.GetValue("Jwt:ValidateIssuer", true);
+            
+        var isProduction = builder.Environment.IsProduction();
+        
+        // P1 Security: Enforce strict JWT validations in production environment
+        var validateIssuer = isProduction || builder.Configuration.GetValue("Jwt:ValidateIssuer", true);
+        var validateAudience = isProduction || builder.Configuration.GetValue("Jwt:ValidateAudience", false);
+        var requireHttpsMetadata = isProduction || builder.Configuration.GetValue("Jwt:RequireHttpsMetadata", false);
 
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.Authority = authority;
-                options.RequireHttpsMetadata = builder.Configuration.GetValue("Jwt:RequireHttpsMetadata", false);
+                options.RequireHttpsMetadata = requireHttpsMetadata;
                 options.MapInboundClaims = false;
+                
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = validateIssuer,
                     ValidIssuer = validateIssuer ? builder.Configuration["Jwt:Issuer"] ?? authority : null,
-                    ValidateAudience = false,
+                    ValidateAudience = validateAudience,
+                    ValidAudience = validateAudience ? builder.Configuration["Jwt:Audience"] : null,
                     NameClaimType = "sub",
                     RoleClaimType = ClaimTypes.Role
                 };
